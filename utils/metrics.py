@@ -2,10 +2,12 @@ import os
 import json
 import numpy as np
 import pandas as pd
+from datetime import datetime
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 # Path to the results directory relative to project root
 RESULTS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "results")
+HISTORY_FILE = os.path.join(RESULTS_DIR, "training_history.json")
 
 
 def ensure_results_dir_exists():
@@ -52,7 +54,6 @@ def calculate_metrics(y_true, y_pred):
     mae = float(mean_absolute_error(y_true, y_pred))
 
     # 3. Mean Absolute Percentage Error (MAPE)
-    # Avoid division by zero by filtering out true values near zero
     non_zero_mask = y_true != 0
     if np.any(non_zero_mask):
         mape = float(
@@ -95,6 +96,82 @@ def save_metrics_to_json(model_name, stock_name, metrics):
             json.dump(payload, f, indent=4)
     except Exception as e:
         print(f"Failed to save metrics JSON: {e}")
+
+
+def save_training_run_to_history(stock_name, model_name, forecast_df, metrics, interpretability):
+    """
+    Persists a complete training run snapshot (including full forecast DataFrame points,
+    metrics, and interpretability insights) to results/training_history.json.
+
+    Parameters:
+        stock_name (str): Asset name (e.g. 'AAPL.csv').
+        model_name (str): Model name ('Prophet', 'ARIMA', 'LSTM').
+        forecast_df (pd.DataFrame): Unified forecast DataFrame.
+        metrics (dict): RMSE, MAE, MAPE dict.
+        interpretability (dict): AI Forecast Interpretability dict.
+    """
+    ensure_results_dir_exists()
+    
+    timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    clean_stock = stock_name.replace(".csv", "")
+    run_id = f"{clean_stock}_{model_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
+    # Convert DataFrame to JSON serializable list of records
+    df_copy = forecast_df.copy()
+    if "Date" in df_copy.columns:
+        df_copy["Date"] = df_copy["Date"].astype(str)
+
+    run_record = {
+        "run_id": run_id,
+        "label": f"{clean_stock} — {model_name} ({timestamp_str})",
+        "stock": clean_stock,
+        "model": model_name,
+        "timestamp": timestamp_str,
+        "metrics": metrics,
+        "interpretability": interpretability,
+        "forecast_data": df_copy.to_dict(orient="records")
+    }
+
+    # Load existing history or start fresh
+    history = []
+    if os.path.exists(HISTORY_FILE):
+        try:
+            with open(HISTORY_FILE, "r") as f:
+                history = json.load(f)
+        except Exception:
+            history = []
+
+    # Prepend newest run to history
+    history.insert(0, run_record)
+
+    # Limit history to latest 50 training runs to prevent excessive file size
+    history = history[:50]
+
+    try:
+        with open(HISTORY_FILE, "w") as f:
+            json.dump(history, f, indent=2)
+    except Exception as e:
+        print(f"Failed to save training run to history: {e}")
+
+
+def load_all_training_history():
+    """
+    Loads all saved training runs from results/training_history.json.
+
+    Returns:
+        list of dict: List of stored training run records (newest first).
+    """
+    ensure_results_dir_exists()
+    if not os.path.exists(HISTORY_FILE):
+        return []
+
+    try:
+        with open(HISTORY_FILE, "r") as f:
+            history = json.load(f)
+            return history
+    except Exception as e:
+        print(f"Error loading training history: {e}")
+        return []
 
 
 def load_saved_results():

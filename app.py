@@ -19,6 +19,10 @@ from utils.forecasting import (
     generate_forecast_interpretability,
     generate_combined_interpretability
 )
+from utils.metrics import (
+    save_training_run_to_history,
+    load_all_training_history
+)
 from utils.news import fetch_stock_news
 
 # -----------------------------------------------------------------------------
@@ -223,7 +227,7 @@ with st.sidebar:
                 st.rerun()
 
     st.markdown("---")
-    st.info("💡 **Tip**: Train Prophet, ARIMA, and LSTM to unlock full Model Comparison insights!")
+    st.info("💡 **Tip**: Check out the **📜 Training History** tab to view past model training logs!")
 
 # -----------------------------------------------------------------------------
 # 4. MAIN DASHBOARD CONTENT AREA
@@ -356,13 +360,14 @@ with st.container(border=True):
 st.markdown("<br>", unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# FEATURE 3 & 4: TABBED NAVIGATION DASHBOARD & COLOR CODING
+# FEATURE 3 & 4 & 5: TABBED NAVIGATION DASHBOARD (WITH TRAINING HISTORY)
 # -----------------------------------------------------------------------------
-tab_hist, tab_forecast, tab_news, tab_compare = st.tabs([
+tab_hist, tab_forecast, tab_news, tab_compare, tab_archive = st.tabs([
     "📊 Historical Data", 
     "🔮 Forecast Engine", 
     "📰 Market News", 
-    "⚖️ Model Comparison"
+    "⚖️ Model Comparison",
+    "📜 Training History"
 ])
 
 # =============================================================================
@@ -450,6 +455,22 @@ with tab_forecast:
                     st.session_state["all_forecasts"][model_choice] = forecast_payload
                     st.session_state["current_forecast"] = forecast_payload
                     st.session_state["model_history"][model_choice] = metrics_dict
+                    
+                    # Generate Interpretability metrics & save to persistent Training History archive
+                    interp_snapshot = generate_forecast_interpretability(
+                        forecast_df=forecast_df,
+                        current_price=summary['current_price'],
+                        model_name=model_choice
+                    )
+                    
+                    save_training_run_to_history(
+                        stock_name=selected_stock,
+                        model_name=model_choice,
+                        forecast_df=forecast_df,
+                        metrics=metrics_dict,
+                        interpretability=interp_snapshot
+                    )
+                    
                     st.success(f"Training Complete for {model_choice}!")
                     st.rerun()
                     
@@ -760,3 +781,161 @@ with tab_compare:
 
         else:
             st.info("No models trained yet in this session. Go to the 'Forecast Engine' tab and click 'Train & Forecast' to populate model benchmarks!")
+
+# =============================================================================
+# TAB 5: TRAINING HISTORY & ARCHIVE INSPECTOR
+# =============================================================================
+with tab_archive:
+    with st.container(border=True):
+        st.markdown('<div class="vesper-title">📜 Saved Training History & Audit Log</div>', unsafe_allow_html=True)
+        
+        history_records = load_all_training_history()
+        
+        if history_records:
+            label_options = [rec["label"] for rec in history_records]
+            selected_run_label = st.selectbox(
+                "Select Past Training Run to Inspect:",
+                options=label_options,
+                index=0,
+                help="Browse previous model training sessions archived on disk."
+            )
+            
+            # Find selected record
+            selected_record = next((r for r in history_records if r["label"] == selected_run_label), None)
+            
+            if selected_record:
+                st.markdown("<hr style='border-color: #232936;'>", unsafe_allow_html=True)
+                
+                # Header Badge
+                r_stock = selected_record.get("stock", "Asset")
+                r_model = selected_record.get("model", "Model")
+                r_time = selected_record.get("timestamp", "Date")
+                
+                st.subheader(f"📌 Training Run: {r_stock} — {r_model}")
+                st.caption(f"Archived Timestamp: **{r_time}**")
+                
+                # Metrics Row
+                r_metrics = selected_record.get("metrics", {})
+                rm_c1, rm_c2, rm_c3 = st.columns(3)
+                rm_c1.metric("RMSE ($)", f"{r_metrics.get('RMSE', 0):.2f}")
+                rm_c2.metric("MAE ($)", f"{r_metrics.get('MAE', 0):.2f}")
+                rm_c3.metric("MAPE (%)", f"{r_metrics.get('MAPE', 0):.2f}%")
+                
+                # Reconstruct Forecast Chart
+                raw_fdata = selected_record.get("forecast_data", [])
+                if raw_fdata:
+                    f_df = pd.DataFrame(raw_fdata)
+                    fig_hist_run = go.Figure()
+                    
+                    hist_mask = f_df["type"] == "Historical"
+                    fig_hist_run.add_trace(go.Scatter(
+                        x=f_df.loc[hist_mask, "Date"],
+                        y=f_df.loc[hist_mask, "Price"],
+                        mode="lines",
+                        name="Historical Price",
+                        line=dict(color="#94a3b8", width=2)
+                    ))
+                    
+                    pred_mask = f_df["type"] == "Forecast"
+                    color_map = {"Prophet": "#38bdf8", "ARIMA": "#f97316", "LSTM": "#10b981"}
+                    line_color = color_map.get(r_model, "#10b981")
+                    
+                    fig_hist_run.add_trace(go.Scatter(
+                        x=f_df.loc[pred_mask, "Date"],
+                        y=f_df.loc[pred_mask, "Price"],
+                        mode="lines",
+                        name=f"{r_model} Forecast",
+                        line=dict(color=line_color, width=3, dash="dash")
+                    ))
+                    
+                    if "Upper" in f_df.columns and "Lower" in f_df.columns:
+                        fig_hist_run.add_trace(go.Scatter(
+                            x=f_df.loc[pred_mask, "Date"],
+                            y=f_df.loc[pred_mask, "Upper"],
+                            mode="lines",
+                            name="Upper Bound",
+                            line=dict(color="rgba(56, 189, 248, 0.2)"),
+                            showlegend=False
+                        ))
+                        fig_hist_run.add_trace(go.Scatter(
+                            x=f_df.loc[pred_mask, "Date"],
+                            y=f_df.loc[pred_mask, "Lower"],
+                            mode="lines",
+                            name="Lower Bound",
+                            fill="tonexty",
+                            fillcolor="rgba(56, 189, 248, 0.1)",
+                            line=dict(color="rgba(56, 189, 248, 0.2)"),
+                            showlegend=False
+                        ))
+                        
+                    fig_hist_run.update_layout(
+                        template="plotly_dark",
+                        paper_bgcolor="rgba(0,0,0,0)",
+                        plot_bgcolor="rgba(0,0,0,0)",
+                        margin=dict(l=10, r=10, t=20, b=20),
+                        xaxis=dict(showgrid=True, gridcolor="#1e2430", title="Date"),
+                        yaxis=dict(showgrid=True, gridcolor="#1e2430", title="Price ($)"),
+                        height=360
+                    )
+                    st.plotly_chart(fig_hist_run, use_container_width=True)
+                    
+                # Reconstruct Interpretability Grid
+                r_interp = selected_record.get("interpretability", {})
+                if r_interp:
+                    st.write("**AI Interpretability & Sentiment Commentary for this Run:**")
+                    hi1, hi2, hi3, hi4 = st.columns(4)
+                    
+                    with hi1:
+                        sentiment_val = r_interp.get("sentiment", "NEUTRAL")
+                        badge_col = r_interp.get("badge_color", "#f59e0b")
+                        icon_symbol = r_interp.get("icon", "↔️")
+                        trend_d = r_interp.get("trend_desc", "predicts trend")
+                        change_cls = "val-positive" if sentiment_val == "BULLISH" else ("val-negative" if sentiment_val == "BEARISH" else "val-neutral")
+                        
+                        st.markdown(f"""
+                            <div class="summary-box" style="border-left-color: {badge_col};">
+                                <div class="summary-label">Directional Sentiment</div>
+                                <div class="summary-val {change_cls}">{icon_symbol} {sentiment_val}</div>
+                                <div class="summary-sub">{r_model} predicted {trend_d}</div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        
+                    with hi2:
+                        t_price = r_interp.get("target_price", 0.0)
+                        d_pct = r_interp.get("delta_pct", 0.0)
+                        t_date = r_interp.get("target_date", "N/A")
+                        change_cls = "val-positive" if d_pct >= 0 else "val-negative"
+                        
+                        st.markdown(f"""
+                            <div class="summary-box">
+                                <div class="summary-label">Target Projection</div>
+                                <div class="summary-val">${t_price:.2f}</div>
+                                <div class="summary-sub {change_cls}">{d_pct:+.2f}% return by {t_date}</div>
+                            </div>
+                        """, unsafe_allow_html=True)
+
+                    with hi3:
+                        l_bound = r_interp.get("lower_bound", 0.0)
+                        u_bound = r_interp.get("upper_bound", 0.0)
+                        
+                        st.markdown(f"""
+                            <div class="summary-box">
+                                <div class="summary-label">Confidence Channel</div>
+                                <div class="summary-val">${l_bound:.2f} — ${u_bound:.2f}</div>
+                                <div class="summary-sub">Support to Resistance band</div>
+                            </div>
+                        """, unsafe_allow_html=True)
+
+                    with hi4:
+                        c_spread = r_interp.get("channel_spread", 0.0)
+                        r_text = r_interp.get("risk_text", "volatility")
+                        
+                        st.markdown(f"""
+                            <div class="summary-box">
+                                <div class="summary-label">Channel Spread</div>
+                                <div class="summary-val">${c_spread:.2f}</div>
+                                <div class="summary-sub">Reflecting {r_text}</div>
+                            </div>
+                        """, unsafe_allow_html=True)
+        else:
+            st.info("No past training runs archived yet. Go to the 'Forecast Engine' tab and train a model to log history!")
