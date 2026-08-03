@@ -14,7 +14,10 @@ from utils.data_loader import (
     filter_data_by_range,
     get_stock_summary
 )
-from utils.forecasting import run_forecast
+from utils.forecasting import (
+    run_forecast,
+    generate_forecast_interpretability
+)
 from utils.news import fetch_stock_news
 
 # -----------------------------------------------------------------------------
@@ -83,6 +86,17 @@ st.markdown("""
         color: #38bdf8;
         font-size: 1.2rem;
         font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    /* Interpretability Sentiment Badge */
+    .sentiment-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        letter-spacing: 0.05em;
         margin-bottom: 12px;
     }
 
@@ -389,7 +403,7 @@ with tab_hist:
         st.plotly_chart(fig_hist, use_container_width=True)
 
 # =============================================================================
-# TAB 2: FORECAST ENGINE
+# TAB 2: FORECAST ENGINE & INTERPRETABILITY
 # =============================================================================
 with tab_forecast:
     col_ctrl, col_chart = st.columns([1, 2.5])
@@ -540,11 +554,38 @@ with tab_forecast:
                     margin=dict(l=10, r=10, t=20, b=20),
                     xaxis=dict(showgrid=True, gridcolor="#1e2430", title="Date"),
                     yaxis=dict(showgrid=True, gridcolor="#1e2430", title="Price ($)"),
-                    height=400
+                    height=380
                 )
                 st.plotly_chart(fig_fc, use_container_width=True)
             else:
                 st.info("👈 Select a model and click 'Train & Forecast' to generate predictions!")
+
+    # --- FORECAST INTERPRETABILITY & MODEL COMMENTARY CARD ---
+    if st.session_state["all_forecasts"]:
+        st.markdown("<br>", unsafe_allow_html=True)
+        with st.container(border=True):
+            st.markdown('<div class="vesper-title">🧠 AI Forecast Interpretability & Model Commentary</div>', unsafe_allow_html=True)
+            
+            # Determine target model for interpretability
+            target_model_name = selected_view if (selected_view != "Combined Comparison" and selected_view in st.session_state["all_forecasts"]) else list(st.session_state["all_forecasts"].keys())[0]
+            target_fc_df = st.session_state["all_forecasts"][target_model_name]["df"]
+            
+            interp = generate_forecast_interpretability(
+                forecast_df=target_fc_df,
+                current_price=summary['current_price'],
+                model_name=target_model_name
+            )
+            
+            # Render Color-Coded Sentiment Badge
+            st.markdown(f"""
+                <div class="sentiment-badge" style="background-color: {interp['badge_color']}20; color: {interp['badge_color']}; border: 1px solid {interp['badge_color']};">
+                    {interp['icon']} {interp['sentiment']} FORECAST ({target_model_name} Model)
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # Render Insights Bullet Points
+            for point in interp["insights"]:
+                st.markdown(f"- {point}")
 
 # =============================================================================
 # TAB 3: MARKET NEWS & SENTIMENT
