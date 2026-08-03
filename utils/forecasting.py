@@ -101,23 +101,28 @@ def generate_forecast_interpretability(forecast_df, current_price, model_name="M
         badge_color = "#10b981"  # Emerald Green
         icon = "🚀"
         trend_desc = "upward momentum"
+        change_class = "val-positive"
     elif delta_pct <= -2.0:
         sentiment = "BEARISH"
         badge_color = "#ef4444"  # Red
         icon = "🔻"
         trend_desc = "downward pressure"
+        change_class = "val-negative"
     else:
         sentiment = "SIDEWAYS / NEUTRAL"
         badge_color = "#f59e0b"  # Amber Yellow
         icon = "↔️"
         trend_desc = "consolidating sideways"
+        change_class = "val-neutral"
 
-    # Construct Interpretability Insight Points
+    risk_text = "low risk stability" if channel_spread < current_price * 0.15 else "moderate to high market volatility"
+
+    # Construct Clean HTML Interpretability Insight Points
     insights = [
-        f"**Directional Sentiment**: The **{model_name}** model forecasts **{sentiment}** {trend_desc} over the next 90 days.",
-        f"**Target Projection**: Projected price is **${target_price:.2f}** by **{target_date}** (an expected return of **{delta_pct:+.2f}%** from current ${current_price:.2f}).",
-        f"**95% Confidence Channel**: Future prices are expected to trade between a lower support of **${lower_bound:.2f}** and upper resistance of **${upper_bound:.2f}**.",
-        f"**Volatility Band Spread**: Channel width is **${channel_spread:.2f}**, reflecting {'low risk stability' if channel_spread < current_price * 0.15 else 'moderate to high market volatility'}."
+        f"<strong>Directional Sentiment:</strong> The <strong>{model_name}</strong> model forecasts <strong>{sentiment}</strong> {trend_desc} over the next 90 days.",
+        f"<strong>Target Projection:</strong> Projected price is <strong>${target_price:.2f}</strong> by <strong>{target_date}</strong> (an expected return of <span class='{change_class}'><strong>{delta_pct:+.2f}%</strong></span> from current <strong>${current_price:.2f}</strong>).",
+        f"<strong>95% Confidence Channel:</strong> Expected trading range between support of <strong>${lower_bound:.2f}</strong> and resistance of <strong>${upper_bound:.2f}</strong>.",
+        f"<strong>Volatility Band Spread:</strong> Channel width is <strong>${channel_spread:.2f}</strong>, reflecting <strong>{risk_text}</strong>."
     ]
 
     return {
@@ -188,14 +193,17 @@ def generate_combined_interpretability(all_forecasts, current_price, model_histo
         consensus_sentiment = "BULLISH CONSENSUS"
         badge_color = "#10b981"
         icon = "🚀"
+        change_class = "val-positive"
     elif bearish_cnt > total_models / 2:
         consensus_sentiment = "BEARISH CONSENSUS"
         badge_color = "#ef4444"
         icon = "🔻"
+        change_class = "val-negative"
     else:
         consensus_sentiment = "MIXED / NEUTRAL CONSENSUS"
         badge_color = "#f59e0b"
         icon = "↔️"
+        change_class = "val-neutral"
 
     # Find Best Model (lowest MAPE)
     best_model_name = None
@@ -210,10 +218,10 @@ def generate_combined_interpretability(all_forecasts, current_price, model_histo
     max_target = max(targets) if targets else current_price
 
     insights = [
-        f"**Multi-Model Agreement**: **{bullish_cnt} of {total_models} models** predict an **upward Bullish trajectory**, establishing a strong market consensus.",
-        f"**Ensemble Average Target**: Combined average 90-day target is **${avg_target:.2f}** (an expected average return of **{avg_delta_pct:+.2f}%**).",
-        f"**Best Model Recommendation**: The **{best_model_name if best_model_name else 'LSTM'}** model is recommended as primary forecast due to lowest historical error (**MAPE: {best_mape:.2f}%**).",
-        f"**Projection Range Spread**: Predictions across models range from a conservative **${min_target:.2f}** to an optimistic **${max_target:.2f}**."
+        f"<strong>Multi-Model Agreement:</strong> <strong>{bullish_cnt} of {total_models} models</strong> predict an upward <strong>Bullish trajectory</strong>, establishing market consensus.",
+        f"<strong>Ensemble Average Target:</strong> Combined average 90-day target is <strong>${avg_target:.2f}</strong> (an expected return of <span class='{change_class}'><strong>{avg_delta_pct:+.2f}%</strong></span>).",
+        f"<strong>Best Model Recommendation:</strong> The <strong>{best_model_name if best_model_name else 'LSTM'}</strong> model is recommended as primary forecast due to lowest error (<strong>MAPE: {best_mape:.2f}%</strong>).",
+        f"<strong>Projection Range Spread:</strong> Predictions across models range from a conservative <strong>${min_target:.2f}</strong> to an optimistic <strong>${max_target:.2f}</strong>."
     ]
 
     return {

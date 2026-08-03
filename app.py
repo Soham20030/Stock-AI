@@ -101,6 +101,14 @@ st.markdown("""
         margin-bottom: 12px;
     }
 
+    /* Interpretability Insight bullet item */
+    .interp-item {
+        margin-bottom: 8px;
+        line-height: 1.6;
+        font-size: 0.95rem;
+        color: #cbd5e1;
+    }
+
     /* Summary info grid items */
     .summary-box {
         background: #1e2430;
@@ -122,9 +130,9 @@ st.markdown("""
     }
 
     /* Color coding utility classes */
-    .val-positive { color: #10b981 !important; }
-    .val-negative { color: #ef4444 !important; }
-    .val-neutral  { color: #f59e0b !important; }
+    .val-positive { color: #10b981 !important; font-weight: 700; }
+    .val-negative { color: #ef4444 !important; font-weight: 700; }
+    .val-neutral  { color: #f59e0b !important; font-weight: 700; }
 
     /* Streamlit button styling override */
     .stButton>button {
@@ -588,7 +596,7 @@ with tab_forecast:
                 """, unsafe_allow_html=True)
                 
                 for point in interp["insights"]:
-                    st.markdown(f"- {point}")
+                    st.markdown(f"<div class='interp-item'>• {point}</div>", unsafe_allow_html=True)
             else:
                 target_model_name = selected_view if selected_view in st.session_state["all_forecasts"] else list(st.session_state["all_forecasts"].keys())[0]
                 target_fc_df = st.session_state["all_forecasts"][target_model_name]["df"]
@@ -606,7 +614,7 @@ with tab_forecast:
                 """, unsafe_allow_html=True)
                 
                 for point in interp["insights"]:
-                    st.markdown(f"- {point}")
+                    st.markdown(f"<div class='interp-item'>• {point}</div>", unsafe_allow_html=True)
 
 # =============================================================================
 # TAB 3: MARKET NEWS & SENTIMENT
