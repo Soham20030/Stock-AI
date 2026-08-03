@@ -117,12 +117,12 @@ def generate_forecast_interpretability(forecast_df, current_price, model_name="M
 
     risk_text = "low risk stability" if channel_spread < current_price * 0.15 else "moderate to high market volatility"
 
-    # Construct Clean HTML Interpretability Insight Points
+    # Construct Clean HTML Interpretability Insight Points (using <b> tags instead of ** asterisks)
     insights = [
-        f"<strong>Directional Sentiment:</strong> The <strong>{model_name}</strong> model forecasts <strong>{sentiment}</strong> {trend_desc} over the next 90 days.",
-        f"<strong>Target Projection:</strong> Projected price is <strong>${target_price:.2f}</strong> by <strong>{target_date}</strong> (an expected return of <span class='{change_class}'><strong>{delta_pct:+.2f}%</strong></span> from current <strong>${current_price:.2f}</strong>).",
-        f"<strong>95% Confidence Channel:</strong> Expected trading range between support of <strong>${lower_bound:.2f}</strong> and resistance of <strong>${upper_bound:.2f}</strong>.",
-        f"<strong>Volatility Band Spread:</strong> Channel width is <strong>${channel_spread:.2f}</strong>, reflecting <strong>{risk_text}</strong>."
+        f"<b>Directional Sentiment:</b> The <b>{model_name}</b> model forecasts <b>{sentiment}</b> {trend_desc} over the next 90 days.",
+        f"<b>Target Projection:</b> Projected price is <b>${target_price:.2f}</b> by <b>{target_date}</b> (an expected return of <span class='{change_class}'><b>{delta_pct:+.2f}%</b></span> from current <b>${current_price:.2f}</b>).",
+        f"<b>95% Confidence Channel:</b> Future prices are expected to trade between a lower support of <b>${lower_bound:.2f}</b> and upper resistance of <b>${upper_bound:.2f}</b>.",
+        f"<b>Volatility Band Spread:</b> Channel width is <b>${channel_spread:.2f}</b>, reflecting <b>{risk_text}</b>."
     ]
 
     return {
@@ -218,10 +218,10 @@ def generate_combined_interpretability(all_forecasts, current_price, model_histo
     max_target = max(targets) if targets else current_price
 
     insights = [
-        f"<strong>Multi-Model Agreement:</strong> <strong>{bullish_cnt} of {total_models} models</strong> predict an upward <strong>Bullish trajectory</strong>, establishing market consensus.",
-        f"<strong>Ensemble Average Target:</strong> Combined average 90-day target is <strong>${avg_target:.2f}</strong> (an expected return of <span class='{change_class}'><strong>{avg_delta_pct:+.2f}%</strong></span>).",
-        f"<strong>Best Model Recommendation:</strong> The <strong>{best_model_name if best_model_name else 'LSTM'}</strong> model is recommended as primary forecast due to lowest error (<strong>MAPE: {best_mape:.2f}%</strong>).",
-        f"<strong>Projection Range Spread:</strong> Predictions across models range from a conservative <strong>${min_target:.2f}</strong> to an optimistic <strong>${max_target:.2f}</strong>."
+        f"<b>Multi-Model Agreement:</b> <b>{bullish_cnt} of {total_models} models</b> predict an upward <b>Bullish trajectory</b>, establishing market consensus.",
+        f"<b>Ensemble Average Target:</b> Combined average 90-day target is <b>${avg_target:.2f}</b> (an expected return of <span class='{change_class}'><b>{avg_delta_pct:+.2f}%</b></span>).",
+        f"<b>Best Model Recommendation:</b> The <b>{best_model_name if best_model_name else 'LSTM'}</b> model is recommended as primary forecast due to lowest error (<b>MAPE: {best_mape:.2f}%</b>).",
+        f"<b>Projection Range Spread:</b> Predictions across models range from a conservative <b>${min_target:.2f}</b> to an optimistic <b>${max_target:.2f}</b>."
     ]
 
     return {
