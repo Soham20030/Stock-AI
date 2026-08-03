@@ -251,7 +251,7 @@ if raw_df.empty:
 summary = get_stock_summary(raw_df, selected_stock)
 
 # -----------------------------------------------------------------------------
-# FEATURE 1: TOP METRIC CARDS ROW
+# FEATURE 1: TOP METRIC CARDS ROW (DYNAMICALLY SYNCED TO ACTIVE MODEL VIEW)
 # -----------------------------------------------------------------------------
 m_col1, m_col2, m_col3, m_col4 = st.columns(4)
 
@@ -263,15 +263,22 @@ with m_col1:
     )
 
 with m_col2:
-    if st.session_state["current_forecast"] is not None:
-        fc_df = st.session_state["current_forecast"]["df"]
+    # Dynamically find the active model currently selected by the user on the chart view radio
+    active_view = st.session_state.get("forecast_view_selector", None)
+    if not active_view or active_view == "Combined Comparison":
+        if st.session_state["current_forecast"]:
+            active_view = st.session_state["current_forecast"]["model"]
+
+    if active_view and active_view in st.session_state["all_forecasts"]:
+        fc_payload = st.session_state["all_forecasts"][active_view]
+        fc_df = fc_payload["df"]
         pred_mask = fc_df["type"] == "Forecast"
         target_pred_price = float(fc_df.loc[pred_mask, "Price"].iloc[-1])
         pred_delta_val = target_pred_price - summary['current_price']
         pred_delta_pct = (pred_delta_val / summary['current_price']) * 100
         
         st.metric(
-            label=f"3M Predicted ({st.session_state['current_forecast']['model']})",
+            label=f"3M Predicted ({active_view})",
             value=f"${target_pred_price:.2f}",
             delta=f"{pred_delta_val:+.2f} ({pred_delta_pct:+.2f}%)"
         )
