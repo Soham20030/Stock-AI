@@ -181,6 +181,9 @@ if "current_forecast" not in st.session_state:
 if "all_forecasts" not in st.session_state:
     st.session_state["all_forecasts"] = {}
 
+if "current_stock" not in st.session_state:
+    st.session_state["current_stock"] = None
+
 # -----------------------------------------------------------------------------
 # 3. SIDEBAR CONTROLS
 # -----------------------------------------------------------------------------
@@ -203,6 +206,13 @@ with st.sidebar:
     else:
         selected_stock = None
         st.warning("No datasets found in datasets/ folder.")
+
+    # Detect Stock Switch & Automatically Reset Forecast Session State for the new stock
+    if st.session_state["current_stock"] != selected_stock:
+        st.session_state["current_stock"] = selected_stock
+        st.session_state["all_forecasts"] = {}
+        st.session_state["current_forecast"] = None
+        st.session_state["model_history"] = {}
 
     # Upload New Dataset
     uploaded_file = st.file_uploader(
