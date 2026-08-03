@@ -46,12 +46,23 @@ def _generate_sample_datasets():
         prices = np.cumsum(returns) + config["base"]
         prices = np.maximum(prices, 10.0)  # Ensure positive stock prices
 
+        close_p = np.round(prices, 2)
+        open_p = np.round(prices + np.random.normal(0, config["volatility"] * 0.4, n_days), 2)
+        open_p = np.maximum(open_p, 1.0)
+        
+        max_oc = np.maximum(open_p, close_p)
+        min_oc = np.minimum(open_p, close_p)
+        
+        high_p = np.round(max_oc + np.abs(np.random.normal(0.2, config["volatility"] * 0.3, n_days)), 2)
+        low_p = np.round(min_oc - np.abs(np.random.normal(0.2, config["volatility"] * 0.3, n_days)), 2)
+        low_p = np.maximum(low_p, 0.5)
+
         df = pd.DataFrame({
             "Date": date_range.strftime("%Y-%m-%d"),
-            "Open": np.round(prices - np.abs(np.random.normal(0, 1, n_days)), 2),
-            "High": np.round(prices + np.abs(np.random.normal(0, 2, n_days)), 2),
-            "Low": np.round(prices - np.abs(np.random.normal(0, 2, n_days)), 2),
-            "Close": np.round(prices, 2),
+            "Open": open_p,
+            "High": high_p,
+            "Low": low_p,
+            "Close": close_p,
             "Volume": np.random.randint(1000000, 50000000, size=n_days)
         })
 
