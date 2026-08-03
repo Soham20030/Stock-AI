@@ -1,0 +1,13 @@
+# Web UI & Visualization
+streamlit>=1.28.0
+plotly>=5.15.0
+
+# Data Manipulation & Scientific Computing
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+
+# Time Series & Machine Learning Models
+prophet>=1.1.4
+statsmodels>=0.14.0
+tensorflow>=2.13.0
