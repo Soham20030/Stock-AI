@@ -35,6 +35,14 @@ st.markdown("""
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
     
+    /* Hide Streamlit Deploy button, Header, MainMenu, and Footer */
+    header {visibility: hidden;}
+    .stAppDeployButton {display: none !important;}
+    [data-testid="stAppDeployButton"] {display: none !important;}
+    [data-testid="stToolbar"] {visibility: hidden !important;}
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    
     /* Modern Card container styling */
     .vesper-card {
         background: #151921;
