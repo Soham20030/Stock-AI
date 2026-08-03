@@ -16,7 +16,8 @@ from utils.data_loader import (
 )
 from utils.forecasting import (
     run_forecast,
-    generate_forecast_interpretability
+    generate_forecast_interpretability,
+    generate_combined_interpretability
 )
 from utils.news import fetch_stock_news
 
@@ -573,26 +574,39 @@ with tab_forecast:
         with st.container(border=True):
             st.markdown('<div class="vesper-title">🧠 AI Forecast Interpretability & Model Commentary</div>', unsafe_allow_html=True)
             
-            # Determine target model for interpretability
-            target_model_name = selected_view if (selected_view != "Combined Comparison" and selected_view in st.session_state["all_forecasts"]) else list(st.session_state["all_forecasts"].keys())[0]
-            target_fc_df = st.session_state["all_forecasts"][target_model_name]["df"]
-            
-            interp = generate_forecast_interpretability(
-                forecast_df=target_fc_df,
-                current_price=summary['current_price'],
-                model_name=target_model_name
-            )
-            
-            # Render Color-Coded Sentiment Badge
-            st.markdown(f"""
-                <div class="sentiment-badge" style="background-color: {interp['badge_color']}20; color: {interp['badge_color']}; border: 1px solid {interp['badge_color']};">
-                    {interp['icon']} {interp['sentiment']} FORECAST ({target_model_name} Model)
-                </div>
-            """, unsafe_allow_html=True)
-            
-            # Render Insights Bullet Points
-            for point in interp["insights"]:
-                st.markdown(f"- {point}")
+            if selected_view == "Combined Comparison":
+                interp = generate_combined_interpretability(
+                    all_forecasts=st.session_state["all_forecasts"],
+                    current_price=summary['current_price'],
+                    model_history=st.session_state["model_history"]
+                )
+                
+                st.markdown(f"""
+                    <div class="sentiment-badge" style="background-color: {interp['badge_color']}20; color: {interp['badge_color']}; border: 1px solid {interp['badge_color']};">
+                        {interp['icon']} {interp['sentiment']} (Multi-Model Ensemble)
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                for point in interp["insights"]:
+                    st.markdown(f"- {point}")
+            else:
+                target_model_name = selected_view if selected_view in st.session_state["all_forecasts"] else list(st.session_state["all_forecasts"].keys())[0]
+                target_fc_df = st.session_state["all_forecasts"][target_model_name]["df"]
+                
+                interp = generate_forecast_interpretability(
+                    forecast_df=target_fc_df,
+                    current_price=summary['current_price'],
+                    model_name=target_model_name
+                )
+                
+                st.markdown(f"""
+                    <div class="sentiment-badge" style="background-color: {interp['badge_color']}20; color: {interp['badge_color']}; border: 1px solid {interp['badge_color']};">
+                        {interp['icon']} {interp['sentiment']} FORECAST ({target_model_name} Model)
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                for point in interp["insights"]:
+                    st.markdown(f"- {point}")
 
 # =============================================================================
 # TAB 3: MARKET NEWS & SENTIMENT

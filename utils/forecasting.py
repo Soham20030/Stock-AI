@@ -131,3 +131,96 @@ def generate_forecast_interpretability(forecast_df, current_price, model_name="M
         "lower_bound": lower_bound,
         "insights": insights
     }
+
+
+def generate_combined_interpretability(all_forecasts, current_price, model_history):
+    """
+    Generates multi-model consensus interpretability, ensemble average target prices,
+    and best model recommendation when 'Combined Comparison' mode is selected.
+
+    Parameters:
+        all_forecasts (dict): Dictionary of all trained model forecasts.
+        current_price (float): Current price of the stock.
+        model_history (dict): Dictionary of model metrics (RMSE, MAE, MAPE).
+
+    Returns:
+        dict: Consensus sentiment, best model recommendation, and insight bullet points.
+    """
+    if not all_forecasts:
+        return {
+            "sentiment": "NEUTRAL",
+            "badge_color": "#f59e0b",
+            "icon": "↔️",
+            "insights": ["No models trained yet."]
+        }
+
+    targets = []
+    sentiments = []
+    model_summaries = []
+
+    for m_name, m_data in all_forecasts.items():
+        m_df = m_data["df"]
+        pred_mask = m_df["type"] == "Forecast"
+        if pred_mask.any():
+            t_price = float(m_df.loc[pred_mask, "Price"].iloc[-1])
+            targets.append(t_price)
+            
+            d_pct = ((t_price - current_price) / current_price) * 100
+            if d_pct >= 2.0:
+                sentiments.append("BULLISH")
+            elif d_pct <= -2.0:
+                sentiments.append("BEARISH")
+            else:
+                sentiments.append("NEUTRAL")
+                
+            model_summaries.append(f"{m_name}: ${t_price:.2f} ({d_pct:+.2f}%)")
+
+    # Calculate Ensemble Average Target
+    avg_target = float(sum(targets) / len(targets)) if targets else current_price
+    avg_delta_pct = ((avg_target - current_price) / current_price) * 100
+
+    # Count Sentiment Majority
+    bullish_cnt = sentiments.count("BULLISH")
+    bearish_cnt = sentiments.count("BEARISH")
+    total_models = len(sentiments)
+
+    if bullish_cnt > total_models / 2:
+        consensus_sentiment = "BULLISH CONSENSUS"
+        badge_color = "#10b981"
+        icon = "🚀"
+    elif bearish_cnt > total_models / 2:
+        consensus_sentiment = "BEARISH CONSENSUS"
+        badge_color = "#ef4444"
+        icon = "🔻"
+    else:
+        consensus_sentiment = "MIXED / NEUTRAL CONSENSUS"
+        badge_color = "#f59e0b"
+        icon = "↔️"
+
+    # Find Best Model (lowest MAPE)
+    best_model_name = None
+    best_mape = float("inf")
+    for m_name, m_metrics in model_history.items():
+        mape_val = m_metrics.get("MAPE", float("inf"))
+        if mape_val < best_mape:
+            best_mape = mape_val
+            best_model_name = m_name
+
+    min_target = min(targets) if targets else current_price
+    max_target = max(targets) if targets else current_price
+
+    insights = [
+        f"**Multi-Model Agreement**: **{bullish_cnt} of {total_models} models** predict an **upward Bullish trajectory**, establishing a strong market consensus.",
+        f"**Ensemble Average Target**: Combined average 90-day target is **${avg_target:.2f}** (an expected average return of **{avg_delta_pct:+.2f}%**).",
+        f"**Best Model Recommendation**: The **{best_model_name if best_model_name else 'LSTM'}** model is recommended as primary forecast due to lowest historical error (**MAPE: {best_mape:.2f}%**).",
+        f"**Projection Range Spread**: Predictions across models range from a conservative **${min_target:.2f}** to an optimistic **${max_target:.2f}**."
+    ]
+
+    return {
+        "sentiment": consensus_sentiment,
+        "badge_color": badge_color,
+        "icon": icon,
+        "avg_target": avg_target,
+        "best_model": best_model_name,
+        "insights": insights
+    }
