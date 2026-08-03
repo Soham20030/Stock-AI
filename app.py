@@ -90,43 +90,31 @@ st.markdown("""
         margin-bottom: 12px;
     }
 
-    /* Interpretability Sentiment Badge */
-    .sentiment-badge {
-        display: inline-block;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 0.9rem;
-        letter-spacing: 0.05em;
-        margin-bottom: 12px;
-    }
-
-    /* Interpretability Insight bullet item */
-    .interp-item {
-        margin-bottom: 8px;
-        line-height: 1.6;
-        font-size: 0.95rem;
-        color: #cbd5e1;
-    }
-
     /* Summary info grid items */
     .summary-box {
         background: #1e2430;
         border-radius: 8px;
-        padding: 12px;
+        padding: 14px;
         border-left: 3px solid #38bdf8;
+        height: 100%;
     }
     .summary-label {
         font-size: 0.75rem;
         color: #94a3b8;
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        font-weight: 600;
     }
     .summary-val {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         font-weight: 700;
         color: #f8fafc;
-        margin-top: 2px;
+        margin-top: 4px;
+    }
+    .summary-sub {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-top: 4px;
     }
 
     /* Color coding utility classes */
@@ -576,7 +564,7 @@ with tab_forecast:
             else:
                 st.info("👈 Select a model and click 'Train & Forecast' to generate predictions!")
 
-    # --- FORECAST INTERPRETABILITY & MODEL COMMENTARY CARD ---
+    # --- FORECAST INTERPRETABILITY & MODEL COMMENTARY CARD (GRID CARDS LAYOUT) ---
     if st.session_state["all_forecasts"]:
         st.markdown("<br>", unsafe_allow_html=True)
         with st.container(border=True):
@@ -589,14 +577,46 @@ with tab_forecast:
                     model_history=st.session_state["model_history"]
                 )
                 
-                st.markdown(f"""
-                    <div class="sentiment-badge" style="background-color: {interp['badge_color']}20; color: {interp['badge_color']}; border: 1px solid {interp['badge_color']};">
-                        {interp['icon']} {interp['sentiment']} (Multi-Model Ensemble)
-                    </div>
-                """, unsafe_allow_html=True)
+                ic1, ic2, ic3, ic4 = st.columns(4)
                 
-                for point in interp["insights"]:
-                    st.markdown(f"<div class='interp-item'>• {point}</div>", unsafe_allow_html=True)
+                with ic1:
+                    change_cls = "val-positive" if interp['sentiment'].startswith("BULLISH") else ("val-negative" if interp['sentiment'].startswith("BEARISH") else "val-neutral")
+                    st.markdown(f"""
+                        <div class="summary-box" style="border-left-color: {interp['badge_color']};">
+                            <div class="summary-label">Multi-Model Consensus</div>
+                            <div class="summary-val {change_cls}">{interp['icon']} {interp['sentiment']}</div>
+                            <div class="summary-sub">{interp['bullish_cnt']} of {interp['total_models']} models predict Bullish trend</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                    
+                with ic2:
+                    change_cls = "val-positive" if interp['avg_delta_pct'] >= 0 else "val-negative"
+                    st.markdown(f"""
+                        <div class="summary-box">
+                            <div class="summary-label">Ensemble Avg Target</div>
+                            <div class="summary-val">${interp['avg_target']:.2f}</div>
+                            <div class="summary-sub {change_cls}">{interp['avg_delta_pct']:+.2f}% average expected return</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                with ic3:
+                    st.markdown(f"""
+                        <div class="summary-box">
+                            <div class="summary-label">Top Recommended Model</div>
+                            <div class="summary-val val-positive">🏆 {interp['best_model']}</div>
+                            <div class="summary-sub">Lowest historical error (MAPE: {interp['best_mape']:.2f}%)</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                with ic4:
+                    st.markdown(f"""
+                        <div class="summary-box">
+                            <div class="summary-label">Target Range Spread</div>
+                            <div class="summary-val">${interp['min_target']:.2f} — ${interp['max_target']:.2f}</div>
+                            <div class="summary-sub">Min to Max model target range</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+
             else:
                 target_model_name = selected_view if selected_view in st.session_state["all_forecasts"] else list(st.session_state["all_forecasts"].keys())[0]
                 target_fc_df = st.session_state["all_forecasts"][target_model_name]["df"]
@@ -607,14 +627,45 @@ with tab_forecast:
                     model_name=target_model_name
                 )
                 
-                st.markdown(f"""
-                    <div class="sentiment-badge" style="background-color: {interp['badge_color']}20; color: {interp['badge_color']}; border: 1px solid {interp['badge_color']};">
-                        {interp['icon']} {interp['sentiment']} FORECAST ({target_model_name} Model)
-                    </div>
-                """, unsafe_allow_html=True)
+                ic1, ic2, ic3, ic4 = st.columns(4)
                 
-                for point in interp["insights"]:
-                    st.markdown(f"<div class='interp-item'>• {point}</div>", unsafe_allow_html=True)
+                with ic1:
+                    change_cls = "val-positive" if interp['sentiment'] == "BULLISH" else ("val-negative" if interp['sentiment'] == "BEARISH" else "val-neutral")
+                    st.markdown(f"""
+                        <div class="summary-box" style="border-left-color: {interp['badge_color']};">
+                            <div class="summary-label">Directional Sentiment</div>
+                            <div class="summary-val {change_cls}">{interp['icon']} {interp['sentiment']}</div>
+                            <div class="summary-sub">{target_model_name} predicts {interp['trend_desc']}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                    
+                with ic2:
+                    change_cls = "val-positive" if interp['delta_pct'] >= 0 else "val-negative"
+                    st.markdown(f"""
+                        <div class="summary-box">
+                            <div class="summary-label">90-Day Target Projection</div>
+                            <div class="summary-val">${interp['target_price']:.2f}</div>
+                            <div class="summary-sub {change_cls}">{interp['delta_pct']:+.2f}% return by {interp['target_date']}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                with ic3:
+                    st.markdown(f"""
+                        <div class="summary-box">
+                            <div class="summary-label">95% Confidence Channel</div>
+                            <div class="summary-val">${interp['lower_bound']:.2f} — ${interp['upper_bound']:.2f}</div>
+                            <div class="summary-sub">Support to Resistance trading band</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                with ic4:
+                    st.markdown(f"""
+                        <div class="summary-box">
+                            <div class="summary-label">Volatility Band Spread</div>
+                            <div class="summary-val">${interp['channel_spread']:.2f}</div>
+                            <div class="summary-sub">Reflecting {interp['risk_text']}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
 
 # =============================================================================
 # TAB 3: MARKET NEWS & SENTIMENT
