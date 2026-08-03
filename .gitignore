@@ -1,0 +1,21 @@
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# IDE Configuration
+.vscode/
+.idea/
+
+# Streamlit
+.streamlit/
+
+# OS specific files
+.DS_Store
+Thumbs.db
