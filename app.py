@@ -580,39 +580,51 @@ with tab_forecast:
                 ic1, ic2, ic3, ic4 = st.columns(4)
                 
                 with ic1:
-                    change_cls = "val-positive" if interp['sentiment'].startswith("BULLISH") else ("val-negative" if interp['sentiment'].startswith("BEARISH") else "val-neutral")
+                    sentiment_val = interp.get("sentiment", "NEUTRAL")
+                    badge_col = interp.get("badge_color", "#f59e0b")
+                    icon_symbol = interp.get("icon", "↔️")
+                    bullish_c = interp.get("bullish_cnt", 0)
+                    total_m = interp.get("total_models", 0)
+                    
+                    change_cls = "val-positive" if sentiment_val.startswith("BULLISH") else ("val-negative" if sentiment_val.startswith("BEARISH") else "val-neutral")
                     st.markdown(f"""
-                        <div class="summary-box" style="border-left-color: {interp['badge_color']};">
+                        <div class="summary-box" style="border-left-color: {badge_col};">
                             <div class="summary-label">Multi-Model Consensus</div>
-                            <div class="summary-val {change_cls}">{interp['icon']} {interp['sentiment']}</div>
-                            <div class="summary-sub">{interp['bullish_cnt']} of {interp['total_models']} models predict Bullish trend</div>
+                            <div class="summary-val {change_cls}">{icon_symbol} {sentiment_val}</div>
+                            <div class="summary-sub">{bullish_c} of {total_m} models predict Bullish trend</div>
                         </div>
                     """, unsafe_allow_html=True)
                     
                 with ic2:
-                    change_cls = "val-positive" if interp['avg_delta_pct'] >= 0 else "val-negative"
+                    avg_t = interp.get("avg_target", summary['current_price'])
+                    avg_d = interp.get("avg_delta_pct", 0.0)
+                    change_cls = "val-positive" if avg_d >= 0 else "val-negative"
                     st.markdown(f"""
                         <div class="summary-box">
                             <div class="summary-label">Ensemble Avg Target</div>
-                            <div class="summary-val">${interp['avg_target']:.2f}</div>
-                            <div class="summary-sub {change_cls}">{interp['avg_delta_pct']:+.2f}% average expected return</div>
+                            <div class="summary-val">${avg_t:.2f}</div>
+                            <div class="summary-sub {change_cls}">{avg_d:+.2f}% average expected return</div>
                         </div>
                     """, unsafe_allow_html=True)
 
                 with ic3:
+                    b_model = interp.get("best_model", "LSTM")
+                    b_mape = interp.get("best_mape", 0.0)
                     st.markdown(f"""
                         <div class="summary-box">
                             <div class="summary-label">Top Recommended Model</div>
-                            <div class="summary-val val-positive">🏆 {interp['best_model']}</div>
-                            <div class="summary-sub">Lowest historical error (MAPE: {interp['best_mape']:.2f}%)</div>
+                            <div class="summary-val val-positive">🏆 {b_model}</div>
+                            <div class="summary-sub">Lowest historical error (MAPE: {b_mape:.2f}%)</div>
                         </div>
                     """, unsafe_allow_html=True)
 
                 with ic4:
+                    min_t = interp.get("min_target", summary['current_price'])
+                    max_t = interp.get("max_target", summary['current_price'])
                     st.markdown(f"""
                         <div class="summary-box">
                             <div class="summary-label">Target Range Spread</div>
-                            <div class="summary-val">${interp['min_target']:.2f} — ${interp['max_target']:.2f}</div>
+                            <div class="summary-val">${min_t:.2f} — ${max_t:.2f}</div>
                             <div class="summary-sub">Min to Max model target range</div>
                         </div>
                     """, unsafe_allow_html=True)
@@ -630,40 +642,52 @@ with tab_forecast:
                 ic1, ic2, ic3, ic4 = st.columns(4)
                 
                 with ic1:
-                    change_cls = "val-positive" if interp['sentiment'] == "BULLISH" else ("val-negative" if interp['sentiment'] == "BEARISH" else "val-neutral")
+                    sentiment_val = interp.get("sentiment", "NEUTRAL")
+                    badge_col = interp.get("badge_color", "#f59e0b")
+                    icon_symbol = interp.get("icon", "↔️")
+                    trend_d = interp.get("trend_desc", "predicts trend")
+                    
+                    change_cls = "val-positive" if sentiment_val == "BULLISH" else ("val-negative" if sentiment_val == "BEARISH" else "val-neutral")
                     st.markdown(f"""
-                        <div class="summary-box" style="border-left-color: {interp['badge_color']};">
+                        <div class="summary-box" style="border-left-color: {badge_col};">
                             <div class="summary-label">Directional Sentiment</div>
-                            <div class="summary-val {change_cls}">{interp['icon']} {interp['sentiment']}</div>
-                            <div class="summary-sub">{target_model_name} predicts {interp['trend_desc']}</div>
+                            <div class="summary-val {change_cls}">{icon_symbol} {sentiment_val}</div>
+                            <div class="summary-sub">{target_model_name} predicts {trend_d}</div>
                         </div>
                     """, unsafe_allow_html=True)
                     
                 with ic2:
-                    change_cls = "val-positive" if interp['delta_pct'] >= 0 else "val-negative"
+                    t_price = interp.get("target_price", summary['current_price'])
+                    d_pct = interp.get("delta_pct", 0.0)
+                    t_date = interp.get("target_date", "N/A")
+                    change_cls = "val-positive" if d_pct >= 0 else "val-negative"
                     st.markdown(f"""
                         <div class="summary-box">
                             <div class="summary-label">90-Day Target Projection</div>
-                            <div class="summary-val">${interp['target_price']:.2f}</div>
-                            <div class="summary-sub {change_cls}">{interp['delta_pct']:+.2f}% return by {interp['target_date']}</div>
+                            <div class="summary-val">${t_price:.2f}</div>
+                            <div class="summary-sub {change_cls}">{d_pct:+.2f}% return by {t_date}</div>
                         </div>
                     """, unsafe_allow_html=True)
 
                 with ic3:
+                    l_bound = interp.get("lower_bound", summary['current_price'])
+                    u_bound = interp.get("upper_bound", summary['current_price'])
                     st.markdown(f"""
                         <div class="summary-box">
                             <div class="summary-label">95% Confidence Channel</div>
-                            <div class="summary-val">${interp['lower_bound']:.2f} — ${interp['upper_bound']:.2f}</div>
+                            <div class="summary-val">${l_bound:.2f} — ${u_bound:.2f}</div>
                             <div class="summary-sub">Support to Resistance trading band</div>
                         </div>
                     """, unsafe_allow_html=True)
 
                 with ic4:
+                    c_spread = interp.get("channel_spread", 0.0)
+                    r_text = interp.get("risk_text", "market volatility")
                     st.markdown(f"""
                         <div class="summary-box">
                             <div class="summary-label">Volatility Band Spread</div>
-                            <div class="summary-val">${interp['channel_spread']:.2f}</div>
-                            <div class="summary-sub">Reflecting {interp['risk_text']}</div>
+                            <div class="summary-val">${c_spread:.2f}</div>
+                            <div class="summary-sub">Reflecting {r_text}</div>
                         </div>
                     """, unsafe_allow_html=True)
 
