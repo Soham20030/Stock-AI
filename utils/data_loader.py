@@ -205,3 +205,97 @@ def filter_data_by_range(df, range_option):
 
     filtered_df = df[df["Date"] >= cutoff_date].copy()
     return filtered_df
+
+
+def get_stock_summary(df, filename):
+    """
+    Extracts summary statistics (Company Name, Current Price, 24h Change, 
+    52-Week High/Low, Avg Volume, Market Cap) from a stock DataFrame.
+
+    Parameters:
+        df (pd.DataFrame): Input DataFrame containing stock data.
+        filename (str): Name of the dataset file (e.g. 'AAPL.csv').
+
+    Returns:
+        dict: Financial summary dictionary for UI display.
+    """
+    if df.empty or "Close" not in df.columns:
+        return {
+            "company_name": "Unknown Entity",
+            "current_price": 0.0,
+            "price_change": 0.0,
+            "pct_change": 0.0,
+            "high_52w": 0.0,
+            "low_52w": 0.0,
+            "avg_volume": "N/A",
+            "market_cap": "N/A"
+        }
+
+    # Map filename to human-readable Company Name
+    clean_ticker = filename.replace(".csv", "").strip().upper()
+    company_names = {
+        "AAPL": "Apple Inc. (AAPL)",
+        "TSLA": "Tesla, Inc. (TSLA)",
+        "BTC": "Bitcoin USD (BTC-USD)"
+    }
+    company_name = company_names.get(clean_ticker, f"{clean_ticker} Stock")
+
+    # Current Price and Previous Close Price
+    current_price = float(df["Close"].iloc[-1])
+    prev_price = float(df["Close"].iloc[-2]) if len(df) >= 2 else current_price
+
+    price_change = current_price - prev_price
+    pct_change = (price_change / prev_price * 100) if prev_price != 0 else 0.0
+
+    # 52-Week (365 days) High and Low
+    max_date = df["Date"].max()
+    year_cutoff = max_date - timedelta(days=365)
+    last_year_df = df[df["Date"] >= year_cutoff]
+
+    if not last_year_df.empty:
+        high_col = "High" if "High" in last_year_df.columns else "Close"
+        low_col = "Low" if "Low" in last_year_df.columns else "Close"
+        high_52w = float(last_year_df[high_col].max())
+        low_52w = float(last_year_df[low_col].min())
+    else:
+        high_52w = current_price
+        low_52w = current_price
+
+    # Average Volume calculation
+    if "Volume" in df.columns:
+        recent_vol = df["Volume"].tail(30).mean()
+        if recent_vol >= 1_000_000:
+            avg_volume = f"{recent_vol / 1_000_000:.2f}M"
+        elif recent_vol >= 1_000:
+            avg_volume = f"{recent_vol / 1_000:.2f}K"
+        else:
+            avg_volume = f"{int(recent_vol)}"
+    else:
+        avg_volume = "N/A"
+
+    # Market Cap calculation / placeholder
+    market_caps = {
+        "AAPL": "$2.82 Trillion",
+        "TSLA": "$780 Billion",
+        "BTC": "$1.25 Trillion"
+    }
+    if clean_ticker in market_caps:
+        market_cap = market_caps[clean_ticker]
+    else:
+        # Dynamic estimation fallback based on asset price
+        est_cap = current_price * 15_000_000_000  # Estimated shares out
+        if est_cap >= 1_000_000_000_000:
+            market_cap = f"${est_cap / 1_000_000_000_000:.2f} Trillion"
+        else:
+            market_cap = f"${est_cap / 1_000_000_000:.2f} Billion"
+
+    return {
+        "company_name": company_name,
+        "current_price": round(current_price, 2),
+        "price_change": round(price_change, 2),
+        "pct_change": round(pct_change, 2),
+        "high_52w": round(high_52w, 2),
+        "low_52w": round(low_52w, 2),
+        "avg_volume": avg_volume,
+        "market_cap": market_cap
+    }
