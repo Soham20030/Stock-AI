@@ -124,12 +124,14 @@ st.markdown("""
 # 2. SESSION STATE INITIALIZATION
 # -----------------------------------------------------------------------------
 if "model_history" not in st.session_state:
-    # Stores comparison metrics for models trained during the session
     st.session_state["model_history"] = {}
 
 if "current_forecast" not in st.session_state:
-    # Stores the latest forecast output DataFrame and metrics dictionary
     st.session_state["current_forecast"] = None
+
+if "all_forecasts" not in st.session_state:
+    # Stores all forecasts generated in current session: { "Prophet": {...}, "ARIMA": {...}, "LSTM": {...} }
+    st.session_state["all_forecasts"] = {}
 
 # -----------------------------------------------------------------------------
 # 3. SIDEBAR CONTROLS
@@ -271,13 +273,16 @@ with col_right:
             
             progress_bar.progress(100)
             
-            # Update session state with results
-            st.session_state["current_forecast"] = {
+            forecast_payload = {
                 "model": model_choice,
                 "df": forecast_df,
                 "metrics": metrics_dict,
                 "stock": selected_stock
             }
+            
+            # Save into all_forecasts dictionary as well as current_forecast
+            st.session_state["all_forecasts"][model_choice] = forecast_payload
+            st.session_state["current_forecast"] = forecast_payload
             st.session_state["model_history"][model_choice] = metrics_dict
             st.success(f"Training Complete for {model_choice}!")
             
@@ -292,61 +297,104 @@ with col_right:
     st.markdown('</div>', unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# 5. FORECAST RESULTS CHART CARD
+# 5. FORECAST RESULTS CHART CARD (MULTI-MODEL PERSISTENT VIEW)
 # -----------------------------------------------------------------------------
-if st.session_state["current_forecast"] is not None:
-    forecast_data = st.session_state["current_forecast"]
-    
+if st.session_state["all_forecasts"]:
     st.markdown('<div class="vesper-card">', unsafe_allow_html=True)
     st.markdown(
-        f'<div class="vesper-card-header">🔮 3-Month Price Projection ({forecast_data["model"]} Model — {forecast_data["stock"]})</div>',
+        f'<div class="vesper-card-header">🔮 3-Month Price Projections ({selected_stock})</div>',
         unsafe_allow_html=True
     )
     
-    fc_df = forecast_data["df"]
+    # Model Selector Tabs / Radio
+    available_models = list(st.session_state["all_forecasts"].keys())
+    view_options = available_models.copy()
+    if len(available_models) > 1:
+        view_options.append("Combined Comparison")
+        
+    selected_view = st.radio(
+        "View Model Projection:",
+        options=view_options,
+        index=0,
+        horizontal=True,
+        key="forecast_view_selector"
+    )
     
     fig_fc = go.Figure()
     
-    # Historical component of forecast graph
-    hist_mask = fc_df["type"] == "Historical"
-    fig_fc.add_trace(go.Scatter(
-        x=fc_df.loc[hist_mask, "Date"],
-        y=fc_df.loc[hist_mask, "Price"],
-        mode="lines",
-        name="Historical Price",
-        line=dict(color="#94a3b8", width=2)
-    ))
+    color_map = {
+        "Prophet": "#38bdf8",   # Cyan
+        "ARIMA": "#f97316",     # Orange
+        "LSTM": "#10b981"       # Emerald Green
+    }
     
-    # Predicted component of forecast graph
-    pred_mask = fc_df["type"] == "Forecast"
-    fig_fc.add_trace(go.Scatter(
-        x=fc_df.loc[pred_mask, "Date"],
-        y=fc_df.loc[pred_mask, "Price"],
-        mode="lines",
-        name="Forecasted Price",
-        line=dict(color="#10b981", width=3, dash="dash")
-    ))
-    
-    # Upper & Lower bounds if available
-    if "Upper" in fc_df.columns and "Lower" in fc_df.columns:
+    if selected_view == "Combined Comparison":
+        # Plot historical price once
+        first_df = list(st.session_state["all_forecasts"].values())[0]["df"]
+        hist_mask = first_df["type"] == "Historical"
+        fig_fc.add_trace(go.Scatter(
+            x=first_df.loc[hist_mask, "Date"],
+            y=first_df.loc[hist_mask, "Price"],
+            mode="lines",
+            name="Historical Price",
+            line=dict(color="#94a3b8", width=2)
+        ))
+        
+        # Overlay forecast lines for all trained models
+        for m_name, m_data in st.session_state["all_forecasts"].items():
+            m_df = m_data["df"]
+            pred_mask = m_df["type"] == "Forecast"
+            fig_fc.add_trace(go.Scatter(
+                x=m_df.loc[pred_mask, "Date"],
+                y=m_df.loc[pred_mask, "Price"],
+                mode="lines",
+                name=f"{m_name} Forecast",
+                line=dict(color=color_map.get(m_name, "#a855f7"), width=3, dash="dash")
+            ))
+    else:
+        # Plot single selected model forecast
+        forecast_data = st.session_state["all_forecasts"][selected_view]
+        fc_df = forecast_data["df"]
+        
+        hist_mask = fc_df["type"] == "Historical"
+        fig_fc.add_trace(go.Scatter(
+            x=fc_df.loc[hist_mask, "Date"],
+            y=fc_df.loc[hist_mask, "Price"],
+            mode="lines",
+            name="Historical Price",
+            line=dict(color="#94a3b8", width=2)
+        ))
+        
+        pred_mask = fc_df["type"] == "Forecast"
+        line_color = color_map.get(selected_view, "#10b981")
+        
         fig_fc.add_trace(go.Scatter(
             x=fc_df.loc[pred_mask, "Date"],
-            y=fc_df.loc[pred_mask, "Upper"],
+            y=fc_df.loc[pred_mask, "Price"],
             mode="lines",
-            name="Upper Bound",
-            line=dict(color="rgba(16, 185, 129, 0.2)"),
-            showlegend=False
+            name=f"{selected_view} Forecast",
+            line=dict(color=line_color, width=3, dash="dash")
         ))
-        fig_fc.add_trace(go.Scatter(
-            x=fc_df.loc[pred_mask, "Date"],
-            y=fc_df.loc[pred_mask, "Lower"],
-            mode="lines",
-            name="Lower Bound",
-            fill="tonexty",
-            fillcolor="rgba(16, 185, 129, 0.1)",
-            line=dict(color="rgba(16, 185, 129, 0.2)"),
-            showlegend=False
-        ))
+        
+        if "Upper" in fc_df.columns and "Lower" in fc_df.columns:
+            fig_fc.add_trace(go.Scatter(
+                x=fc_df.loc[pred_mask, "Date"],
+                y=fc_df.loc[pred_mask, "Upper"],
+                mode="lines",
+                name="Upper Bound",
+                line=dict(color="rgba(56, 189, 248, 0.2)"),
+                showlegend=False
+            ))
+            fig_fc.add_trace(go.Scatter(
+                x=fc_df.loc[pred_mask, "Date"],
+                y=fc_df.loc[pred_mask, "Lower"],
+                mode="lines",
+                name="Lower Bound",
+                fill="tonexty",
+                fillcolor="rgba(56, 189, 248, 0.1)",
+                line=dict(color="rgba(56, 189, 248, 0.2)"),
+                showlegend=False
+            ))
 
     fig_fc.update_layout(
         template="plotly_dark",
