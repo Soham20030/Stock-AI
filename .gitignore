@@ -13,9 +13,12 @@ ENV/
 .vscode/
 .idea/
 
-# Streamlit
+# Streamlit & System Cache
 .streamlit/
-
-# OS specific files
 .DS_Store
 Thumbs.db
+
+# Generated Results & Vector DB Artifacts
+results/*.json
+vector_db/*.bin
+vector_db/*.json
