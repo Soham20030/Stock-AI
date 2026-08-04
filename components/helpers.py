@@ -466,14 +466,21 @@ def inject_custom_css():
             border-radius: 8px !important;
         }}
 
+        div[data-testid="stSelectbox"] *,
+        div[data-testid="stSelectbox"] div,
+        div[data-testid="stSelectbox"] span,
+        div[data-testid="stSelectbox"] p,
+        div[data-testid="stSelectbox"] input,
         div[data-baseweb="select"] *,
+        div[data-baseweb="select"] div,
         div[data-baseweb="select"] span,
         div[data-baseweb="select"] p,
-        div[data-baseweb="select"] div,
+        div[data-baseweb="select"] input,
         div[data-baseweb="select"] svg {{
             color: {text_main} !important;
             fill: {text_main} !important;
             font-weight: 600 !important;
+            -webkit-text-fill-color: {text_main} !important;
         }}
 
         /* Dropdown Popup Menu List Items */
