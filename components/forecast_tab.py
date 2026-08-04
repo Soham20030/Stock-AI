@@ -8,6 +8,7 @@ from utils.forecasting import (
     generate_combined_interpretability
 )
 from utils.metrics import save_training_run_to_history
+from state.mode_manager import is_developer_mode, is_user_mode
 from components.helpers import render_summary_box
 
 
@@ -55,85 +56,101 @@ def render_historical_tab(raw_df, selected_stock):
 
 def render_forecast_tab(raw_df, selected_stock, summary):
     """
-    Renders Tab 2: Forecast Engine controls, Plotly projection charts,
-    and AI Forecast Interpretability commentary cards.
-    """
-    col_ctrl, col_chart = st.columns([1, 2.5])
-    
-    with col_ctrl:
-        with st.container(border=True):
-            st.markdown('<div class="intercom-title">Model Controls</div>', unsafe_allow_html=True)
-            
-            model_choice = st.selectbox(
-                "Forecasting Model:",
-                options=["Prophet", "ARIMA", "LSTM"],
-                index=0,
-                help="Choose between Meta Prophet, Statistical ARIMA, or Deep Learning LSTM."
-            )
-            
-            forecast_days = 90  # Next 3 months (approx 90 days)
-            st.caption(f"Forecast Horizon: **{forecast_days} Days (3 Months)**")
-            st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
-            
-            if st.button("Train & Forecast"):
-                with st.spinner(f"Training {model_choice} model on {selected_stock}..."):
-                    progress_bar = st.progress(0)
-                    for percent_complete in range(1, 101, 25):
-                        progress_bar.progress(percent_complete)
-                    
-                    forecast_df, metrics_dict = run_forecast(
-                        model_name=model_choice,
-                        df=raw_df,
-                        forecast_days=forecast_days
-                    )
-                    
-                    progress_bar.progress(100)
-                    
-                    forecast_payload = {
-                        "model": model_choice,
-                        "df": forecast_df,
-                        "metrics": metrics_dict,
-                        "stock": selected_stock
-                    }
-                    
-                    st.session_state["all_forecasts"][model_choice] = forecast_payload
-                    st.session_state["current_forecast"] = forecast_payload
-                    st.session_state["model_history"][model_choice] = metrics_dict
-                    
-                    # Generate Interpretability metrics & save to persistent Training History archive
-                    interp_snapshot = generate_forecast_interpretability(
-                        forecast_df=forecast_df,
-                        current_price=summary['current_price'],
-                        model_name=model_choice
-                    )
-                    
-                    save_training_run_to_history(
-                        stock_name=selected_stock,
-                        model_name=model_choice,
-                        forecast_df=forecast_df,
-                        metrics=metrics_dict,
-                        interpretability=interp_snapshot
-                    )
-                    
-                    st.cache_data.clear()  # Refresh RAG cache for new forecast
-                    
-                    st.success(f"Training Complete for {model_choice}!")
-                    st.rerun()
-                    
-            if st.session_state["current_forecast"] is not None:
-                curr_metrics = st.session_state["current_forecast"]["metrics"]
-                st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-                st.markdown(f"**{st.session_state['current_forecast']['model']} Metrics:**")
-                
-                m_c1, m_c2, m_c3 = st.columns(3)
-                with m_c1:
-                    render_summary_box("RMSE", f"${curr_metrics.get('RMSE', 0):.2f}")
-                with m_c2:
-                    render_summary_box("MAE", f"${curr_metrics.get('MAE', 0):.2f}")
-                with m_c3:
-                    render_summary_box("MAPE", f"{curr_metrics.get('MAPE', 0):.2f}%")
+    Renders Tab 2: Forecast Engine controls and Plotly projection charts.
 
-    with col_chart:
+    User Mode:
+        - Displays 3-Month Projection Chart & AI Interpretability Commentary
+        - Hides model training panel & technical error metrics (RMSE/MAE/MAPE)
+
+    Developer Mode:
+        - Displays Model Selection, Progress Bar, Train Button, RMSE/MAE/MAPE cards
+        - Displays 3-Month Projection Chart & AI Interpretability Commentary
+    """
+    # -------------------------------------------------------------------------
+    # DEVELOPER MODE ONLY: MODEL TRAINING CONTROLS & ERROR METRICS PANEL
+    # -------------------------------------------------------------------------
+    if is_developer_mode():
+        col_ctrl, col_chart = st.columns([1, 2.5])
+        
+        with col_ctrl:
+            with st.container(border=True):
+                st.markdown('<div class="intercom-title">Model Controls</div>', unsafe_allow_html=True)
+                
+                model_choice = st.selectbox(
+                    "Forecasting Model:",
+                    options=["Prophet", "ARIMA", "LSTM"],
+                    index=0,
+                    help="Choose between Meta Prophet, Statistical ARIMA, or Deep Learning LSTM."
+                )
+                
+                forecast_days = 90  # Next 3 months (approx 90 days)
+                st.caption(f"Forecast Horizon: **{forecast_days} Days (3 Months)**")
+                st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
+                
+                if st.button("Train & Forecast"):
+                    with st.spinner(f"Training {model_choice} model on {selected_stock}..."):
+                        progress_bar = st.progress(0)
+                        for percent_complete in range(1, 101, 25):
+                            progress_bar.progress(percent_complete)
+                        
+                        forecast_df, metrics_dict = run_forecast(
+                            model_name=model_choice,
+                            df=raw_df,
+                            forecast_days=forecast_days
+                        )
+                        
+                        progress_bar.progress(100)
+                        
+                        forecast_payload = {
+                            "model": model_choice,
+                            "df": forecast_df,
+                            "metrics": metrics_dict,
+                            "stock": selected_stock
+                        }
+                        
+                        st.session_state["all_forecasts"][model_choice] = forecast_payload
+                        st.session_state["current_forecast"] = forecast_payload
+                        st.session_state["model_history"][model_choice] = metrics_dict
+                        
+                        # Generate Interpretability metrics & save to persistent Training History archive
+                        interp_snapshot = generate_forecast_interpretability(
+                            forecast_df=forecast_df,
+                            current_price=summary['current_price'],
+                            model_name=model_choice
+                        )
+                        
+                        save_training_run_to_history(
+                            stock_name=selected_stock,
+                            model_name=model_choice,
+                            forecast_df=forecast_df,
+                            metrics=metrics_dict,
+                            interpretability=interp_snapshot
+                        )
+                        
+                        st.cache_data.clear()  # Refresh RAG cache for new forecast
+                        
+                        st.success(f"Training Complete for {model_choice}!")
+                        st.rerun()
+                        
+                if st.session_state["current_forecast"] is not None:
+                    curr_metrics = st.session_state["current_forecast"]["metrics"]
+                    st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+                    st.markdown(f"**{st.session_state['current_forecast']['model']} Technical Metrics:**")
+                    
+                    m_c1, m_c2, m_c3 = st.columns(3)
+                    with m_c1: render_summary_box("RMSE", f"${curr_metrics.get('RMSE', 0):.2f}")
+                    with m_c2: render_summary_box("MAE", f"${curr_metrics.get('MAE', 0):.2f}")
+                    with m_c3: render_summary_box("MAPE", f"{curr_metrics.get('MAPE', 0):.2f}%")
+
+        chart_container = col_chart
+    else:
+        # User Mode: Full width projection chart container
+        chart_container = st
+
+    # -------------------------------------------------------------------------
+    # PROJECTION CHART (BOTH MODES)
+    # -------------------------------------------------------------------------
+    with chart_container:
         with st.container(border=True):
             st.markdown(
                 f'<div class="intercom-title">3-Month Price Projections ({selected_stock})</div>',
@@ -144,7 +161,7 @@ def render_forecast_tab(raw_df, selected_stock, summary):
             if st.session_state["all_forecasts"]:
                 available_models = list(st.session_state["all_forecasts"].keys())
                 view_options = available_models.copy()
-                if len(available_models) > 1:
+                if len(available_models) > 1 and is_developer_mode():
                     view_options.append("Combined Comparison")
                     
                 selected_view = st.radio(
@@ -180,7 +197,8 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                             line=dict(color=color_map.get(m_name, "#a855f7"), width=2.5, dash="dash")
                         ))
                 else:
-                    forecast_data = st.session_state["all_forecasts"][selected_view]
+                    target_model = selected_view if selected_view else list(st.session_state["all_forecasts"].keys())[0]
+                    forecast_data = st.session_state["all_forecasts"][target_model]
                     fc_df = forecast_data["df"]
                     
                     hist_mask = fc_df["type"] == "Historical"
@@ -193,13 +211,13 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                     ))
                     
                     pred_mask = fc_df["type"] == "Forecast"
-                    line_color = color_map.get(selected_view, "#10b981")
+                    line_color = color_map.get(target_model, "#10b981")
                     
                     fig_fc.add_trace(go.Scatter(
                         x=fc_df.loc[pred_mask, "Date"],
                         y=fc_df.loc[pred_mask, "Price"],
                         mode="lines",
-                        name=f"{selected_view} Forecast",
+                        name=f"{target_model} Forecast",
                         line=dict(color=line_color, width=2.5, dash="dash")
                     ))
                     
@@ -234,13 +252,18 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                 )
                 st.plotly_chart(fig_fc, use_container_width=True)
             else:
-                st.info("Select a model and click 'Train & Forecast' to generate projections.")
+                if is_developer_mode():
+                    st.info("Select a model and click 'Train & Forecast' to generate predictions.")
+                else:
+                    st.info("No forecast payload loaded yet. Switch to Developer Mode to train a forecasting model.")
 
-    # --- FORECAST INTERPRETABILITY & MODEL COMMENTARY CARD ---
+    # -------------------------------------------------------------------------
+    # FORECAST INTERPRETABILITY & COMMENTARY CARD (BOTH MODES)
+    # -------------------------------------------------------------------------
     if st.session_state["all_forecasts"]:
         st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
         with st.container(border=True):
-            st.markdown('<div class="intercom-title">Model Forecast Interpretability & Commentary</div>', unsafe_allow_html=True)
+            st.markdown('<div class="intercom-title">Forecast Insights & Commentary</div>', unsafe_allow_html=True)
             
             if selected_view == "Combined Comparison":
                 interp = generate_combined_interpretability(
@@ -281,9 +304,9 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                     b_model = interp.get("best_model", "LSTM")
                     b_mape = interp.get("best_mape", 0.0)
                     render_summary_box(
-                        label="Top Recommended Model",
+                        label="Top Model Consensus",
                         value=b_model,
-                        subtext=f"Lowest historical error (MAPE: {b_mape:.2f}%)",
+                        subtext=f"Highest accuracy model",
                         val_class="val-positive"
                     )
 
@@ -293,11 +316,11 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                     render_summary_box(
                         label="Target Range Spread",
                         value=f"${min_t:.2f} — ${max_t:.2f}",
-                        subtext="Min to Max model target range"
+                        subtext="Min to Max target range"
                     )
 
             else:
-                target_model_name = selected_view if selected_view in st.session_state["all_forecasts"] else list(st.session_state["all_forecasts"].keys())[0]
+                target_model_name = selected_view if (selected_view and selected_view in st.session_state["all_forecasts"]) else list(st.session_state["all_forecasts"].keys())[0]
                 target_fc_df = st.session_state["all_forecasts"][target_model_name]["df"]
                 
                 interp = generate_forecast_interpretability(
@@ -317,7 +340,7 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                     render_summary_box(
                         label="Directional Sentiment",
                         value=sentiment_val,
-                        subtext=f"{target_model_name} predicts {trend_d}",
+                        subtext=f"Predicted {trend_d}",
                         border_color=badge_col,
                         val_class=change_cls
                     )
