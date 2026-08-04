@@ -3,6 +3,8 @@ import numpy as np
 from datetime import timedelta
 from utils.metrics import calculate_metrics
 
+from performance.profiler import profile_step
+
 # Try importing statsmodels ARIMA; provide fallback if library is not installed
 try:
     from statsmodels.tsa.arima.model import ARIMA
@@ -11,6 +13,7 @@ except ImportError:
     STATSMODELS_AVAILABLE = False
 
 
+@profile_step("ARIMA Training")
 def train_and_forecast_arima(df, forecast_days=90, order=(5, 1, 2)):
     """
     Trains an ARIMA (AutoRegressive Integrated Moving Average) statistical model

@@ -9,6 +9,10 @@ from state.mode_manager import is_developer_mode
 from components.access_control import get_allowed_navigation_options
 
 
+from performance.profiler import profile_step
+
+
+@profile_step("Sidebar Rendering")
 def render_sidebar():
     """
     Renders the Intercom-inspired mode-aware sidebar.

@@ -245,6 +245,10 @@ def calculate_days_from_timeline(timeline_option):
     return 90  # Default 3 Months
 
 
+from performance.profiler import profile_step
+
+
+@profile_step("GDELT Fetch")
 def fetch_gdelt_news(company_name, max_records=25, timeline_range="3 Months", days_back=None):
     """
     Fetches financial news articles from GDELT DOC API v2 within a selected date horizon.

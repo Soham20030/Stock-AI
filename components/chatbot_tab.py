@@ -30,6 +30,10 @@ def render_chat_bubble(role, content):
         """, unsafe_allow_html=True)
 
 
+from performance.profiler import profile_step
+
+
+@profile_step("AI Analyst Tab Rendering")
 def render_chatbot_tab(selected_stock, summary):
     """
     Renders Tab 7: AI Financial Analyst chat interface with clean Intercom-styled

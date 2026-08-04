@@ -25,6 +25,10 @@ def get_cached_rag_explanation(company_name, active_model_name, forecast_delta, 
     return retrieved, sentiment_data, explanation_report
 
 
+from performance.profiler import profile_step
+
+
+@profile_step("AI Explanation Tab Rendering")
 def render_explanation_tab(selected_stock, summary, raw_df):
     """
     Renders Tab 6: RAG Explainability, alignment confidence scores,

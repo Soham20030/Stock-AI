@@ -7,6 +7,9 @@ FINBERT_MODEL_NAME = "ProsusAI/finbert"
 _GLOBAL_FINBERT_ANALYZER = None
 
 
+from performance.profiler import profile_step
+
+
 class FinBERTSentimentAnalyzer:
     """
     Executes domain-specific financial sentiment analysis using FinBERT
@@ -42,6 +45,7 @@ class FinBERTSentimentAnalyzer:
             print(f"FinBERT pipeline initialization warning ({e}). Falling back to Financial NLP lexicon engine.")
             self.pipeline = None
 
+    @profile_step("Sentiment Analysis")
     def analyze_article(self, headline, content=""):
         """
         Analyzes a single news article and generates positive, negative, 

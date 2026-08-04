@@ -30,6 +30,10 @@ def get_finbert_analyzer():
     return FinBERTSentimentAnalyzer()
 
 
+from performance.profiler import profile_step
+
+
+@profile_step("Market News Tab Rendering")
 def render_news_tab(selected_stock, company_name):
     """
     Renders Tab 3: Market News timeline filters, Ollama LLM summaries,
