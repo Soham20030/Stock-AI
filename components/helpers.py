@@ -11,27 +11,27 @@ def inject_custom_css():
 
     if light_mode:
         # ---------------------------------------------------------------------
-        # INTERCOM LIGHT MODE THEME PALETTE (High Contrast Slate)
+        # INTERCOM LIGHT MODE THEME PALETTE (High Contrast Slate & Sharp Borders)
         # ---------------------------------------------------------------------
         bg_app = "#f8fafc"
         text_main = "#0f172a"
         text_muted = "#475569"
         surface_bg = "#ffffff"
-        border_color = "#cbd5e1"
-        hover_border = "#94a3b8"
+        border_color = "#94a3b8"
+        hover_border = "#64748b"
         sidebar_bg = "#f1f5f9"
         card_bg = "#ffffff"
-        card_border = "#cbd5e1"
+        card_border = "#94a3b8"
         btn_sec_bg = "#e2e8f0"
         btn_sec_text = "#0f172a"
-        btn_sec_border = "#cbd5e1"
+        btn_sec_border = "#94a3b8"
         shadow_box = "0 2px 8px rgba(0, 0, 0, 0.05)"
         chat_user_bg = "#e2e8f0"
         chat_user_text = "#0f172a"
         chat_bot_bg = "#f8fafc"
         chat_bot_text = "#0f172a"
         input_bg = "#ffffff"
-        input_border = "#cbd5e1"
+        input_border = "#94a3b8"
         badge_off_bg = "#e2e8f0"
         badge_off_text = "#334155"
     else:
@@ -101,7 +101,7 @@ def inject_custom_css():
             opacity: 1 !important;
             color: {text_main} !important;
             background-color: {card_bg} !important;
-            border: 1px solid {border_color} !important;
+            border: 1.5px solid {border_color} !important;
             border-radius: 8px !important;
             padding: 4px 8px !important;
             margin: 8px !important;
@@ -115,16 +115,19 @@ def inject_custom_css():
             color: #6366f1 !important;
         }}
 
-        /* Minimalist Surface Containers & Section Borders */
-        [data-testid="stVerticalBlockBorderWrapper"] {{
+        /* Minimalist Surface Containers & Section Borders Across ENTIRE Dashboard */
+        div[data-testid="stVerticalBlockBorderWrapper"],
+        [data-testid="stVerticalBlockBorderWrapper"],
+        .element-container [data-testid="stVerticalBlockBorderWrapper"] {{
             background: {surface_bg} !important;
-            border: 1px solid {border_color} !important;
+            border: 1.5px solid {border_color} !important;
             border-radius: 12px !important;
             padding: 18px 20px !important;
             box-shadow: {shadow_box} !important;
             transition: border-color 0.2s ease;
         }}
 
+        div[data-testid="stVerticalBlockBorderWrapper"]:hover,
         [data-testid="stVerticalBlockBorderWrapper"]:hover {{
             border-color: {hover_border} !important;
         }}
