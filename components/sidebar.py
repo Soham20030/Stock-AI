@@ -5,12 +5,23 @@ from utils.data_loader import (
     delete_dataset
 )
 from chatbot.memory import ChatbotMemory
+from state.mode_manager import is_developer_mode
+from components.access_control import get_allowed_navigation_options
 
 
 def render_sidebar():
     """
-    Renders the Intercom-inspired sidebar featuring vertical navigation menu,
-    dataset manager controls, CSV uploads, and deletion.
+    Renders the Intercom-inspired mode-aware sidebar.
+
+    User Mode:
+        - Mode-filtered vertical navigation
+        - Asset selector dropdown
+
+    Developer Mode:
+        - Full vertical navigation
+        - Asset selector dropdown
+        - CSV Dataset Uploader
+        - Dataset Eraser expander
 
     Returns:
         tuple: (selected_stock, active_tab)
@@ -19,24 +30,20 @@ def render_sidebar():
 
     with st.sidebar:
         st.markdown('<div style="font-size: 1.15rem; font-weight: 700; color: #ffffff; letter-spacing: -0.02em;">Stock AI Intelligence</div>', unsafe_allow_html=True)
-        st.caption("Quantitative Market Forecasting")
+        mode_label = "Developer Suite" if is_developer_mode() else "Quantitative Analytics"
+        st.caption(mode_label)
         st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 
         # ---------------------------------------------------------------------
-        # 1. INTERCOM VERTICAL NAVIGATION MENU
+        # 1. MODE-FILTERED NAVIGATION MENU
         # ---------------------------------------------------------------------
         st.markdown("<div style='font-size: 0.72rem; font-weight: 700; color: #8f9bba; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;'>Navigation</div>", unsafe_allow_html=True)
+        
+        allowed_options = get_allowed_navigation_options()
+        
         active_tab = st.radio(
             "Dashboard Navigation",
-            options=[
-                "Historical Data", 
-                "Forecast Engine", 
-                "Market News", 
-                "Model Comparison",
-                "Training History",
-                "AI Explanation",
-                "AI Analyst"
-            ],
+            options=allowed_options,
             index=0,
             label_visibility="collapsed",
             key="sidebar_nav_menu"
@@ -45,9 +52,9 @@ def render_sidebar():
         st.markdown("<div style='height: 16px; border-bottom: 1px solid #1a1d24; margin-bottom: 16px;'></div>", unsafe_allow_html=True)
 
         # ---------------------------------------------------------------------
-        # 2. DATASET MANAGER
+        # 2. DATASET SELECTOR
         # ---------------------------------------------------------------------
-        st.markdown("<div style='font-size: 0.72rem; font-weight: 700; color: #8f9bba; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;'>Dataset Manager</div>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size: 0.72rem; font-weight: 700; color: #8f9bba; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;'>Asset Selection</div>", unsafe_allow_html=True)
         datasets = get_available_datasets()
         
         if datasets:
@@ -72,26 +79,31 @@ def render_sidebar():
             st.cache_data.clear()      # Clear data cache on stock switch
             memory_mgr.clear_memory()  # Reset chat history only when switching tickers
 
-        # Upload New Dataset
-        uploaded_file = st.file_uploader(
-            "Upload CSV Data",
-            type=["csv"],
-            help="CSV must contain 'Date' and 'Close' columns."
-        )
-        
-        if uploaded_file is not None:
-            if st.button("Save Dataset"):
-                saved_name = save_uploaded_dataset(uploaded_file)
-                st.success(f"Saved {saved_name}!")
-                st.rerun()
-
-        # Delete Selected Dataset
-        if selected_stock:
-            with st.expander("Remove Dataset"):
-                st.write(f"Remove **{selected_stock}** from workspace?")
-                if st.button("Confirm Delete", type="secondary"):
-                    delete_dataset(selected_stock)
-                    st.success(f"Deleted {selected_stock}!")
+        # ---------------------------------------------------------------------
+        # 3. DEVELOPER MODE ONLY: DATASET MANAGEMENT (UPLOAD & DELETE)
+        # ---------------------------------------------------------------------
+        if is_developer_mode():
+            st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 0.72rem; font-weight: 700; color: #8f9bba; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;'>Dataset Management</div>", unsafe_allow_html=True)
+            
+            uploaded_file = st.file_uploader(
+                "Upload CSV Data",
+                type=["csv"],
+                help="CSV must contain 'Date' and 'Close' columns."
+            )
+            
+            if uploaded_file is not None:
+                if st.button("Save Dataset"):
+                    saved_name = save_uploaded_dataset(uploaded_file)
+                    st.success(f"Saved {saved_name}!")
                     st.rerun()
+
+            if selected_stock:
+                with st.expander("Remove Dataset"):
+                    st.write(f"Remove **{selected_stock}** from workspace?")
+                    if st.button("Confirm Delete", type="secondary"):
+                        delete_dataset(selected_stock)
+                        st.success(f"Deleted {selected_stock}!")
+                        st.rerun()
 
     return selected_stock, active_tab
