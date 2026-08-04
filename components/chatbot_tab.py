@@ -46,29 +46,7 @@ def render_chatbot_tab(selected_stock, summary):
         st.caption("Ask questions about forecasts, model error benchmarks (RMSE/MAPE), news summaries, or RAG explanations. Zero-hallucination context bounds enforced.")
         
         # ---------------------------------------------------------------------
-        # 1. QUICK-ASK SUGGESTED QUESTION BUTTONS
-        # ---------------------------------------------------------------------
-        st.markdown("<div style='font-size: 0.82rem; font-weight: 600; color: #8f9bba; margin-bottom: 8px;'>Suggested Inquiries</div>", unsafe_allow_html=True)
-        q_btn1, q_btn2, q_btn3, q_btn4 = st.columns(4)
-        
-        selected_quick_q = None
-        with q_btn1:
-            if st.button("Why is confidence low?"):
-                selected_quick_q = f"Why is the RAG alignment confidence score for {selected_stock} at its current level?"
-        with q_btn2:
-            if st.button("Explain today's forecast"):
-                selected_quick_q = f"Explain the active 3-month forecast and projected price target for {selected_stock}."
-        with q_btn3:
-            if st.button("Compare Prophet & LSTM"):
-                selected_quick_q = f"Compare the accuracy error metrics (RMSE, MAE, MAPE) between Prophet, ARIMA, and LSTM for {selected_stock}."
-        with q_btn4:
-            if st.button("Summarize latest news"):
-                selected_quick_q = f"Summarize the major news events and market drivers for {selected_stock}."
-
-        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-
-        # ---------------------------------------------------------------------
-        # 2. CONVERSATION HISTORY RENDERER (INTERCOM CUSTOM BUBBLES)
+        # 1. CONVERSATION HISTORY RENDERER (INTERCOM CUSTOM BUBBLES)
         # ---------------------------------------------------------------------
         history_list = memory_mgr.get_history()
 
@@ -83,12 +61,12 @@ def render_chatbot_tab(selected_stock, summary):
                 st.info(f"Welcome! I am your AI Analyst for **{selected_stock}**. Ask me any question about model error scores, forecasts, news summaries, or market signals.")
 
         # ---------------------------------------------------------------------
-        # 3. CHAT INPUT ENGINE & FAST CACHED EXECUTION
+        # 2. CHAT INPUT ENGINE & FAST CACHED EXECUTION
         # ---------------------------------------------------------------------
         user_input = st.chat_input(f"Ask a question about {selected_stock} or dashboard context...")
         
-        # Handle prompt submission (via input box or quick-ask button)
-        prompt_to_process = selected_quick_q or user_input
+        # Handle prompt submission
+        prompt_to_process = user_input
 
         if prompt_to_process:
             # Display user message immediately
