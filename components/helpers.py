@@ -666,13 +666,13 @@ def render_news_card(title, summary, source, date, url, sentiment_badge="", sent
     """
     if sentiment_type == "positive":
         card_class = "news-card-pos"
-        icon_mark = '<span style="color: #10b981; font-size: 0.95rem; margin-right: 6px;">🔺</span>'
+        icon_mark = '<svg width="13" height="13" viewBox="0 0 24 24" fill="#10b981" style="margin-right: 8px; vertical-align: middle; display: inline-block;"><path d="M12 3L2 21H22L12 3Z"/></svg>'
     elif sentiment_type == "negative":
         card_class = "news-card-neg"
-        icon_mark = '<span style="color: #ef4444; font-size: 0.95rem; margin-right: 6px;">🔻</span>'
+        icon_mark = '<svg width="13" height="13" viewBox="0 0 24 24" fill="#ef4444" style="margin-right: 8px; vertical-align: middle; display: inline-block;"><path d="M12 21L22 3H2L12 21Z"/></svg>'
     else:
         card_class = "news-card-neu"
-        icon_mark = '<span style="color: #f59e0b; font-size: 0.95rem; margin-right: 6px;">➖</span>'
+        icon_mark = '<svg width="13" height="13" viewBox="0 0 24 24" fill="#f59e0b" style="margin-right: 8px; vertical-align: middle; display: inline-block;"><circle cx="12" cy="12" r="8"/></svg>'
 
     st.markdown(f"""
         <div class="news-card-container {card_class}">
