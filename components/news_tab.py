@@ -6,7 +6,7 @@ from rag.sentiment import FinBERTSentimentAnalyzer
 from components.helpers import render_news_card
 
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=600, show_spinner=False)
 def get_cached_market_news(company_name, timeline_range="3 Months"):
     """
     Caches GDELT news fetching and Ollama summaries for 10 minutes per stock/timeline selection,

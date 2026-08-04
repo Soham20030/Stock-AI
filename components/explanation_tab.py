@@ -7,7 +7,7 @@ from components.helpers import render_signal_box
 from components.sentiment_charts import render_sentiment_timeline_chart
 
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=600, show_spinner=False)
 def get_cached_rag_explanation(company_name, active_model_name, forecast_delta, target_p):
     """
     Caches FAISS vector retrieval, FinBERT sentiment scoring, and RAG explanation reports

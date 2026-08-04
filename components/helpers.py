@@ -71,11 +71,20 @@ def inject_custom_css():
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }}
 
-        /* Hide Deploy button and Footer, keep Header & Sidebar toggle arrow 100% visible */
+        /* Hide Deploy button, Footer & Function Runner Status Banners */
         .stAppDeployButton {{display: none !important;}}
         [data-testid="stAppDeployButton"] {{display: none !important;}}
         #MainMenu {{visibility: hidden;}}
         footer {{visibility: hidden;}}
+        [data-testid="stStatusWidget"],
+        div[data-testid="stStatusWidget"],
+        [data-testid="stDecoration"],
+        div[data-testid="stDecoration"] {{
+            display: none !important;
+            visibility: hidden !important;
+            height: 0px !important;
+            opacity: 0 !important;
+        }}
 
         /* Ensure Streamlit Header container is positioned cleanly */
         header[data-testid="stHeader"] {{
