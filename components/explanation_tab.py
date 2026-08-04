@@ -29,14 +29,9 @@ def render_explanation_tab(selected_stock, summary, raw_df):
     """
     Renders Tab 6: RAG Explainability, alignment confidence scores,
     narrative explanations, market signals grid, sentiment timeline, and retrieved articles.
-
-    Parameters:
-        selected_stock (str): Selected asset identifier (e.g. 'AAPL.csv').
-        summary (dict): Stock summary fundamentals.
-        raw_df (DataFrame): Historical price dataframe.
     """
     with st.container(border=True):
-        st.markdown(f'<div class="vesper-title">🧠 RAG Explainability & Market Information Environment — {summary["company_name"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="intercom-title">RAG Explainability & Market Information Environment — {summary["company_name"]}</div>', unsafe_allow_html=True)
         
         # Determine active quantitative model prediction parameters
         active_model_name = "Prophet"
@@ -52,7 +47,6 @@ def render_explanation_tab(selected_stock, summary, raw_df):
                 forecast_delta = ((target_p - summary["current_price"]) / summary["current_price"]) * 100
 
         with st.spinner(f"Loading RAG Vector Search & FinBERT Sentiment Analysis for {selected_stock}..."):
-            # FAST CACHED RAG EXPLANATION LOADER (< 0.01s during reruns and button clicks)
             retrieved_articles, sentiment_analysis, explanation_report = get_cached_rag_explanation(
                 company_name=selected_stock,
                 active_model_name=active_model_name,
@@ -90,21 +84,21 @@ def render_explanation_tab(selected_stock, summary, raw_df):
                 delta=f"{s_label} Context"
             )
 
-        st.caption(f"💡 **Alignment Reason**: {explanation_report['confidence_reason']}")
-        st.markdown("<hr style='border-color: #232936;'>", unsafe_allow_html=True)
+        st.caption(f"Alignment Rationale: {explanation_report['confidence_reason']}")
+        st.markdown("<hr style='border-color: #1e2638;'>", unsafe_allow_html=True)
 
         # ---------------------------------------------------------------------
         # 2. NATURAL LANGUAGE EXPLANATION NARRATIVE CARD
         # ---------------------------------------------------------------------
-        st.subheader("💬 Contextual Natural-Language Explanation")
+        st.subheader("Contextual Natural-Language Narrative")
         st.markdown(f"""
             <div class="narrative-box">
                 "{explanation_report['narrative']}"
             </div>
         """, unsafe_allow_html=True)
         
-        st.caption("⚠️ **Zero-Causation Rule**: News signals describe the surrounding information environment and do not alter the quantitative prediction.")
-        st.markdown("<hr style='border-color: #232936;'>", unsafe_allow_html=True)
+        st.caption("Zero-Causation Rule: News signals describe the surrounding information environment and do not alter quantitative predictions.")
+        st.markdown("<hr style='border-color: #1e2638;'>", unsafe_allow_html=True)
 
         # ---------------------------------------------------------------------
         # 3. MARKET SIGNALS GRID (POSITIVE vs NEGATIVE)
@@ -112,7 +106,7 @@ def render_explanation_tab(selected_stock, summary, raw_df):
         sig_left, sig_right = st.columns(2)
         
         with sig_left:
-            st.subheader("✓ Positive Market Signals")
+            st.subheader("Positive Market Signals")
             pos_sigs = explanation_report.get("positive_signals", [])
             if pos_sigs:
                 for sig in pos_sigs:
@@ -121,7 +115,7 @@ def render_explanation_tab(selected_stock, summary, raw_df):
                 st.write("No strong bullish drivers detected in recent news.")
 
         with sig_right:
-            st.subheader("⚠ Negative Market Signals")
+            st.subheader("Negative Market Signals")
             neg_sigs = explanation_report.get("negative_signals", [])
             if neg_sigs:
                 for sig in neg_sigs:
@@ -129,33 +123,35 @@ def render_explanation_tab(selected_stock, summary, raw_df):
             else:
                 st.write("No major bearish headwinds detected in recent news.")
 
-        st.markdown("<hr style='border-color: #232936;'>", unsafe_allow_html=True)
+        st.markdown("<hr style='border-color: #1e2638;'>", unsafe_allow_html=True)
 
         # ---------------------------------------------------------------------
         # 4. SENTIMENT TIMELINE VISUALIZATION
         # ---------------------------------------------------------------------
         render_sentiment_timeline_chart(raw_df)
 
-        st.markdown("<hr style='border-color: #232936;'>", unsafe_allow_html=True)
+        st.markdown("<hr style='border-color: #1e2638;'>", unsafe_allow_html=True)
 
         # ---------------------------------------------------------------------
         # 5. RETRIEVED ARTICLES (FAISS SEMANTIC SEARCH TOP-5 RANKING)
         # ---------------------------------------------------------------------
-        st.subheader("📰 Top-5 Semantically Retrieved Articles (FAISS Vector Store)")
+        st.subheader("Top-5 Semantically Retrieved Articles (FAISS Vector Store)")
         
         articles_list = explanation_report.get("retrieved_articles", [])
         if articles_list:
             for idx, art in enumerate(articles_list[:5], 1):
                 p_pos = art.get("positive", 0.33)
                 p_neg = art.get("negative", 0.33)
-                s_lbl = "Positive 🟢" if p_pos > p_neg else ("Negative 🔴" if p_neg > p_pos else "Neutral 🟡")
+                s_lbl = "Positive" if p_pos > p_neg else ("Negative" if p_neg > p_pos else "Neutral")
+                s_badge = f'<span class="badge-positive">{s_lbl}</span>' if p_pos > p_neg else (f'<span class="badge-negative">{s_lbl}</span>' if p_neg > p_pos else f'<span class="badge-neutral">{s_lbl}</span>')
                 
                 st.markdown(f"""
-                    <div class="news-item">
-                        <div><strong>#{idx}. <a class="news-title" href="{art.get('url', '#')}" target="_blank">{art.get('headline', 'Headline')}</a></strong></div>
-                        <div class="news-meta">
-                            Source: <strong>{art.get('source', 'GDELT')}</strong> • Date: {art.get('date', 'Recent')} • 
-                            FinBERT: <strong>{s_lbl}</strong> (Pos: {p_pos:.2f}, Neg: {p_neg:.2f})
+                    <div class="news-card-container">
+                        <div class="news-card-title"><a href="{art.get('url', '#')}" target="_blank">#{idx}. {art.get('headline', 'Headline')}</a></div>
+                        <div class="news-card-meta-row">
+                            <div>Source: <strong>{art.get('source', 'GDELT')}</strong></div>
+                            <div>Date: {art.get('date', 'Recent')}</div>
+                            <div>FinBERT: {s_badge} (Pos: {p_pos:.2f}, Neg: {p_neg:.2f})</div>
                         </div>
                     </div>
                 """, unsafe_allow_html=True)

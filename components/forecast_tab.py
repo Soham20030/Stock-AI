@@ -14,17 +14,13 @@ from components.helpers import render_summary_box
 def render_historical_tab(raw_df, selected_stock):
     """
     Renders Tab 1: Historical Data chart and date range filtering options.
-
-    Parameters:
-        raw_df (DataFrame): Historical price dataframe.
-        selected_stock (str): Selected asset identifier.
     """
     with st.container(border=True):
-        st.markdown(f'<div class="vesper-title">📈 Historical Price Action — {selected_stock}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="intercom-title">Historical Price Action — {selected_stock}</div>', unsafe_allow_html=True)
         
         # Date Range Filter Selector
         range_option = st.radio(
-            "Time Range:",
+            "Time Horizon:",
             options=["3 Months", "6 Months", "1 Year", "Max"],
             index=3,
             horizontal=True,
@@ -50,8 +46,8 @@ def render_historical_tab(raw_df, selected_stock):
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             margin=dict(l=10, r=10, t=20, b=20),
-            xaxis=dict(showgrid=True, gridcolor="#1e2430", title="Date"),
-            yaxis=dict(showgrid=True, gridcolor="#1e2430", title="Price ($)"),
+            xaxis=dict(showgrid=True, gridcolor="#1e2638", title="Date"),
+            yaxis=dict(showgrid=True, gridcolor="#1e2638", title="Price ($)"),
             height=420
         )
         st.plotly_chart(fig_hist, use_container_width=True)
@@ -61,17 +57,12 @@ def render_forecast_tab(raw_df, selected_stock, summary):
     """
     Renders Tab 2: Forecast Engine controls, Plotly projection charts,
     and AI Forecast Interpretability commentary cards.
-
-    Parameters:
-        raw_df (DataFrame): Historical price dataframe.
-        selected_stock (str): Selected asset identifier.
-        summary (dict): Stock summary metrics dictionary.
     """
     col_ctrl, col_chart = st.columns([1, 2.5])
     
     with col_ctrl:
         with st.container(border=True):
-            st.markdown('<div class="vesper-title">🤖 Model Controls</div>', unsafe_allow_html=True)
+            st.markdown('<div class="intercom-title">Model Controls</div>', unsafe_allow_html=True)
             
             model_choice = st.selectbox(
                 "Select Forecasting Model:",
@@ -83,7 +74,7 @@ def render_forecast_tab(raw_df, selected_stock, summary):
             forecast_days = 90  # Next 3 months (approx 90 days)
             st.write(f"Forecast Horizon: **{forecast_days} Days (3 Months)**")
             
-            if st.button("🚀 Train & Forecast"):
+            if st.button("Train & Forecast Model"):
                 with st.spinner(f"Training {model_choice} model on {selected_stock}..."):
                     progress_bar = st.progress(0)
                     for percent_complete in range(1, 101, 25):
@@ -130,8 +121,8 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                     
             if st.session_state["current_forecast"] is not None:
                 curr_metrics = st.session_state["current_forecast"]["metrics"]
-                st.markdown("<hr style='border-color: #232936;'>", unsafe_allow_html=True)
-                st.markdown(f"**Latest Model ({st.session_state['current_forecast']['model']}) Metrics:**")
+                st.markdown("<hr style='border-color: #1e2638;'>", unsafe_allow_html=True)
+                st.markdown(f"**Latest Model ({st.session_state['current_forecast']['model']}) Benchmarks:**")
                 
                 m_c1, m_c2, m_c3 = st.columns(3)
                 with m_c1:
@@ -144,7 +135,7 @@ def render_forecast_tab(raw_df, selected_stock, summary):
     with col_chart:
         with st.container(border=True):
             st.markdown(
-                f'<div class="vesper-title">🔮 3-Month Price Projections ({selected_stock})</div>',
+                f'<div class="intercom-title">3-Month Price Projections ({selected_stock})</div>',
                 unsafe_allow_html=True
             )
             
@@ -236,19 +227,19 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     margin=dict(l=10, r=10, t=20, b=20),
-                    xaxis=dict(showgrid=True, gridcolor="#1e2430", title="Date"),
-                    yaxis=dict(showgrid=True, gridcolor="#1e2430", title="Price ($)"),
+                    xaxis=dict(showgrid=True, gridcolor="#1e2638", title="Date"),
+                    yaxis=dict(showgrid=True, gridcolor="#1e2638", title="Price ($)"),
                     height=380
                 )
                 st.plotly_chart(fig_fc, use_container_width=True)
             else:
-                st.info("👈 Select a model and click 'Train & Forecast' to generate predictions!")
+                st.info("Select a model and click 'Train & Forecast Model' to generate projections.")
 
     # --- FORECAST INTERPRETABILITY & MODEL COMMENTARY CARD ---
     if st.session_state["all_forecasts"]:
         st.markdown("<br>", unsafe_allow_html=True)
         with st.container(border=True):
-            st.markdown('<div class="vesper-title">🧠 AI Forecast Interpretability & Model Commentary</div>', unsafe_allow_html=True)
+            st.markdown('<div class="intercom-title">Model Forecast Interpretability & Commentary</div>', unsafe_allow_html=True)
             
             if selected_view == "Combined Comparison":
                 interp = generate_combined_interpretability(
@@ -262,14 +253,13 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                 with ic1:
                     sentiment_val = interp.get("sentiment", "NEUTRAL")
                     badge_col = interp.get("badge_color", "#f59e0b")
-                    icon_symbol = interp.get("icon", "↔️")
                     bullish_c = interp.get("bullish_cnt", 0)
                     total_m = interp.get("total_models", 0)
                     change_cls = "val-positive" if sentiment_val.startswith("BULLISH") else ("val-negative" if sentiment_val.startswith("BEARISH") else "val-neutral")
                     
                     render_summary_box(
                         label="Multi-Model Consensus",
-                        value=f"{icon_symbol} {sentiment_val}",
+                        value=sentiment_val,
                         subtext=f"{bullish_c} of {total_m} models predict Bullish trend",
                         border_color=badge_col,
                         val_class=change_cls
@@ -291,7 +281,7 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                     b_mape = interp.get("best_mape", 0.0)
                     render_summary_box(
                         label="Top Recommended Model",
-                        value=f"🏆 {b_model}",
+                        value=b_model,
                         subtext=f"Lowest historical error (MAPE: {b_mape:.2f}%)",
                         val_class="val-positive"
                     )
@@ -320,13 +310,12 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                 with ic1:
                     sentiment_val = interp.get("sentiment", "NEUTRAL")
                     badge_col = interp.get("badge_color", "#f59e0b")
-                    icon_symbol = interp.get("icon", "↔️")
                     trend_d = interp.get("trend_desc", "predicts trend")
                     change_cls = "val-positive" if sentiment_val == "BULLISH" else ("val-negative" if sentiment_val == "BEARISH" else "val-neutral")
                     
                     render_summary_box(
                         label="Directional Sentiment",
-                        value=f"{icon_symbol} {sentiment_val}",
+                        value=sentiment_val,
                         subtext=f"{target_model_name} predicts {trend_d}",
                         border_color=badge_col,
                         val_class=change_cls

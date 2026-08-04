@@ -18,7 +18,7 @@ from components.chatbot_tab import render_chatbot_tab
 # 1. PAGE CONFIGURATION & CUSTOM CSS
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="Stock AI | AI Market Forecasting",
+    page_title="Stock AI | Market Forecasting & Intelligence",
     page_icon="📈",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -48,11 +48,11 @@ selected_stock = render_sidebar()
 # -----------------------------------------------------------------------------
 # 4. MAIN DASHBOARD CONTENT AREA & DATA LOADING
 # -----------------------------------------------------------------------------
-st.title("📈 Market Intelligence & Forecasting Dashboard")
-st.caption("Real-time historical price action, AI model projections, and RAG contextual signals.")
+st.title("Market Intelligence & Forecasting Dashboard")
+st.caption("Time-series predictive modeling, evaluation benchmarks, and RAG contextual analysis.")
 
 if not selected_stock:
-    st.info("👈 Please select or upload a dataset in the sidebar to get started.")
+    st.info("Please select or upload a dataset in the sidebar to get started.")
     st.stop()
 
 # Load Active Dataset
@@ -73,16 +73,16 @@ render_top_metrics_row(summary, active_view=active_view, all_forecasts=st.sessio
 render_stock_fundamentals(summary)
 
 # -----------------------------------------------------------------------------
-# 6. TABBED DASHBOARD NAVIGATION DELEGATION
+# 6. TABBED DASHBOARD NAVIGATION DELEGATION (CLEAN EMOJI-FREE TAB TITLES)
 # -----------------------------------------------------------------------------
 tab_hist, tab_forecast, tab_news, tab_compare, tab_archive, tab_rag, tab_chat = st.tabs([
-    "📊 Historical Data", 
-    "🔮 Forecast Engine", 
-    "📰 Market News", 
-    "⚖️ Model Comparison",
-    "📜 Training History",
-    "🧠 AI Explanation",
-    "💬 AI Analyst"
+    "Historical Data", 
+    "Forecast Engine", 
+    "Market News", 
+    "Model Comparison",
+    "Training History",
+    "AI Explanation",
+    "AI Analyst"
 ])
 
 # Tab 1: Historical Data
@@ -104,7 +104,7 @@ with tab_compare:
 # Tab 5: Training History Inspector
 with tab_archive:
     with st.container(border=True):
-        st.markdown('<div class="vesper-title">📜 Saved Training History & Audit Log</div>', unsafe_allow_html=True)
+        st.markdown('<div class="intercom-title">Saved Training History & Audit Log</div>', unsafe_allow_html=True)
         history_records = load_all_training_history()
         
         if history_records:
@@ -118,13 +118,13 @@ with tab_archive:
             selected_record = next((r for r in history_records if r["label"] == selected_run_label), None)
             
             if selected_record:
-                st.markdown("<hr style='border-color: #232936;'>", unsafe_allow_html=True)
+                st.markdown("<hr style='border-color: #1e2638;'>", unsafe_allow_html=True)
                 r_stock = selected_record.get("stock", "Asset")
                 r_model = selected_record.get("model", "Model")
                 r_time = selected_record.get("timestamp", "Date")
                 
-                st.subheader(f"📌 Training Run: {r_stock} — {r_model}")
-                st.caption(f"Archived Timestamp: **{r_time}**")
+                st.subheader(f"Training Run: {r_stock} — {r_model}")
+                st.caption(f"Archived Timestamp: {r_time}")
                 
                 r_metrics = selected_record.get("metrics", {})
                 rm_c1, rm_c2, rm_c3 = st.columns(3)
@@ -141,10 +141,10 @@ with tab_archive:
                     pred_mask = f_df["type"] == "Forecast"
                     color_map = {"Prophet": "#38bdf8", "ARIMA": "#f97316", "LSTM": "#10b981"}
                     fig_hist_run.add_trace(go.Scatter(x=f_df.loc[pred_mask, "Date"], y=f_df.loc[pred_mask, "Price"], mode="lines", name=f"{r_model} Forecast", line=dict(color=color_map.get(r_model, "#10b981"), width=3, dash="dash")))
-                    fig_hist_run.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=10, r=10, t=20, b=20), xaxis=dict(showgrid=True, gridcolor="#1e2430", title="Date"), yaxis=dict(showgrid=True, gridcolor="#1e2430", title="Price ($)"), height=360)
+                    fig_hist_run.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=10, r=10, t=20, b=20), xaxis=dict(showgrid=True, gridcolor="#1e2638", title="Date"), yaxis=dict(showgrid=True, gridcolor="#1e2638", title="Price ($)"), height=360)
                     st.plotly_chart(fig_hist_run, use_container_width=True)
         else:
-            st.info("No past training runs archived yet. Go to the 'Forecast Engine' tab and train a model to log history!")
+            st.info("No past training runs archived yet. Go to the 'Forecast Engine' tab and train a model to log history.")
 
 # Tab 6: AI Explanation
 with tab_rag:

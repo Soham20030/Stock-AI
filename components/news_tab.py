@@ -34,15 +34,11 @@ def render_news_tab(selected_stock, company_name):
     """
     Renders Tab 3: Market News timeline filters, Ollama LLM summaries,
     FinBERT sentiment badges, and executive news cards.
-
-    Parameters:
-        selected_stock (str): Selected stock dataset identifier (e.g. 'AAPL.csv').
-        company_name (str): Asset company title.
     """
     with st.container(border=True):
-        st.markdown(f'<div class="vesper-title">📰 Financial News & Ollama LLM Summarizer — {company_name}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="intercom-title">Market News & LLM Summaries — {company_name}</div>', unsafe_allow_html=True)
         
-        # FEATURE 3: Timeline Selector (3 Months, 6 Months, 1 Year)
+        # Timeline Selector (3 Months, 6 Months, 1 Year)
         timeline_selection = st.selectbox(
             "News Horizon Range:",
             options=["3 Months", "6 Months", "1 Year"],
@@ -52,7 +48,6 @@ def render_news_tab(selected_stock, company_name):
         )
 
         with st.spinner(f"Loading GDELT news and Ollama summaries ({timeline_selection})..."):
-            # FAST CACHED LOADER: Uses @st.cache_data for instant tab reruns & 0s latency
             summarized_news = get_cached_market_news(
                 company_name=selected_stock,
                 timeline_range=timeline_selection
@@ -74,13 +69,13 @@ def render_news_tab(selected_stock, company_name):
                 neg_p = s_res.get("negative", 0.33)
 
                 if pos_p >= 0.5 and pos_p > neg_p:
-                    s_badge = f'<span class="val-positive">🟢 Positive ({int(pos_p*100)}%)</span>'
+                    s_badge = f'<span class="badge-positive">Positive ({int(pos_p*100)}%)</span>'
                 elif neg_p >= 0.5 and neg_p > pos_p:
-                    s_badge = f'<span class="val-negative">🔴 Negative ({int(neg_p*100)}%)</span>'
+                    s_badge = f'<span class="badge-negative">Negative ({int(neg_p*100)}%)</span>'
                 else:
-                    s_badge = f'<span class="val-neutral">🟡 Neutral ({int(s_res.get("neutral", 0.34)*100)}%)</span>'
+                    s_badge = f'<span class="badge-neutral">Neutral ({int(s_res.get("neutral", 0.34)*100)}%)</span>'
 
-                # Render News Card using Shared Helper
+                # Render Executive News Card
                 render_news_card(
                     title=title_str,
                     summary=summary_str,

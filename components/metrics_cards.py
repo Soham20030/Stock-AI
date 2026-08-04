@@ -44,7 +44,7 @@ def render_top_metrics_row(summary, active_view=None, all_forecasts=None):
 
         if target_pred_price is not None:
             st.metric(
-                label=f"3M Predicted ({active_label})",
+                label=f"3M Target ({active_label})",
                 value=f"${target_pred_price:.2f}",
                 delta=f"{pred_delta_val:+.2f} ({pred_delta_pct:+.2f}%)"
             )
@@ -58,16 +58,16 @@ def render_top_metrics_row(summary, active_view=None, all_forecasts=None):
 
     with m_col3:
         st.metric(
-            label="24h Price Change",
+            label="24h Change",
             value=f"${summary['price_change']:+.2f}",
             delta=f"{summary['pct_change']:+.2f}%"
         )
 
     with m_col4:
         st.metric(
-            label="Avg Volume (30D)",
+            label="30D Avg Volume",
             value=summary['avg_volume'],
-            delta="Liquidity Normal",
+            delta="Normal Liquidity",
             delta_color="off"
         )
 
@@ -82,7 +82,7 @@ def render_stock_fundamentals(summary):
         summary (dict): Stock profile dictionary containing current_price, market_cap, high_52w, low_52w.
     """
     with st.container(border=True):
-        st.markdown(f'<div class="vesper-title">🏛️ Stock Fundamentals & Profile — {summary["company_name"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="intercom-title">Stock Fundamentals & Profile — {summary["company_name"]}</div>', unsafe_allow_html=True)
         
         s1, s2, s3, s4, s5 = st.columns(5)
         

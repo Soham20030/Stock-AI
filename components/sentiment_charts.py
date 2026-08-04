@@ -10,8 +10,8 @@ def render_sentiment_timeline_chart(raw_df):
     Parameters:
         raw_df (DataFrame): Historical price dataframe.
     """
-    st.subheader("📈 Sentiment Timeline & Stock Price Overlay")
-    st.caption("Explore monthly sentiment shifts (🟢 Positive, 🔴 Negative, 🟡 Neutral) overlaid directly onto historical price action.")
+    st.subheader("Sentiment Timeline & Stock Price Overlay")
+    st.caption("Explore monthly sentiment shifts (Positive, Negative, Neutral) overlaid directly onto historical price action.")
     
     if not raw_df.empty:
         timeline_df = raw_df.tail(180).copy()  # Last 6 months timeline
@@ -30,9 +30,9 @@ def render_sentiment_timeline_chart(raw_df):
             line=dict(color="#38bdf8", width=2)
         ))
         
-        # Overlay Sentiment Markers (January 🟢, February 🔴, etc.)
+        # Overlay Sentiment Markers
         sentiment_colors = ["#10b981", "#ef4444", "#10b981", "#10b981", "#ef4444", "#10b981"]
-        sentiment_labels = ["Positive 🟢", "Negative 🔴", "Positive 🟢", "Positive 🟢", "Negative 🔴", "Positive 🟢"]
+        sentiment_labels = ["Positive", "Negative", "Positive", "Positive", "Negative", "Positive"]
         
         marker_prices = []
         valid_t_dates = []
@@ -50,9 +50,9 @@ def render_sentiment_timeline_chart(raw_df):
             text=sentiment_labels[:len(valid_t_dates)],
             textposition="top center",
             marker=dict(
-                size=14,
+                size=12,
                 color=sentiment_colors[:len(valid_t_dates)],
-                line=dict(color="#ffffff", width=2)
+                line=dict(color="#ffffff", width=1.5)
             )
         ))
         
@@ -61,8 +61,8 @@ def render_sentiment_timeline_chart(raw_df):
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             margin=dict(l=10, r=10, t=30, b=20),
-            xaxis=dict(showgrid=True, gridcolor="#1e2430", title="Date Timeline"),
-            yaxis=dict(showgrid=True, gridcolor="#1e2430", title="Price ($)"),
+            xaxis=dict(showgrid=True, gridcolor="#1e2638", title="Date Timeline"),
+            yaxis=dict(showgrid=True, gridcolor="#1e2638", title="Price ($)"),
             height=380
         )
         st.plotly_chart(fig_timeline, use_container_width=True)

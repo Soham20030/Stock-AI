@@ -7,40 +7,36 @@ from chatbot.memory import ChatbotMemory
 
 def render_chatbot_tab(selected_stock, summary):
     """
-    Renders Tab 7: AI Financial Analyst chat interface, quick-ask buttons,
+    Renders Tab 7: AI Financial Analyst chat interface, quick-ask pill buttons,
     conversation history bubbles, and chat input field.
-
-    Parameters:
-        selected_stock (str): Selected asset identifier (e.g. 'AAPL.csv').
-        summary (dict): Stock summary fundamentals.
     """
     memory_mgr = ChatbotMemory()
 
     with st.container(border=True):
-        st.markdown(f'<div class="vesper-title">💬 AI Financial Analyst — Context Assistant ({summary["company_name"]})</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="intercom-title">AI Financial Analyst — Context Assistant ({summary["company_name"]})</div>', unsafe_allow_html=True)
         st.caption("Ask questions about forecasts, model error benchmarks (RMSE/MAPE), news summaries, or RAG explanations. Zero-hallucination context bounds enforced.")
         
         # ---------------------------------------------------------------------
         # 1. QUICK-ASK SUGGESTED QUESTION BUTTONS
         # ---------------------------------------------------------------------
-        st.write("**Quick Example Questions:**")
+        st.write("**Suggested Inquiries:**")
         q_btn1, q_btn2, q_btn3, q_btn4 = st.columns(4)
         
         selected_quick_q = None
         with q_btn1:
-            if st.button("❓ Why is confidence low?"):
+            if st.button("Why is confidence low?"):
                 selected_quick_q = f"Why is the RAG alignment confidence score for {selected_stock} at its current level?"
         with q_btn2:
-            if st.button("🔮 Explain today's forecast"):
+            if st.button("Explain today's forecast"):
                 selected_quick_q = f"Explain the active 3-month forecast and projected price target for {selected_stock}."
         with q_btn3:
-            if st.button("⚖️ Compare Prophet & LSTM"):
+            if st.button("Compare Prophet & LSTM"):
                 selected_quick_q = f"Compare the accuracy error metrics (RMSE, MAE, MAPE) between Prophet, ARIMA, and LSTM for {selected_stock}."
         with q_btn4:
-            if st.button("📰 Summarize latest news"):
+            if st.button("Summarize latest news"):
                 selected_quick_q = f"Summarize the major news events and market drivers for {selected_stock}."
 
-        st.markdown("<hr style='border-color: #232936;'>", unsafe_allow_html=True)
+        st.markdown("<hr style='border-color: #1e2638;'>", unsafe_allow_html=True)
 
         # ---------------------------------------------------------------------
         # 2. CONVERSATION HISTORY RENDERER
@@ -60,7 +56,7 @@ def render_chatbot_tab(selected_stock, summary):
                         with st.chat_message("assistant"):
                             st.markdown(content)
             else:
-                st.info(f"👋 Welcome! I am your AI Analyst for **{selected_stock}**. Ask me any question about model error scores, forecasts, news summaries, or market signals!")
+                st.info(f"Welcome! I am your AI Analyst for **{selected_stock}**. Ask me any question about model error scores, forecasts, news summaries, or market signals.")
 
         # ---------------------------------------------------------------------
         # 3. CHAT INPUT ENGINE & FAST CACHED EXECUTION
@@ -106,9 +102,9 @@ def render_chatbot_tab(selected_stock, summary):
                     
             st.rerun()
 
-        # Clear Chat History Button (FAST EXECUTION VIA CACHED RERUNS)
+        # Clear Chat History Button
         if history_list:
             st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("🧹 Clear Chat History", type="secondary"):
+            if st.button("Clear Chat History", type="secondary"):
                 memory_mgr.clear_memory()
                 st.rerun()
