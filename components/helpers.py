@@ -6,7 +6,7 @@ def inject_custom_css():
     Injects authentic Intercom-inspired minimalist dark mode styling:
     Ultra-sleek off-black canvas (#090A0C), flat slate surfaces (#0F1115),
     Intercom signature indigo/blue accents (#6366F1), 9999px full-pill buttons,
-    hairline micro-borders (#1A1D24), and fully visible sidebar expand/collapse controls.
+    hairline micro-borders (#1A1D24), and custom vertical menu items without radio dots.
     """
     st.markdown("""
         <style>
@@ -61,7 +61,7 @@ def inject_custom_css():
             background: #0f1115 !important;
             border: 1px solid #1a1d24 !important;
             border-radius: 12px !important;
-            padding: 22px !important;
+            padding: 18px 20px !important;
             box-shadow: none !important;
             transition: border-color 0.2s ease;
         }
@@ -76,26 +76,40 @@ def inject_custom_css():
             border-right: 1px solid #1a1d24 !important;
         }
 
-        /* Sidebar Radio Navigation List Items */
-        div[data-aria-label="Dashboard Navigation"] label {
+        /* HIDE DEFAULT RADIO CIRCLE DOTS IN SIDEBAR MENU */
+        div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label > div:first-child,
+        div[data-testid="stRadio"] div[role="radiogroup"] label > div:first-child {
+            display: none !important;
+        }
+
+        /* STYLE SIDEBAR VERTICAL MENU ITEMS AS SLEEK RECTANGULAR SAAS BUTTONS */
+        div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label,
+        div[data-testid="stRadio"] div[role="radiogroup"] label {
             background: transparent !important;
             border-radius: 8px !important;
-            padding: 8px 12px !important;
-            margin-bottom: 2px !important;
+            padding: 9px 14px !important;
+            margin-bottom: 3px !important;
             transition: all 0.2s ease !important;
             cursor: pointer !important;
             border: 1px solid transparent !important;
+            color: #8f9bba !important;
+            font-size: 0.86rem !important;
+            font-weight: 500 !important;
+            display: block !important;
         }
 
-        div[data-aria-label="Dashboard Navigation"] label:hover {
+        div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label:hover,
+        div[data-testid="stRadio"] div[role="radiogroup"] label:hover {
             background: #141822 !important;
             color: #ffffff !important;
         }
 
-        div[data-aria-label="Dashboard Navigation"] label[data-checked="true"] {
-            background: #1a202c !important;
-            border-color: #2e364a !important;
+        div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label:has(input:checked),
+        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
+            background: #6366f1 !important;
             color: #ffffff !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25) !important;
         }
 
         /* Minimalist Headers */
@@ -114,36 +128,46 @@ def inject_custom_css():
             margin-bottom: 16px;
         }
 
-        /* Flat Summary & Metric Cards */
+        /* Compact Flat Summary & Metric Cards for 5-Column Grid Fitting */
         .summary-box {
             background: #14171f;
             border-radius: 10px;
-            padding: 16px;
+            padding: 12px 14px;
             border: 1px solid #1e222d;
             height: 100%;
+            overflow: hidden;
         }
 
         .summary-label {
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             color: #8f9bba;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.04em;
             font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .summary-val {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: #ffffff;
             margin-top: 4px;
             letter-spacing: -0.02em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .summary-sub {
-            font-size: 0.76rem;
+            font-size: 0.74rem;
             color: #64748b;
-            margin-top: 4px;
+            margin-top: 2px;
             font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* Minimalist Market Signal Cards */

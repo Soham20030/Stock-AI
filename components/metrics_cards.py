@@ -7,7 +7,7 @@ def render_top_metrics_row(summary, active_view=None, all_forecasts=None):
     Renders the top 4 metric cards (Current Price, 3M Target, 24h Change, 30D Volume),
     dynamically synced to the active forecasting model selected by the user.
     """
-    m_col1, m_col2, m_col3, m_col4 = st.columns(4)
+    m_col1, m_col2, m_col3, m_col4 = st.columns(4, gap="small")
 
     with m_col1:
         st.metric(
@@ -70,12 +70,12 @@ def render_top_metrics_row(summary, active_view=None, all_forecasts=None):
 
 def render_stock_fundamentals(summary):
     """
-    Renders the Stock Fundamentals & Profile 5-column container card.
+    Renders the Stock Fundamentals & Profile 5-column container card with tight column gap fitting.
     """
     with st.container(border=True):
         st.markdown(f'<div class="intercom-title">Stock Profile — {summary["company_name"]}</div>', unsafe_allow_html=True)
         
-        s1, s2, s3, s4, s5 = st.columns(5)
+        s1, s2, s3, s4, s5 = st.columns(5, gap="small")
         
         with s1:
             render_summary_box("Company Asset", summary["company_name"])
