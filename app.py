@@ -29,7 +29,7 @@ from utils.news import fetch_stock_news
 # 1. PAGE CONFIGURATION & CUSTOM CSS (VESPER-INSPIRED DARK THEME)
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="VesperStock | AI Market Forecasting",
+    page_title="Stock AI | AI Market Forecasting",
     page_icon="📈",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -188,7 +188,7 @@ if "current_stock" not in st.session_state:
 # 3. SIDEBAR CONTROLS
 # -----------------------------------------------------------------------------
 with st.sidebar:
-    st.title("⚡ VesperStock AI")
+    st.title("⚡ Stock AI")
     st.caption("Advanced Time-Series Market Forecasting")
     st.markdown("---")
 
