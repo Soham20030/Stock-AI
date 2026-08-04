@@ -22,78 +22,135 @@ from styles.theme import (
 
 def get_custom_css():
     """
-    Compiles and returns the clean Intercom + Linear + Stripe inspired CSS stylesheet.
-
-    Returns:
-        str: Sanitized CSS rules string.
+    Compiles high-specificity CSS rules with Google Font Inter integration
+    to cleanly override Streamlit's base elements with an Intercom + Linear + Stripe SaaS aesthetic.
     """
     return f"""
+        <!-- Load Google Font Inter -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
         <style>
         /* Global Canvas Styling */
         .stApp {{
-            background-color: {BG_APP};
-            color: {TEXT_PRIMARY};
-            font-family: {FONT_FAMILY};
+            background-color: {BG_APP} !important;
+            color: {TEXT_PRIMARY} !important;
+            font-family: {FONT_FAMILY} !important;
+        }}
+
+        p, span, label, div {{
+            font-family: {FONT_FAMILY} !important;
         }}
         
         /* Hide Streamlit Native Footers and Header Toolbars */
-        header {{visibility: hidden;}}
+        header {{visibility: hidden !important;}}
         .stAppDeployButton {{display: none !important;}}
         [data-testid="stAppDeployButton"] {{display: none !important;}}
         [data-testid="stToolbar"] {{visibility: hidden !important;}}
-        #MainMenu {{visibility: hidden;}}
-        footer {{visibility: hidden;}}
+        #MainMenu {{visibility: hidden !important;}}
+        footer {{visibility: hidden !important;}}
         
         /* Sidebar Styling (Linear / Notion Inspired) */
-        [data-testid="stSidebar"] {{
+        section[data-testid="stSidebar"] {{
             background-color: #0f131a !important;
             border-right: 1px solid {BORDER_COLOR} !important;
         }}
 
+        div[data-testid="stSidebarUserContent"] {{
+            padding: 1.5rem 1rem !important;
+        }}
+
         /* Modern Card Containers */
-        [data-testid="stVerticalBlockBorderWrapper"] {{
+        div[data-testid="stVerticalBlockBorderWrapper"] {{
             background-color: {BG_CARD} !important;
             border: 1px solid {BORDER_COLOR} !important;
             border-radius: {RADIUS_LG} !important;
-            padding: 16px 20px !important;
+            padding: 20px !important;
             box-shadow: {SHADOW_CARD} !important;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
         }}
 
-        [data-testid="stVerticalBlockBorderWrapper"]:hover {{
+        div[data-testid="stVerticalBlockBorderWrapper"]:hover {{
             border-color: #2e384d !important;
             box-shadow: {SHADOW_HOVER} !important;
         }}
 
-        /* Navigation Tabs Styling (Intercom Style) */
-        .stTabs [data-baseweb="tab-list"] {{
-            gap: 6px;
-            background-color: {BG_CARD};
-            padding: 6px 10px;
-            border-radius: {RADIUS_MD};
-            border: 1px solid {BORDER_COLOR};
-        }}
-        
-        .stTabs [data-baseweb="tab"] {{
-            height: 42px;
-            white-space: pre-wrap;
-            border-radius: {RADIUS_SM};
-            color: {TEXT_SECONDARY};
-            font-weight: 600;
-            font-size: 0.88rem;
-            padding: 0 14px;
-            transition: all 0.2s ease;
+        /* STREAMLIT METRIC CARDS (INTERCOM ELEVATED CARDS) */
+        div[data-testid="stMetric"] {{
+            background: {BG_CARD} !important;
+            border: 1px solid {BORDER_COLOR} !important;
+            border-radius: {RADIUS_LG} !important;
+            padding: 16px 20px !important;
+            box-shadow: {SHADOW_CARD} !important;
+            transition: transform 0.2s ease, border-color 0.2s ease !important;
         }}
 
-        .stTabs [data-baseweb="tab"]:hover {{
-            color: {TEXT_PRIMARY};
-            background-color: #1a202c50;
+        div[data-testid="stMetric"]:hover {{
+            transform: translateY(-2px) !important;
+            border-color: {ACCENT_BLUE} !important;
+            box-shadow: {SHADOW_HOVER} !important;
+        }}
+
+        div[data-testid="stMetricLabel"] {{
+            font-size: 0.75rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            font-weight: 600 !important;
+            color: {TEXT_SECONDARY} !important;
+        }}
+
+        div[data-testid="stMetricValue"] {{
+            font-size: 1.35rem !important;
+            font-weight: 700 !important;
+            color: {TEXT_PRIMARY} !important;
+            margin-top: 4px !important;
+        }}
+
+        div[data-testid="stMetricDelta"] {{
+            font-size: 0.82rem !important;
+            font-weight: 600 !important;
+        }}
+
+        /* Navigation Tabs Styling (Intercom Style) */
+        div[data-baseweb="tab-list"] {{
+            gap: 8px !important;
+            background-color: {BG_CARD} !important;
+            padding: 8px 12px !important;
+            border-radius: {RADIUS_MD} !important;
+            border: 1px solid {BORDER_COLOR} !important;
         }}
         
-        .stTabs [aria-selected="true"] {{
+        button[data-baseweb="tab"] {{
+            height: 42px !important;
+            white-space: pre-wrap !important;
+            border-radius: {RADIUS_SM} !important;
+            color: {TEXT_SECONDARY} !important;
+            font-weight: 600 !important;
+            font-size: 0.88rem !important;
+            padding: 0 16px !important;
+            border: none !important;
+            background-color: transparent !important;
+            transition: all 0.2s ease !important;
+        }}
+
+        button[data-baseweb="tab"]:hover {{
+            color: {TEXT_PRIMARY} !important;
+            background-color: #1a202c80 !important;
+        }}
+        
+        button[data-baseweb="tab"][aria-selected="true"] {{
             background-color: {BG_SUBCARD} !important;
             color: {ACCENT_BLUE_LIGHT} !important;
             border-bottom: 2px solid {ACCENT_BLUE_LIGHT} !important;
+        }}
+
+        /* Selectboxes & Controls */
+        div[data-baseweb="select"] > div {{
+            background-color: {BG_SUBCARD} !important;
+            border: 1px solid {BORDER_COLOR} !important;
+            border-radius: {RADIUS_MD} !important;
+            color: {TEXT_PRIMARY} !important;
         }}
         
         /* Section Titles & Accent Headings */
@@ -101,7 +158,7 @@ def get_custom_css():
             color: {ACCENT_BLUE_LIGHT};
             font-size: 1.05rem;
             font-weight: 600;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             letter-spacing: -0.01em;
         }}
 
@@ -109,14 +166,14 @@ def get_custom_css():
         .summary-box {{
             background: {BG_SUBCARD};
             border-radius: {RADIUS_MD};
-            padding: 14px;
+            padding: 16px;
             border-left: 3px solid {ACCENT_BLUE_LIGHT};
             height: 100%;
             transition: transform 0.2s ease;
         }}
 
         .summary-box:hover {{
-            transform: translateY(-1px);
+            transform: translateY(-2px);
         }}
 
         .summary-label {{
@@ -145,7 +202,7 @@ def get_custom_css():
             background: rgba(16, 185, 129, 0.08);
             border: 1px solid {ACCENT_GREEN};
             border-radius: {RADIUS_MD};
-            padding: 10px 14px;
+            padding: 12px 16px;
             margin-bottom: 8px;
             color: #6ee7b7;
             font-weight: 600;
@@ -156,7 +213,7 @@ def get_custom_css():
             background: rgba(244, 63, 94, 0.08);
             border: 1px solid {ACCENT_RED};
             border-radius: {RADIUS_MD};
-            padding: 10px 14px;
+            padding: 12px 16px;
             margin-bottom: 8px;
             color: #fca5a5;
             font-weight: 600;
@@ -168,7 +225,7 @@ def get_custom_css():
             background: {BG_SUBCARD};
             border-left: 4px solid {ACCENT_BLUE_LIGHT};
             border-radius: {RADIUS_MD};
-            padding: 16px;
+            padding: 18px;
             font-size: 1.02rem;
             line-height: 1.6;
             color: #f1f5f9;
@@ -179,36 +236,23 @@ def get_custom_css():
         .val-negative {{ color: {ACCENT_RED} !important; font-weight: 700; }}
         .val-neutral  {{ color: {ACCENT_AMBER} !important; font-weight: 700; }}
 
-        /* Metric Sizing Overrides */
-        [data-testid="stMetricValue"] {{
-            font-size: 1.25rem !important;
-            white-space: nowrap !important;
-            overflow: visible !important;
-            color: {TEXT_PRIMARY} !important;
-        }}
-        
-        [data-testid="stMetricLabel"] {{
-            font-size: 0.8rem !important;
-            color: {TEXT_SECONDARY} !important;
-        }}
-
         /* Action Buttons (Intercom Pill Buttons) */
         .stButton>button {{
-            background: linear-gradient(135deg, {ACCENT_BLUE} 0%, #0369a1 100%);
-            color: #ffffff;
-            border: none;
-            border-radius: {RADIUS_MD};
-            padding: 9px 20px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            width: 100%;
-            transition: all 0.2s ease;
+            background: linear-gradient(135deg, {ACCENT_BLUE} 0%, #0369a1 100%) !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: {RADIUS_MD} !important;
+            padding: 10px 22px !important;
+            font-weight: 600 !important;
+            font-size: 0.9rem !important;
+            width: 100% !important;
+            transition: all 0.2s ease !important;
         }}
         
         .stButton>button:hover {{
-            background: linear-gradient(135deg, {ACCENT_BLUE_LIGHT} 0%, {ACCENT_BLUE} 100%);
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
-            color: #ffffff;
+            background: linear-gradient(135deg, {ACCENT_BLUE_LIGHT} 0%, {ACCENT_BLUE} 100%) !important;
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.35) !important;
+            color: #ffffff !important;
         }}
 
         /* Market News Card */
@@ -216,14 +260,15 @@ def get_custom_css():
             background: {BG_CARD};
             border: 1px solid {BORDER_COLOR};
             border-radius: {RADIUS_LG};
-            padding: 18px;
+            padding: 20px;
             margin-bottom: 16px;
             box-shadow: {SHADOW_CARD};
-            transition: border-color 0.2s ease;
+            transition: border-color 0.2s ease, transform 0.2s ease;
         }}
 
         .news-card-container:hover {{
             border-color: #2e384d;
+            transform: translateY(-2px);
         }}
 
         .news-card-title {{
@@ -246,9 +291,9 @@ def get_custom_css():
             font-size: 0.9rem;
             color: #cbd5e1;
             margin-bottom: 12px;
-            line-height: 1.5;
+            line-height: 1.55;
             background: {BG_SUBCARD};
-            padding: 12px 14px;
+            padding: 14px 16px;
             border-radius: {RADIUS_SM};
             border-left: 3px solid {ACCENT_BLUE};
         }}
@@ -262,15 +307,15 @@ def get_custom_css():
         }}
 
         /* Chatbot Intercom Bubble Styling */
-        .stChatMessage {{
+        div[data-testid="stChatMessage"] {{
             background-color: {BG_CARD} !important;
             border: 1px solid {BORDER_COLOR} !important;
             border-radius: {RADIUS_LG} !important;
-            padding: 12px 16px !important;
+            padding: 14px 18px !important;
             margin-bottom: 12px !important;
         }}
 
-        [data-testid="stChatInput"] {{
+        div[data-testid="stChatInput"] {{
             background-color: {BG_SUBCARD} !important;
             border: 1px solid {BORDER_COLOR} !important;
             border-radius: {RADIUS_MD} !important;
