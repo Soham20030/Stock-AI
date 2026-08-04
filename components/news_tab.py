@@ -81,10 +81,13 @@ def render_news_tab(selected_stock, company_name):
 
                 if pos_p >= 0.5 and pos_p > neg_p:
                     s_badge = f'<span class="badge-positive">Positive ({int(pos_p*100)}%)</span>'
+                    s_type = "positive"
                 elif neg_p >= 0.5 and neg_p > pos_p:
                     s_badge = f'<span class="badge-negative">Negative ({int(neg_p*100)}%)</span>'
+                    s_type = "negative"
                 else:
                     s_badge = f'<span class="badge-neutral">Neutral ({int(s_res.get("neutral", 0.34)*100)}%)</span>'
+                    s_type = "neutral"
 
                 # Render Executive News Card
                 render_news_card(
@@ -93,7 +96,8 @@ def render_news_tab(selected_stock, company_name):
                     source=source_str,
                     date=date_str,
                     url=url_str,
-                    sentiment_badge=s_badge
+                    sentiment_badge=s_badge,
+                    sentiment_type=s_type
                 )
         else:
             st.write("No recent news articles found for this ticker in the selected range.")

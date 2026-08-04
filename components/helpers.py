@@ -414,6 +414,49 @@ def inject_custom_css():
             align-items: center;
         }}
 
+        /* Sentiment-Tinted News Card Containers */
+        .news-card-pos {{
+            background: rgba(16, 185, 129, 0.12) !important;
+            border: 1.5px solid #10b981 !important;
+        }}
+
+        .news-card-pos .news-card-title a {{
+            color: #047857 !important;
+        }}
+
+        .news-card-pos .news-card-summary {{
+            background: rgba(16, 185, 129, 0.08) !important;
+            border: 1px solid rgba(16, 185, 129, 0.3) !important;
+        }}
+
+        .news-card-neg {{
+            background: rgba(239, 68, 68, 0.12) !important;
+            border: 1.5px solid #ef4444 !important;
+        }}
+
+        .news-card-neg .news-card-title a {{
+            color: #b91c1c !important;
+        }}
+
+        .news-card-neg .news-card-summary {{
+            background: rgba(239, 68, 68, 0.08) !important;
+            border: 1px solid rgba(239, 68, 68, 0.3) !important;
+        }}
+
+        .news-card-neu {{
+            background: rgba(245, 158, 11, 0.12) !important;
+            border: 1.5px solid #f59e0b !important;
+        }}
+
+        .news-card-neu .news-card-title a {{
+            color: #b45309 !important;
+        }}
+
+        .news-card-neu .news-card-summary {{
+            background: rgba(245, 158, 11, 0.08) !important;
+            border: 1px solid rgba(245, 158, 11, 0.3) !important;
+        }}
+
         /* Intercom Custom Chat Interface & Typed Text Visibility */
         .chat-user-bubble {{
             background: {chat_user_bg};
@@ -614,12 +657,22 @@ def render_signal_box(text, signal_type="positive"):
     st.markdown(f'<div class="{box_class}"><strong>{prefix}</strong>{text}</div>', unsafe_allow_html=True)
 
 
-def render_news_card(title, summary, source, date, url, sentiment_badge=""):
+def render_news_card(title, summary, source, date, url, sentiment_badge="", sentiment_type="neutral"):
     """
-    Renders a minimalist news article card.
+    Renders a sentiment-tinted executive news article card:
+    - Positive: Soft Green background & border
+    - Negative: Soft Red background & border
+    - Neutral: Soft Yellow/Amber background & border
     """
+    if sentiment_type == "positive":
+        card_class = "news-card-pos"
+    elif sentiment_type == "negative":
+        card_class = "news-card-neg"
+    else:
+        card_class = "news-card-neu"
+
     st.markdown(f"""
-        <div class="news-card-container">
+        <div class="news-card-container {card_class}">
             <div class="news-card-title"><a href="{url}" target="_blank">{title}</a></div>
             <div class="news-card-summary">
                 {summary}
