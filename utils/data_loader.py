@@ -192,6 +192,8 @@ def filter_data_by_range(df, range_option):
     if df.empty or "Date" not in df.columns:
         return df
 
+    max_date = df["Date"].max()
+
     import re
     if "Month" in range_option:
         match = re.search(r'\d+', range_option)
