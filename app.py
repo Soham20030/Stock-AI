@@ -167,16 +167,16 @@ st.markdown("""
     .val-negative { color: #ef4444 !important; font-weight: 700; }
     .val-neutral  { color: #f59e0b !important; font-weight: 700; }
 
-    /* Streamlit button styling override */
-    .stButton>button {
-        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-        color: #ffffff;
-        border: none;
-        border-radius: 8px;
-        padding: 10px 24px;
-        font-weight: 600;
-        width: 100%;
-        transition: all 0.3s ease;
+    /* Metric font sizing override for compact containers */
+    [data-testid="stMetricValue"] {
+        font-size: 1.25rem !important;
+        white-space: nowrap !important;
+        overflow: visible !important;
+    }
+    
+    [data-testid="stMetricLabel"] {
+        font-size: 0.8rem !important;
+        color: #94a3b8 !important;
     }
     
     .stButton>button:hover {
@@ -529,11 +529,30 @@ with tab_forecast:
             if st.session_state["current_forecast"] is not None:
                 curr_metrics = st.session_state["current_forecast"]["metrics"]
                 st.markdown("<hr style='border-color: #232936;'>", unsafe_allow_html=True)
-                st.write(f"**Latest Model ({st.session_state['current_forecast']['model']}) Metrics:**")
+                st.markdown(f"**Latest Model ({st.session_state['current_forecast']['model']}) Metrics:**")
+                
                 m_c1, m_c2, m_c3 = st.columns(3)
-                m_c1.metric("RMSE", f"{curr_metrics.get('RMSE', 0):.2f}")
-                m_c2.metric("MAE", f"{curr_metrics.get('MAE', 0):.2f}")
-                m_c3.metric("MAPE", f"{curr_metrics.get('MAPE', 0):.2f}%")
+                with m_c1:
+                    st.markdown(f"""
+                        <div class="summary-box" style="padding: 8px 10px;">
+                            <div class="summary-label">RMSE</div>
+                            <div class="summary-val" style="font-size: 1.05rem;">${curr_metrics.get('RMSE', 0):.2f}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                with m_c2:
+                    st.markdown(f"""
+                        <div class="summary-box" style="padding: 8px 10px;">
+                            <div class="summary-label">MAE</div>
+                            <div class="summary-val" style="font-size: 1.05rem;">${curr_metrics.get('MAE', 0):.2f}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                with m_c3:
+                    st.markdown(f"""
+                        <div class="summary-box" style="padding: 8px 10px;">
+                            <div class="summary-label">MAPE</div>
+                            <div class="summary-val" style="font-size: 1.05rem;">{curr_metrics.get('MAPE', 0):.2f}%</div>
+                        </div>
+                    """, unsafe_allow_html=True)
 
     with col_chart:
         with st.container(border=True):
