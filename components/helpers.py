@@ -453,9 +453,15 @@ def inject_custom_css():
 
         div[data-testid="stSelectbox"] > div,
         div[data-testid="stSelectbox"] > div > div,
+        div[data-testid="stSelectbox"] div[role="combobox"],
+        div[data-testid="stSelectbox"] div[role="button"],
         div[data-baseweb="select"],
-        div[data-baseweb="select"] > div {{
+        div[data-baseweb="select"] > div,
+        div[data-baseweb="select"] > div > div,
+        div[data-baseweb="select"] div[role="combobox"],
+        div[data-baseweb="select"] div[role="button"] {{
             background-color: {card_bg} !important;
+            background: {card_bg} !important;
             border: 1.5px solid {border_color} !important;
             border-radius: 8px !important;
         }}
