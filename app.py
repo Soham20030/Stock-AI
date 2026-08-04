@@ -26,9 +26,11 @@ from utils.metrics import (
 )
 from utils.news import fetch_stock_news
 
-# Import RAG & Explainability Modules
+# Import RAG, Sentiment, Summarization & Explainability Modules
+from rag.gdelt_fetcher import fetch_gdelt_news
+from rag.summarizer import OllamaSummarizer
 from rag.retriever import retrieve_news_for_asset
-from rag.sentiment import analyze_news_sentiment
+from rag.sentiment import analyze_news_sentiment, FinBERTSentimentAnalyzer
 from rag.explainer import generate_explanation
 
 # -----------------------------------------------------------------------------
@@ -178,6 +180,18 @@ st.markdown("""
         font-size: 0.8rem !important;
         color: #94a3b8 !important;
     }
+
+    /* Streamlit button styling override */
+    .stButton>button {
+        background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 24px;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
     
     .stButton>button:hover {
         background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
@@ -185,27 +199,49 @@ st.markdown("""
         color: #ffffff;
     }
 
-    /* News card styling */
-    .news-item {
-        border-bottom: 1px solid #232936;
-        padding: 12px 0;
+    /* News Card Enhancements */
+    .news-card-container {
+        background: #151921;
+        border: 1px solid #232936;
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
-    
-    .news-title {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #e2e8f0;
+
+    .news-card-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #f8fafc;
+        margin-bottom: 8px;
+    }
+
+    .news-card-title a {
+        color: #38bdf8;
         text-decoration: none;
     }
-    
-    .news-title:hover {
-        color: #38bdf8;
+
+    .news-card-title a:hover {
+        text-decoration: underline;
     }
-    
-    .news-meta {
-        font-size: 0.75rem;
-        color: #64748b;
-        margin-top: 4px;
+
+    .news-card-summary {
+        font-size: 0.9rem;
+        color: #cbd5e1;
+        margin-bottom: 12px;
+        line-height: 1.5;
+        background: #1e2430;
+        padding: 12px 14px;
+        border-radius: 6px;
+        border-left: 3px solid #0284c7;
+    }
+
+    .news-card-meta-row {
+        display: flex;
+        gap: 24px;
+        font-size: 0.85rem;
+        color: #94a3b8;
+        align-items: center;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -411,7 +447,7 @@ with st.container(border=True):
 st.markdown("<br>", unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# FEATURE 3 & 4 & 5 & 6: TABBED DASHBOARD NAVIGATION (INCLUDING 🧠 AI EXPLANATION)
+# FEATURE 3 & 4 & 5 & 6: TABBED DASHBOARD NAVIGATION
 # -----------------------------------------------------------------------------
 tab_hist, tab_forecast, tab_news, tab_compare, tab_archive, tab_rag = st.tabs([
     "📊 Historical Data", 
@@ -419,7 +455,7 @@ tab_hist, tab_forecast, tab_news, tab_compare, tab_archive, tab_rag = st.tabs([
     "📰 Market News", 
     "⚖️ Model Comparison",
     "📜 Training History",
-    "🧠 AI Explanation"  # <-- TAB 6: RAG EXPLAINABILITY
+    "🧠 AI Explanation"
 ])
 
 # =============================================================================
@@ -784,27 +820,73 @@ with tab_forecast:
                     """, unsafe_allow_html=True)
 
 # =============================================================================
-# TAB 3: MARKET NEWS & SENTIMENT
+# TAB 3: MARKET NEWS & SENTIMENT (FEATURE 3 & 4: TIMELINE FILTER & OLLAMA UI)
 # =============================================================================
 with tab_news:
     with st.container(border=True):
-        st.markdown(f'<div class="vesper-title">📰 Financial News & Sentiment Feed — {summary["company_name"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="vesper-title">📰 Financial News & Ollama LLM Summarizer — {summary["company_name"]}</div>', unsafe_allow_html=True)
         
-        news_items = fetch_stock_news(selected_stock)
-        
-        if news_items:
-            n_cols = st.columns(2)
-            for idx, item in enumerate(news_items[:6]):
-                col_idx = idx % 2
-                with n_cols[col_idx]:
-                    st.markdown(f"""
-                        <div class="news-item">
-                            <a class="news-title" href="{item.get('url', '#')}" target="_blank">🔗 {item.get('title', 'Headline')}</a>
-                            <div class="news-meta">Source: <strong>{item.get('source', 'News')}</strong> • {item.get('date', 'Recent')}</div>
+        # FEATURE 3: Timeline Selector (3 Months, 6 Months, 1 Year)
+        timeline_selection = st.selectbox(
+            "News Horizon Range:",
+            options=["3 Months", "6 Months", "1 Year"],
+            index=0,
+            key="market_news_timeline_selector",
+            help="Filters GDELT financial news coverage within the selected historical date range."
+        )
+
+        with st.spinner(f"Ingesting GDELT news and generating Ollama summaries ({timeline_selection})..."):
+            # Fetch GDELT news constrained by timeline range
+            raw_news_items = fetch_gdelt_news(
+                company_name=selected_stock,
+                max_records=25,
+                timeline_range=timeline_selection
+            )
+            
+            # Feature 1 & 2: Local LLM Summarization using Ollama + Caching
+            ollama_summarizer = OllamaSummarizer()
+            summarized_news = ollama_summarizer.summarize_articles(raw_news_items)
+
+            # FinBERT Sentiment Classification
+            finbert_analyzer = FinBERTSentimentAnalyzer()
+
+        if summarized_news:
+            st.markdown("<br>", unsafe_allow_html=True)
+            for item in summarized_news[:6]:
+                title_str = item.get("title", "Headline")
+                summary_str = item.get("summary", "Summary pending.")
+                source_str = item.get("source", "Financial News")
+                date_str = item.get("date", datetime.now().strftime("%d %B %Y"))
+                url_str = item.get("url", "#")
+
+                # FinBERT Sentiment
+                s_res = finbert_analyzer.analyze_article(headline=title_str, content=summary_str)
+                pos_p = s_res.get("positive", 0.33)
+                neg_p = s_res.get("negative", 0.33)
+
+                if pos_p >= 0.5 and pos_p > neg_p:
+                    s_badge = f'<span class="val-positive">🟢 Positive ({int(pos_p*100)}%)</span>'
+                elif neg_p >= 0.5 and neg_p > pos_p:
+                    s_badge = f'<span class="val-negative">🔴 Negative ({int(neg_p*100)}%)</span>'
+                else:
+                    s_badge = f'<span class="val-neutral">🟡 Neutral ({int(s_res.get("neutral", 0.34)*100)}%)</span>'
+
+                # FEATURE 4: ENHANCED MARKET NEWS UI CARD
+                st.markdown(f"""
+                    <div class="news-card-container">
+                        <div class="news-card-title">📄 <a href="{url_str}" target="_blank">{title_str}</a></div>
+                        <div class="news-card-summary">
+                            <strong>Summary:</strong><br>{summary_str}
                         </div>
-                    """, unsafe_allow_html=True)
+                        <div class="news-card-meta-row">
+                            <div><strong>Sentiment:</strong> {s_badge}</div>
+                            <div><strong>Source:</strong> <span style="color: #e2e8f0;">{source_str}</span></div>
+                            <div><strong>Date:</strong> <span style="color: #e2e8f0;">{date_str}</span></div>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
         else:
-            st.write("No recent news articles found for this ticker.")
+            st.write("No recent news articles found for this ticker in the selected range.")
 
 # =============================================================================
 # TAB 4: MODEL COMPARISON
@@ -1012,7 +1094,7 @@ with tab_archive:
             st.info("No past training runs archived yet. Go to the 'Forecast Engine' tab and train a model to log history!")
 
 # =============================================================================
-# TAB 6: 🧠 AI EXPLANATION & RAG PIPELINE
+# TAB 6: 🧠 AI EXPLANATION & RAG PIPELINE (FEATURE 5 ISOLATION ENFORCED)
 # =============================================================================
 with tab_rag:
     with st.container(border=True):
@@ -1032,7 +1114,7 @@ with tab_rag:
                 forecast_delta = ((target_p - summary["current_price"]) / summary["current_price"]) * 100
 
         with st.spinner(f"Executing RAG Vector Search & FinBERT Sentiment Analysis for {selected_stock}..."):
-            # 1. RAG Retrieval via FAISS Vector DB
+            # FEATURE 5: AI Explanation tab ignores Market News timeline selection and ALWAYS retrieves latest 30 days
             retrieved_articles = retrieve_news_for_asset(selected_stock, top_k=5)
             
             # 2. FinBERT Sentiment Analysis
