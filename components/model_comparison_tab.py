@@ -18,8 +18,8 @@ def render_model_comparison_tab(model_history):
             for model_name, m_dict in model_history.items():
                 comp_data.append({
                     "Model": model_name,
-                    "RMSE ($)": m_dict.get('RMSE', 0),
-                    "MAE ($)": m_dict.get('MAE', 0),
+                    "RMSE": m_dict.get('RMSE', 0),
+                    "MAE": m_dict.get('MAE', 0),
                     "MAPE (%)": m_dict.get('MAPE', 0)
                 })
             
@@ -37,7 +37,7 @@ def render_model_comparison_tab(model_history):
                 fig_comp = px.bar(
                     comp_df,
                     x="Model",
-                    y=["RMSE ($)", "MAE ($)", "MAPE (%)"],
+                    y=["RMSE", "MAE", "MAPE (%)"],
                     barmode="group",
                     template="plotly_dark",
                     color_discrete_sequence=["#38bdf8", "#f97316", "#10b981"]

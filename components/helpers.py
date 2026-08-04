@@ -28,7 +28,14 @@ def inject_custom_css():
         /* Ensure Streamlit Header container is positioned cleanly */
         header[data-testid="stHeader"] {
             background-color: transparent !important;
+            height: 0px !important;
             z-index: 99999 !important;
+        }
+
+        /* Zero out top margin/padding to attach navbar directly to the top edge */
+        .block-container {
+            padding-top: 1rem !important;
+            padding-bottom: 2rem !important;
         }
 
         /* Ensure ALL Streamlit Sidebar Expand & Collapse toggle buttons are 100% visible and styled */

@@ -147,8 +147,8 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                     st.markdown(f"**{active_model_name} Technical Metrics:**")
                     
                     m_c1, m_c2, m_c3 = st.columns(3)
-                    with m_c1: render_summary_box("RMSE", f"${active_model_metrics.get('RMSE', 0):.2f}")
-                    with m_c2: render_summary_box("MAE", f"${active_model_metrics.get('MAE', 0):.2f}")
+                    with m_c1: render_summary_box("RMSE", f"{active_model_metrics.get('RMSE', 0):.2f}")
+                    with m_c2: render_summary_box("MAE", f"{active_model_metrics.get('MAE', 0):.2f}")
                     with m_c3: render_summary_box("MAPE", f"{active_model_metrics.get('MAPE', 0):.2f}%")
 
         chart_container = col_chart

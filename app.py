@@ -115,8 +115,8 @@ elif active_tab == "Training History":
                 
                 r_metrics = selected_record.get("metrics", {})
                 rm_c1, rm_c2, rm_c3 = st.columns(3)
-                with rm_c1: render_summary_box("RMSE", f"${r_metrics.get('RMSE', 0):.2f}")
-                with rm_c2: render_summary_box("MAE", f"${r_metrics.get('MAE', 0):.2f}")
+                with rm_c1: render_summary_box("RMSE", f"{r_metrics.get('RMSE', 0):.2f}")
+                with rm_c2: render_summary_box("MAE", f"{r_metrics.get('MAE', 0):.2f}")
                 with rm_c3: render_summary_box("MAPE", f"{r_metrics.get('MAPE', 0):.2f}%")
                 
                 raw_fdata = selected_record.get("forecast_data", [])
