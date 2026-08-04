@@ -9,20 +9,45 @@ from chatbot.memory import ChatbotMemory
 
 def render_sidebar():
     """
-    Renders the Intercom-inspired minimalist sidebar.
+    Renders the Intercom-inspired sidebar featuring vertical navigation menu,
+    dataset manager controls, CSV uploads, and deletion.
 
     Returns:
-        str: Selected stock dataset filename (e.g. 'AAPL.csv').
+        tuple: (selected_stock, active_tab)
     """
     memory_mgr = ChatbotMemory()
 
     with st.sidebar:
-        st.markdown('<div style="font-size: 1.1rem; font-weight: 700; color: #ffffff; letter-spacing: -0.02em;">Stock AI Intelligence</div>', unsafe_allow_html=True)
+        st.markdown('<div style="font-size: 1.15rem; font-weight: 700; color: #ffffff; letter-spacing: -0.02em;">Stock AI Intelligence</div>', unsafe_allow_html=True)
         st.caption("Quantitative Market Forecasting")
         st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 
-        # Available Datasets Dropdown
-        st.subheader("Dataset Manager")
+        # ---------------------------------------------------------------------
+        # 1. INTERCOM VERTICAL NAVIGATION MENU
+        # ---------------------------------------------------------------------
+        st.markdown("<div style='font-size: 0.72rem; font-weight: 700; color: #8f9bba; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;'>Navigation</div>", unsafe_allow_html=True)
+        active_tab = st.radio(
+            "Dashboard Navigation",
+            options=[
+                "Historical Data", 
+                "Forecast Engine", 
+                "Market News", 
+                "Model Comparison",
+                "Training History",
+                "AI Explanation",
+                "AI Analyst"
+            ],
+            index=0,
+            label_visibility="collapsed",
+            key="sidebar_nav_menu"
+        )
+
+        st.markdown("<div style='height: 16px; border-bottom: 1px solid #1a1d24; margin-bottom: 16px;'></div>", unsafe_allow_html=True)
+
+        # ---------------------------------------------------------------------
+        # 2. DATASET MANAGER
+        # ---------------------------------------------------------------------
+        st.markdown("<div style='font-size: 0.72rem; font-weight: 700; color: #8f9bba; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;'>Dataset Manager</div>", unsafe_allow_html=True)
         datasets = get_available_datasets()
         
         if datasets:
@@ -69,4 +94,4 @@ def render_sidebar():
                     st.success(f"Deleted {selected_stock}!")
                     st.rerun()
 
-    return selected_stock
+    return selected_stock, active_tab

@@ -41,9 +41,9 @@ if "current_stock" not in st.session_state:
     st.session_state["current_stock"] = None
 
 # -----------------------------------------------------------------------------
-# 3. SIDEBAR CONTROLS DELEGATION
+# 3. SIDEBAR CONTROLS & VERTICAL NAVIGATION DELEGATION
 # -----------------------------------------------------------------------------
-selected_stock = render_sidebar()
+selected_stock, active_tab = render_sidebar()
 
 # -----------------------------------------------------------------------------
 # 4. MAIN DASHBOARD CONTENT AREA & DATA LOADING
@@ -73,36 +73,21 @@ render_top_metrics_row(summary, active_view=active_view, all_forecasts=st.sessio
 render_stock_fundamentals(summary)
 
 # -----------------------------------------------------------------------------
-# 6. TABBED DASHBOARD NAVIGATION DELEGATION (CLEAN EMOJI-FREE TAB TITLES)
+# 6. DYNAMIC VIEW DELEGATION (BASED ON SIDEBAR VERTICAL NAVIGATION)
 # -----------------------------------------------------------------------------
-tab_hist, tab_forecast, tab_news, tab_compare, tab_archive, tab_rag, tab_chat = st.tabs([
-    "Historical Data", 
-    "Forecast Engine", 
-    "Market News", 
-    "Model Comparison",
-    "Training History",
-    "AI Explanation",
-    "AI Analyst"
-])
-
-# Tab 1: Historical Data
-with tab_hist:
+if active_tab == "Historical Data":
     render_historical_tab(raw_df, selected_stock)
 
-# Tab 2: Forecast Engine
-with tab_forecast:
+elif active_tab == "Forecast Engine":
     render_forecast_tab(raw_df, selected_stock, summary)
 
-# Tab 3: Market News
-with tab_news:
+elif active_tab == "Market News":
     render_news_tab(selected_stock, summary["company_name"])
 
-# Tab 4: Model Comparison
-with tab_compare:
+elif active_tab == "Model Comparison":
     render_model_comparison_tab(st.session_state["model_history"])
 
-# Tab 5: Training History Inspector
-with tab_archive:
+elif active_tab == "Training History":
     with st.container(border=True):
         st.markdown('<div class="intercom-title">Saved Training History & Audit Log</div>', unsafe_allow_html=True)
         history_records = load_all_training_history()
@@ -118,7 +103,7 @@ with tab_archive:
             selected_record = next((r for r in history_records if r["label"] == selected_run_label), None)
             
             if selected_record:
-                st.markdown("<hr style='border-color: #1e2638;'>", unsafe_allow_html=True)
+                st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
                 r_stock = selected_record.get("stock", "Asset")
                 r_model = selected_record.get("model", "Model")
                 r_time = selected_record.get("timestamp", "Date")
@@ -139,17 +124,15 @@ with tab_archive:
                     hist_mask = f_df["type"] == "Historical"
                     fig_hist_run.add_trace(go.Scatter(x=f_df.loc[hist_mask, "Date"], y=f_df.loc[hist_mask, "Price"], mode="lines", name="Historical Price", line=dict(color="#94a3b8", width=2)))
                     pred_mask = f_df["type"] == "Forecast"
-                    color_map = {"Prophet": "#38bdf8", "ARIMA": "#f97316", "LSTM": "#10b981"}
-                    fig_hist_run.add_trace(go.Scatter(x=f_df.loc[pred_mask, "Date"], y=f_df.loc[pred_mask, "Price"], mode="lines", name=f"{r_model} Forecast", line=dict(color=color_map.get(r_model, "#10b981"), width=3, dash="dash")))
-                    fig_hist_run.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=10, r=10, t=20, b=20), xaxis=dict(showgrid=True, gridcolor="#1e2638", title="Date"), yaxis=dict(showgrid=True, gridcolor="#1e2638", title="Price ($)"), height=360)
+                    color_map = {"Prophet": "#818cf8", "ARIMA": "#f97316", "LSTM": "#10b981"}
+                    fig_hist_run.add_trace(go.Scatter(x=f_df.loc[pred_mask, "Date"], y=f_df.loc[pred_mask, "Price"], mode="lines", name=f"{r_model} Forecast", line=dict(color=color_map.get(r_model, "#10b981"), width=2.5, dash="dash")))
+                    fig_hist_run.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=10, r=10, t=20, b=20), xaxis=dict(showgrid=True, gridcolor="#1a1d24", title="Date"), yaxis=dict(showgrid=True, gridcolor="#1a1d24", title="Price ($)"), height=360)
                     st.plotly_chart(fig_hist_run, use_container_width=True)
         else:
-            st.info("No past training runs archived yet. Go to the 'Forecast Engine' tab and train a model to log history.")
+            st.info("No past training runs archived yet. Go to the 'Forecast Engine' view and train a model to log history.")
 
-# Tab 6: AI Explanation
-with tab_rag:
+elif active_tab == "AI Explanation":
     render_explanation_tab(selected_stock, summary, raw_df)
 
-# Tab 7: AI Analyst Chatbot
-with tab_chat:
+elif active_tab == "AI Analyst":
     render_chatbot_tab(selected_stock, summary)

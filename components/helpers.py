@@ -6,7 +6,7 @@ def inject_custom_css():
     Injects authentic Intercom-inspired minimalist dark mode styling:
     Ultra-sleek off-black canvas (#090A0C), flat slate surfaces (#0F1115),
     Intercom signature indigo/blue accents (#6366F1), 9999px full-pill buttons,
-    hairline micro-borders (#1A1D24), and spacious minimalist typography.
+    hairline micro-borders (#1A1D24), and vertical sidebar menu.
     """
     st.markdown("""
         <style>
@@ -41,32 +41,32 @@ def inject_custom_css():
             border-color: #242933 !important;
         }
 
-        /* Intercom Signature Full-Pill Tab Bar */
-        .stTabs [data-baseweb="tab-list"] {
-            gap: 4px;
-            background-color: #0f1115;
-            padding: 5px;
-            border-radius: 9999px;
-            border: 1px solid #1a1d24;
-            display: inline-flex;
+        /* Intercom Sidebar Vertical Navigation Menu */
+        [data-testid="stSidebar"] {
+            background-color: #0c0e12 !important;
+            border-right: 1px solid #1a1d24 !important;
         }
-        
-        .stTabs [data-baseweb="tab"] {
-            height: 36px;
-            border-radius: 9999px;
-            color: #8f9bba;
-            font-weight: 500;
-            font-size: 0.84rem;
-            padding: 0 16px;
-            transition: all 0.2s ease;
-            border: 1px solid transparent;
+
+        /* Sidebar Radio Navigation List Items */
+        div[data-aria-label="Dashboard Navigation"] label {
+            background: transparent !important;
+            border-radius: 8px !important;
+            padding: 8px 12px !important;
+            margin-bottom: 2px !important;
+            transition: all 0.2s ease !important;
+            cursor: pointer !important;
+            border: 1px solid transparent !important;
         }
-        
-        .stTabs [aria-selected="true"] {
-            background-color: #1a1f2c !important;
+
+        div[data-aria-label="Dashboard Navigation"] label:hover {
+            background: #141822 !important;
             color: #ffffff !important;
+        }
+
+        div[data-aria-label="Dashboard Navigation"] label[data-checked="true"] {
+            background: #1a202c !important;
             border-color: #2e364a !important;
-            font-weight: 600;
+            color: #ffffff !important;
         }
 
         /* Minimalist Headers */
