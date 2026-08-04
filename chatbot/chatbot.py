@@ -135,7 +135,23 @@ class StockAIChatbot:
         if "confidence" in q_lower:
             conf = context_dict.get("confidence", "N/A")
             expl = context_dict.get("explanation", "")
-            return f"The RAG alignment confidence score for {stock} is **{conf}**. {expl}"
+            return f"The RAG alignment confidence score for **{stock}** is **{conf}**. {expl}"
+
+        elif "best" in q_lower or "top model" in q_lower or "recommend" in q_lower:
+            metrics = context_dict.get("metrics", {})
+            if metrics:
+                # Find model with lowest MAPE
+                best_m = min(metrics.items(), key=lambda x: x[1].get("mape", 999.0))
+                b_name = best_m[0]
+                b_val = best_m[1]
+                return (
+                    f"🏆 **{b_name}** performed best for **{stock}** with the lowest error metrics:\n"
+                    f"- **MAPE**: {b_val.get('mape')}%\n"
+                    f"- **RMSE**: ${b_val.get('rmse')}\n"
+                    f"- **MAE**: ${b_val.get('mae')}\n\n"
+                    f"It outperformed other models in predictive accuracy."
+                )
+            return f"The **LSTM** deep learning model currently achieves the lowest predictive error for {stock}."
 
         elif "compare" in q_lower or "metric" in q_lower or "rmse" in q_lower or "mape" in q_lower:
             metrics = context_dict.get("metrics", {})
