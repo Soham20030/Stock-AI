@@ -5,30 +5,35 @@ from state.mode_manager import is_light_theme
 def inject_custom_css():
     """
     Injects authentic Intercom-inspired minimalist styling with full Dark / Light mode theme support.
+    Enforces 100% contrast readability for all text, sidebars, charts, borders, and inputs.
     """
     light_mode = is_light_theme()
 
     if light_mode:
         # ---------------------------------------------------------------------
-        # INTERCOM LIGHT MODE THEME PALETTE
+        # INTERCOM LIGHT MODE THEME PALETTE (High Contrast Slate)
         # ---------------------------------------------------------------------
         bg_app = "#f8fafc"
         text_main = "#0f172a"
-        text_muted = "#64748b"
+        text_muted = "#475569"
         surface_bg = "#ffffff"
-        border_color = "#e2e8f0"
-        hover_border = "#cbd5e1"
-        sidebar_bg = "#ffffff"
-        card_bg = "#f1f5f9"
-        card_border = "#e2e8f0"
-        btn_sec_bg = "#f1f5f9"
-        btn_sec_text = "#334155"
+        border_color = "#cbd5e1"
+        hover_border = "#94a3b8"
+        sidebar_bg = "#f1f5f9"
+        card_bg = "#ffffff"
+        card_border = "#cbd5e1"
+        btn_sec_bg = "#e2e8f0"
+        btn_sec_text = "#0f172a"
         btn_sec_border = "#cbd5e1"
-        shadow_box = "0 1px 3px rgba(0,0,0,0.05)"
+        shadow_box = "0 2px 8px rgba(0, 0, 0, 0.05)"
         chat_user_bg = "#e2e8f0"
         chat_user_text = "#0f172a"
-        chat_bot_bg = "#f1f5f9"
-        chat_bot_text = "#1e293b"
+        chat_bot_bg = "#f8fafc"
+        chat_bot_text = "#0f172a"
+        input_bg = "#ffffff"
+        input_border = "#cbd5e1"
+        badge_off_bg = "#e2e8f0"
+        badge_off_text = "#334155"
     else:
         # ---------------------------------------------------------------------
         # INTERCOM DARK MODE THEME PALETTE
@@ -50,6 +55,10 @@ def inject_custom_css():
         chat_user_text = "#f8fafc"
         chat_bot_bg = "#121620"
         chat_bot_text = "#e2e8f0"
+        input_bg = "#121620"
+        input_border = "#1e2433"
+        badge_off_bg = "#1e2433"
+        badge_off_text = "#94a3b8"
 
     st.markdown(f"""
         <style>
@@ -81,7 +90,7 @@ def inject_custom_css():
             padding-bottom: 2rem !important;
         }}
 
-        /* Ensure ALL Streamlit Sidebar Expand & Collapse toggle buttons are 100% visible and styled */
+        /* Sidebar Expand & Collapse toggle buttons */
         [data-testid="stSidebarCollapsedControl"],
         [data-testid="stSidebarExpandButton"],
         [data-testid="stSidebarCollapseButton"],
@@ -106,7 +115,7 @@ def inject_custom_css():
             color: #6366f1 !important;
         }}
 
-        /* Minimalist Intercom Surface Container */
+        /* Minimalist Surface Containers & Section Borders */
         [data-testid="stVerticalBlockBorderWrapper"] {{
             background: {surface_bg} !important;
             border: 1px solid {border_color} !important;
@@ -120,21 +129,38 @@ def inject_custom_css():
             border-color: {hover_border} !important;
         }}
 
-        /* Intercom Sidebar Vertical Navigation Menu */
+        /* Sidebar Container & Typography */
         [data-testid="stSidebar"] {{
             background-color: {sidebar_bg} !important;
             border-right: 1px solid {border_color} !important;
         }}
 
+        [data-testid="stSidebar"] *, 
+        [data-testid="stSidebar"] label,
+        [data-testid="stSidebar"] span,
+        [data-testid="stSidebar"] p,
+        [data-testid="stSidebar"] div {{
+            color: {text_main} !important;
+        }}
+
+        [data-testid="stSidebar"] caption {{
+            color: {text_muted} !important;
+        }}
+
+        /* Radio Options text across the app */
+        div[data-testid="stRadio"] label,
+        div[data-testid="stRadio"] label span,
+        div[data-testid="stRadio"] label p {{
+            color: {text_main} !important;
+        }}
+
         /* HIDE DEFAULT RADIO CIRCLE DOTS IN SIDEBAR MENU */
-        div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label > div:first-child,
-        div[data-testid="stRadio"] div[role="radiogroup"] label > div:first-child {{
+        div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label > div:first-child {{
             display: none !important;
         }}
 
         /* STYLE SIDEBAR VERTICAL MENU ITEMS AS SLEEK RECTANGULAR SAAS BUTTONS */
-        div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label,
-        div[data-testid="stRadio"] div[role="radiogroup"] label {{
+        div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label {{
             background: transparent !important;
             border-radius: 8px !important;
             padding: 9px 14px !important;
@@ -148,27 +174,29 @@ def inject_custom_css():
             display: block !important;
         }}
 
-        div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label:hover,
-        div[data-testid="stRadio"] div[role="radiogroup"] label:hover {{
+        div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label:hover {{
             background-color: {card_bg} !important;
             color: {text_main} !important;
             border-color: {border_color} !important;
         }}
 
         /* ACTIVE SELECTED SIDEBAR MENU ITEM */
-        div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label[data-checked="true"],
-        div[data-testid="stRadio"] div[role="radiogroup"] label[data-checked="true"] {{
+        div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label[data-checked="true"] {{
             background-color: #6366f1 !important;
             color: #ffffff !important;
             font-weight: 600 !important;
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2) !important;
         }}
 
+        div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label[data-checked="true"] * {{
+            color: #ffffff !important;
+        }}
+
         /* Typography & Section Titles */
         .intercom-title {{
             font-size: 1.05rem;
             font-weight: 700;
-            color: {text_main};
+            color: {text_main} !important;
             letter-spacing: -0.01em;
             margin-bottom: 12px;
         }}
@@ -190,7 +218,7 @@ def inject_custom_css():
         .summary-label {{
             font-size: 0.72rem;
             font-weight: 600;
-            color: {text_muted};
+            color: {text_muted} !important;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }}
@@ -198,7 +226,7 @@ def inject_custom_css():
         .summary-val {{
             font-size: 0.95rem;
             font-weight: 700;
-            color: {text_main};
+            color: {text_main} !important;
             margin-top: 4px;
             letter-spacing: -0.01em;
             white-space: nowrap;
@@ -207,7 +235,7 @@ def inject_custom_css():
 
         .summary-sub {{
             font-size: 0.74rem;
-            color: {text_muted};
+            color: {text_muted} !important;
             margin-top: 2px;
             font-weight: 400;
             white-space: nowrap;
@@ -217,25 +245,25 @@ def inject_custom_css():
 
         /* Minimalist Market Signal Cards */
         .signal-box-pos {{
-            background: rgba(16, 185, 129, 0.08);
-            border: 1px solid rgba(16, 185, 129, 0.25);
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
             border-radius: 8px;
             padding: 10px 14px;
             margin-bottom: 8px;
-            color: #10b981;
-            font-weight: 500;
+            color: #047857;
+            font-weight: 600;
             font-size: 0.86rem;
             line-height: 1.5;
         }}
 
         .signal-box-neg {{
-            background: rgba(239, 68, 68, 0.08);
-            border: 1px solid rgba(239, 68, 68, 0.25);
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
             border-radius: 8px;
             padding: 10px 14px;
             margin-bottom: 8px;
-            color: #ef4444;
-            font-weight: 500;
+            color: #b91c1c;
+            font-weight: 600;
             font-size: 0.86rem;
             line-height: 1.5;
         }}
@@ -249,14 +277,14 @@ def inject_custom_css():
             padding: 16px 18px;
             font-size: 0.92rem;
             line-height: 1.6;
-            color: {text_main};
+            color: {text_main} !important;
             font-weight: 400;
         }}
 
         /* Color Utility Classes */
-        .val-positive {{ color: #10b981 !important; font-weight: 600; }}
-        .val-negative {{ color: #ef4444 !important; font-weight: 600; }}
-        .val-neutral  {{ color: #f59e0b !important; font-weight: 600; }}
+        .val-positive {{ color: #059669 !important; font-weight: 600; }}
+        .val-negative {{ color: #dc2626 !important; font-weight: 600; }}
+        .val-neutral  {{ color: #d97706 !important; font-weight: 600; }}
 
         /* Metric font overrides */
         [data-testid="stMetricValue"] {{
@@ -271,6 +299,18 @@ def inject_custom_css():
             color: {text_muted} !important;
             text-transform: uppercase !important;
             letter-spacing: 0.05em !important;
+            font-weight: 600 !important;
+        }}
+
+        [data-testid="stMetricDelta"] {{
+            color: {badge_off_text} !important;
+        }}
+
+        [data-testid="stMetricDelta"] > div {{
+            background-color: {badge_off_bg} !important;
+            color: {badge_off_text} !important;
+            padding: 2px 8px !important;
+            border-radius: 9999px !important;
             font-weight: 600 !important;
         }}
 
@@ -330,7 +370,7 @@ def inject_custom_css():
         }}
 
         .news-card-title a {{
-            color: #6366f1;
+            color: #6366f1 !important;
             text-decoration: none;
         }}
 
@@ -340,7 +380,7 @@ def inject_custom_css():
 
         .news-card-summary {{
             font-size: 0.86rem;
-            color: {text_main};
+            color: {text_main} !important;
             margin-bottom: 12px;
             line-height: 1.55;
             background: {surface_bg};
@@ -353,11 +393,11 @@ def inject_custom_css():
             display: flex;
             gap: 20px;
             font-size: 0.8rem;
-            color: {text_muted};
+            color: {text_muted} !important;
             align-items: center;
         }}
 
-        /* Intercom Custom Chat Interface Styling */
+        /* Intercom Custom Chat Interface & Typed Text Visibility */
         .chat-user-bubble {{
             background: {chat_user_bg};
             border: 1px solid {card_border};
@@ -365,7 +405,7 @@ def inject_custom_css():
             padding: 12px 16px;
             margin-left: auto;
             max-width: 80%;
-            color: {chat_user_text};
+            color: {chat_user_text} !important;
             font-size: 0.9rem;
             line-height: 1.5;
             margin-bottom: 12px;
@@ -378,18 +418,24 @@ def inject_custom_css():
             border-radius: 2px 14px 14px 14px;
             padding: 14px 18px;
             max-width: 88%;
-            color: {chat_bot_text};
+            color: {chat_bot_text} !important;
             font-size: 0.9rem;
             line-height: 1.6;
             margin-bottom: 16px;
         }}
 
-        /* Streamlit Chat Input Styling */
+        /* Streamlit Chat Input Box & Text Field Override */
         [data-testid="stChatInput"] {{
             border-radius: 9999px !important;
-            border: 1px solid {card_border} !important;
-            background: {surface_bg} !important;
+            border: 1px solid {input_border} !important;
+            background: {input_bg} !important;
+            box-shadow: {shadow_box} !important;
+        }}
+
+        [data-testid="stChatInput"] input,
+        [data-testid="stChatInput"] textarea {{
             color: {text_main} !important;
+            background-color: transparent !important;
         }}
 
         /* Selectboxes and Inputs */
@@ -400,10 +446,15 @@ def inject_custom_css():
             border-radius: 8px !important;
         }}
 
+        div[data-baseweb="select"] span,
+        div[data-baseweb="select"] div {{
+            color: {text_main} !important;
+        }}
+
         /* Pill Badges */
         .badge-positive {{
             background: rgba(16, 185, 129, 0.15);
-            color: #10b981;
+            color: #059669;
             padding: 2px 10px;
             border-radius: 9999px;
             font-weight: 600;
@@ -412,7 +463,7 @@ def inject_custom_css():
 
         .badge-negative {{
             background: rgba(239, 68, 68, 0.15);
-            color: #ef4444;
+            color: #dc2626;
             padding: 2px 10px;
             border-radius: 9999px;
             font-weight: 600;
@@ -421,7 +472,7 @@ def inject_custom_css():
 
         .badge-neutral {{
             background: rgba(245, 158, 11, 0.15);
-            color: #f59e0b;
+            color: #d97706;
             padding: 2px 10px;
             border-radius: 9999px;
             font-weight: 600;

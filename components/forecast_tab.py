@@ -34,7 +34,8 @@ def render_historical_tab(raw_df, selected_stock):
         filtered_df = filter_data_by_range(raw_df, range_option)
         
         theme_template = "plotly_white" if is_light_theme() else "plotly_dark"
-        grid_color = "#e2e8f0" if is_light_theme() else "#1a1d24"
+        grid_color = "#cbd5e1" if is_light_theme() else "#1a1d24"
+        chart_text_color = "#0f172a" if is_light_theme() else "#f3f4f6"
         
         # Create Plotly Historical Price Line Chart
         fig_hist = go.Figure()
@@ -52,8 +53,10 @@ def render_historical_tab(raw_df, selected_stock):
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             margin=dict(l=10, r=10, t=20, b=20),
-            xaxis=dict(showgrid=True, gridcolor=grid_color, title="Date"),
-            yaxis=dict(showgrid=True, gridcolor=grid_color, title="Price ($)"),
+            font=dict(color=chart_text_color),
+            xaxis=dict(showgrid=True, gridcolor=grid_color, title="Date", tickfont=dict(color=chart_text_color), title_font=dict(color=chart_text_color)),
+            yaxis=dict(showgrid=True, gridcolor=grid_color, title="Price ($)", tickfont=dict(color=chart_text_color), title_font=dict(color=chart_text_color)),
+            legend=dict(font=dict(color=chart_text_color)),
             height=400
         )
         st.plotly_chart(fig_hist, use_container_width=True)
@@ -246,19 +249,22 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                             marker=dict(size=11, color=m_cols, line=dict(color="#ffffff", width=1.5)),
                             text=m_lbls,
                             textposition="top center",
-                            textfont=dict(color="#ffffff", size=9)
+                            textfont=dict(color="#0f172a" if is_light_theme() else "#ffffff", size=9, weight=700)
                         ))
 
                 theme_template = "plotly_white" if is_light_theme() else "plotly_dark"
-                grid_color = "#e2e8f0" if is_light_theme() else "#1a1d24"
+                grid_color = "#cbd5e1" if is_light_theme() else "#1a1d24"
+                chart_text_color = "#0f172a" if is_light_theme() else "#f3f4f6"
 
                 fig_fc.update_layout(
                     template=theme_template,
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     margin=dict(l=10, r=10, t=20, b=20),
-                    xaxis=dict(showgrid=True, gridcolor=grid_color, title="Date"),
-                    yaxis=dict(showgrid=True, gridcolor=grid_color, title="Price ($)"),
+                    font=dict(color=chart_text_color),
+                    xaxis=dict(showgrid=True, gridcolor=grid_color, title="Date", tickfont=dict(color=chart_text_color), title_font=dict(color=chart_text_color)),
+                    yaxis=dict(showgrid=True, gridcolor=grid_color, title="Price ($)", tickfont=dict(color=chart_text_color), title_font=dict(color=chart_text_color)),
+                    legend=dict(font=dict(color=chart_text_color)),
                     height=380
                 )
                 st.plotly_chart(fig_fc, use_container_width=True)

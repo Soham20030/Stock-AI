@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from utils.data_loader import load_dataset, get_stock_summary
 from utils.metrics import load_all_training_history
-from state.mode_manager import init_mode_state
+from state.mode_manager import init_mode_state, is_light_theme
 from components.access_control import render_mode_switcher
 
 # Import UI Component Modules
@@ -141,12 +141,21 @@ elif active_tab == "Training History":
                             mode="markers+text",
                             name="Monthly Target Dots",
                             marker=dict(size=11, color=m_cols, line=dict(color="#ffffff", width=1.5)),
-                            text=m_lbls,
-                            textposition="top center",
-                            textfont=dict(color="#ffffff", size=9)
-                        ))
+                    theme_template = "plotly_white" if is_light_theme() else "plotly_dark"
+                    grid_color = "#cbd5e1" if is_light_theme() else "#1a1d24"
+                    chart_text_color = "#0f172a" if is_light_theme() else "#f3f4f6"
 
-                    fig_hist_run.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=10, r=10, t=20, b=20), xaxis=dict(showgrid=True, gridcolor="#1a1d24", title="Date"), yaxis=dict(showgrid=True, gridcolor="#1a1d24", title="Price ($)"), height=360)
+                    fig_hist_run.update_layout(
+                        template=theme_template,
+                        paper_bgcolor="rgba(0,0,0,0)",
+                        plot_bgcolor="rgba(0,0,0,0)",
+                        margin=dict(l=10, r=10, t=20, b=20),
+                        font=dict(color=chart_text_color),
+                        xaxis=dict(showgrid=True, gridcolor=grid_color, title="Date", tickfont=dict(color=chart_text_color), title_font=dict(color=chart_text_color)),
+                        yaxis=dict(showgrid=True, gridcolor=grid_color, title="Price ($)", tickfont=dict(color=chart_text_color), title_font=dict(color=chart_text_color)),
+                        legend=dict(font=dict(color=chart_text_color)),
+                        height=360
+                    )
                     st.plotly_chart(fig_hist_run, use_container_width=True)
         else:
             st.info("No past training runs archived yet. Go to the 'Forecast Engine' view in Developer Mode to train a model.")
