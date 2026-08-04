@@ -134,13 +134,16 @@ elif active_tab == "Training History":
                     if not m_pts_run.empty:
                         base_p = float(f_df.loc[hist_mask, "Price"].iloc[-1]) if hist_mask.any() else summary["current_price"]
                         m_cols = ["#34d399" if float(p) >= base_p else "#f87171" for p in m_pts_run["Price"]]
-                        m_lbls = ["Bullish" if float(p) >= base_p else "Bearish" for p in m_pts_run["Price"]]
                         fig_hist_run.add_trace(go.Scatter(
                             x=m_pts_run["Date"],
                             y=m_pts_run["Price"],
                             mode="markers+text",
                             name="Monthly Target Dots",
                             marker=dict(size=11, color=m_cols, line=dict(color="#ffffff", width=1.5)),
+                            text=m_lbls,
+                            textposition="top center",
+                            textfont=dict(color="#0f172a" if is_light_theme() else "#ffffff", size=9)
+                        ))
                     theme_template = "plotly_white" if is_light_theme() else "plotly_dark"
                     grid_color = "#cbd5e1" if is_light_theme() else "#1a1d24"
                     chart_text_color = "#0f172a" if is_light_theme() else "#f3f4f6"
