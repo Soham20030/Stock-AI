@@ -22,17 +22,12 @@ from styles.theme import (
 
 def get_custom_css():
     """
-    Compiles high-specificity CSS rules with Google Font Inter integration
-    to cleanly style Streamlit's elements into an Intercom + Linear + Stripe SaaS aesthetic,
-    with clean sidebar button and expander icon alignment.
+    Compiles high-specificity CSS rules directly starting with <style>
+    to guarantee Streamlit parses and applies all custom styles immediately to the DOM.
     """
-    return f"""
-        <!-- Load Google Font Inter -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    return f"""<style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        <style>
         /* Global Canvas Styling */
         .stApp {{
             background-color: {BG_APP} !important;
