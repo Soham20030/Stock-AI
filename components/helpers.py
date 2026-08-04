@@ -13,14 +13,14 @@ def inject_custom_css():
         # ---------------------------------------------------------------------
         # INTERCOM LIGHT MODE THEME PALETTE (High Contrast Black Borders)
         # ---------------------------------------------------------------------
-        bg_app = "#f8fafc"
+        bg_app = "#f1f5f9"
         text_main = "#0f172a"
         text_muted = "#334155"
         surface_bg = "#ffffff"
         border_color = "#000000"
-        hover_border = "#1e293b"
-        sidebar_bg = "#f1f5f9"
-        card_bg = "#ffffff"
+        hover_border = "#000000"
+        sidebar_bg = "#ffffff"
+        card_bg = "#f8fafc"
         card_border = "#000000"
         btn_sec_bg = "#e2e8f0"
         btn_sec_text = "#0f172a"
@@ -28,7 +28,7 @@ def inject_custom_css():
         shadow_box = "0 2px 8px rgba(0, 0, 0, 0.05)"
         chat_user_bg = "#e2e8f0"
         chat_user_text = "#0f172a"
-        chat_bot_bg = "#f8fafc"
+        chat_bot_bg = "#ffffff"
         chat_bot_text = "#0f172a"
         input_bg = "#ffffff"
         input_border = "#000000"
@@ -118,7 +118,9 @@ def inject_custom_css():
         /* Minimalist Surface Containers & Section Borders Across ENTIRE Dashboard */
         div[data-testid="stVerticalBlockBorderWrapper"],
         [data-testid="stVerticalBlockBorderWrapper"],
-        .element-container [data-testid="stVerticalBlockBorderWrapper"] {{
+        .element-container [data-testid="stVerticalBlockBorderWrapper"],
+        div[data-testid="stVerticalBlock"] > div[style*="border"],
+        div[data-testid="stVerticalBlockBorderWrapper"] > div {{
             background: {surface_bg} !important;
             border: 1.5px solid {border_color} !important;
             border-radius: 12px !important;
