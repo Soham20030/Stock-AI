@@ -3,6 +3,8 @@ import pandas as pd
 import plotly.graph_objects as go
 from utils.data_loader import load_dataset, get_stock_summary
 from utils.metrics import load_all_training_history
+from state.mode_manager import init_mode_state
+from components.access_control import render_mode_switcher
 
 # Import UI Component Modules
 from components.helpers import inject_custom_css, render_summary_box
@@ -15,7 +17,7 @@ from components.explanation_tab import render_explanation_tab
 from components.chatbot_tab import render_chatbot_tab
 
 # -----------------------------------------------------------------------------
-# 1. PAGE CONFIGURATION & CUSTOM CSS
+# 1. PAGE CONFIGURATION, CSS & MODE STATE INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
     page_title="Stock AI | Market Forecasting & Intelligence",
@@ -24,6 +26,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 inject_custom_css()
+init_mode_state()
 
 # -----------------------------------------------------------------------------
 # 2. SESSION STATE INITIALIZATION
@@ -46,8 +49,10 @@ if "current_stock" not in st.session_state:
 selected_stock, active_tab = render_sidebar()
 
 # -----------------------------------------------------------------------------
-# 4. MAIN DASHBOARD CONTENT AREA & DATA LOADING
+# 4. TOP MODE SWITCHER ([ USER ] | [ DEVELOPER ]) & HEADER AREA
 # -----------------------------------------------------------------------------
+render_mode_switcher()
+
 st.title("Market Intelligence & Forecasting Dashboard")
 st.caption("Time-series predictive modeling, evaluation benchmarks, and RAG contextual analysis.")
 
@@ -73,7 +78,7 @@ render_top_metrics_row(summary, active_view=active_view, all_forecasts=st.sessio
 render_stock_fundamentals(summary)
 
 # -----------------------------------------------------------------------------
-# 6. DYNAMIC VIEW DELEGATION (BASED ON SIDEBAR VERTICAL NAVIGATION)
+# 6. DYNAMIC VIEW DELEGATION (BASED ON ACTIVE MODE & SIDEBAR NAVIGATION)
 # -----------------------------------------------------------------------------
 if active_tab == "Historical Data":
     render_historical_tab(raw_df, selected_stock)
@@ -129,7 +134,7 @@ elif active_tab == "Training History":
                     fig_hist_run.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=10, r=10, t=20, b=20), xaxis=dict(showgrid=True, gridcolor="#1a1d24", title="Date"), yaxis=dict(showgrid=True, gridcolor="#1a1d24", title="Price ($)"), height=360)
                     st.plotly_chart(fig_hist_run, use_container_width=True)
         else:
-            st.info("No past training runs archived yet. Go to the 'Forecast Engine' view and train a model to log history.")
+            st.info("No past training runs archived yet. Go to the 'Forecast Engine' view in Developer Mode to train a model.")
 
 elif active_tab == "AI Explanation":
     render_explanation_tab(selected_stock, summary, raw_df)
