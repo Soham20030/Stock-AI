@@ -49,12 +49,9 @@ if "current_stock" not in st.session_state:
 selected_stock, active_tab = render_sidebar()
 
 # -----------------------------------------------------------------------------
-# 4. TOP MODE SWITCHER ([ USER ] | [ DEVELOPER ]) & HEADER AREA
+# 4. EXECUTIVE NAVBAR & TOP MODE SWITCHER ([ USER ] | [ DEVELOPER ])
 # -----------------------------------------------------------------------------
 render_mode_switcher()
-
-st.title("Market Intelligence & Forecasting Dashboard")
-st.caption("Time-series predictive modeling, evaluation benchmarks, and RAG contextual analysis.")
 
 if not selected_stock:
     st.info("Please select or upload a dataset in the sidebar to get started.")

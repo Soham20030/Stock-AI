@@ -46,13 +46,23 @@ def render_explanation_tab(selected_stock, summary, raw_df):
                 target_p = float(fc_df.loc[pred_m, "Price"].iloc[-1])
                 forecast_delta = ((target_p - summary["current_price"]) / summary["current_price"]) * 100
 
-        with st.spinner(f"Loading RAG Vector Search & FinBERT Sentiment Analysis for {selected_stock}..."):
-            retrieved_articles, sentiment_analysis, explanation_report = get_cached_rag_explanation(
-                company_name=selected_stock,
-                active_model_name=active_model_name,
-                forecast_delta=forecast_delta,
-                target_p=target_p
-            )
+        # SESSION STATE CACHE MANAGER: Prevents re-fetching RAG when returning to AI Explanation
+        if "rag_cache" not in st.session_state:
+            st.session_state["rag_cache"] = {}
+
+        cache_key = f"{selected_stock}_{active_model_name}"
+
+        if cache_key in st.session_state["rag_cache"]:
+            retrieved_articles, sentiment_analysis, explanation_report = st.session_state["rag_cache"][cache_key]
+        else:
+            with st.spinner(f"Loading RAG Vector Search & FinBERT Sentiment Analysis for {selected_stock}..."):
+                retrieved_articles, sentiment_analysis, explanation_report = get_cached_rag_explanation(
+                    company_name=selected_stock,
+                    active_model_name=active_model_name,
+                    forecast_delta=forecast_delta,
+                    target_p=target_p
+                )
+                st.session_state["rag_cache"][cache_key] = (retrieved_articles, sentiment_analysis, explanation_report)
 
         # ---------------------------------------------------------------------
         # 1. SUMMARY METRICS ROW (FORECAST + CONFIDENCE + SENTIMENT)

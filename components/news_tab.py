@@ -47,12 +47,23 @@ def render_news_tab(selected_stock, company_name):
             help="Filters GDELT financial news coverage within the selected historical date range."
         )
 
+    # SESSION STATE CACHE MANAGER: Prevents re-fetching GDELT when returning to Market News
+    if "news_cache" not in st.session_state:
+        st.session_state["news_cache"] = {}
+
+    cache_key = f"{selected_stock}_{timeline_selection}"
+
+    if cache_key in st.session_state["news_cache"]:
+        summarized_news = st.session_state["news_cache"][cache_key]
+        finbert_analyzer = get_finbert_analyzer()
+    else:
         with st.spinner(f"Loading GDELT news and Ollama summaries ({timeline_selection})..."):
             summarized_news = get_cached_market_news(
                 company_name=selected_stock,
                 timeline_range=timeline_selection
             )
             finbert_analyzer = get_finbert_analyzer()
+            st.session_state["news_cache"][cache_key] = summarized_news
 
         if summarized_news:
             st.markdown("<br>", unsafe_allow_html=True)

@@ -22,8 +22,8 @@ def render_historical_tab(raw_df, selected_stock):
         # Date Range Filter Selector
         range_option = st.radio(
             "Time Horizon:",
-            options=["3 Months", "6 Months", "1 Year", "Max"],
-            index=3,
+            options=["6 Months", "1 Year", "2 Years", "Max"],
+            index=2,
             horizontal=True,
             key="time_range_selector"
         )
@@ -132,15 +132,22 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                         st.success(f"Training Complete for {model_choice}!")
                         st.rerun()
                         
-                if st.session_state["current_forecast"] is not None:
-                    curr_metrics = st.session_state["current_forecast"]["metrics"]
+                active_model_metrics = None
+                active_model_name = model_choice
+                if model_choice in st.session_state["all_forecasts"]:
+                    active_model_metrics = st.session_state["all_forecasts"][model_choice]["metrics"]
+                elif st.session_state["current_forecast"] is not None:
+                    active_model_metrics = st.session_state["current_forecast"]["metrics"]
+                    active_model_name = st.session_state["current_forecast"]["model"]
+
+                if active_model_metrics is not None:
                     st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
-                    st.markdown(f"**{st.session_state['current_forecast']['model']} Technical Metrics:**")
+                    st.markdown(f"**{active_model_name} Technical Metrics:**")
                     
                     m_c1, m_c2, m_c3 = st.columns(3)
-                    with m_c1: render_summary_box("RMSE", f"${curr_metrics.get('RMSE', 0):.2f}")
-                    with m_c2: render_summary_box("MAE", f"${curr_metrics.get('MAE', 0):.2f}")
-                    with m_c3: render_summary_box("MAPE", f"{curr_metrics.get('MAPE', 0):.2f}%")
+                    with m_c1: render_summary_box("RMSE", f"${active_model_metrics.get('RMSE', 0):.2f}")
+                    with m_c2: render_summary_box("MAE", f"${active_model_metrics.get('MAE', 0):.2f}")
+                    with m_c3: render_summary_box("MAPE", f"{active_model_metrics.get('MAPE', 0):.2f}%")
 
         chart_container = col_chart
     else:

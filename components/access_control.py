@@ -11,31 +11,39 @@ from state.mode_manager import (
 
 def render_mode_switcher():
     """
-    Renders an Intercom-style segmented mode control switcher bar ([ User ] | [ Developer ]).
-    Allows instant mode switching and re-renders the dashboard layout.
+    Renders an executive Intercom-styled navigation bar at the top of the app,
+    featuring title branding on the left and segmented mode switcher pills on the right.
     """
-    current_mode = get_mode()
-    
-    col_title, col_toggle = st.columns([3, 1.2])
-    
-    with col_toggle:
-        m_u_col, m_d_col = st.columns(2)
+    with st.container():
+        n_left, n_right = st.columns([2.5, 1])
         
-        with m_u_col:
-            u_type = "primary" if is_user_mode() else "secondary"
-            if st.button("User", type=u_type, key="btn_mode_user"):
-                if not is_user_mode():
-                    set_mode(MODE_USER)
-                    st.rerun()
+        with n_left:
+            st.markdown("""
+                <div style="padding-top: 4px;">
+                    <div style="font-size: 1.25rem; font-weight: 700; color: #ffffff; letter-spacing: -0.02em;">Market Intelligence & Forecasting</div>
+                    <div style="font-size: 0.8rem; color: #8f9bba;">Time-series predictive modeling, evaluation benchmarks, and RAG contextual analysis</div>
+                </div>
+            """, unsafe_allow_html=True)
 
-        with m_d_col:
-            d_type = "primary" if is_developer_mode() else "secondary"
-            if st.button("Developer", type=d_type, key="btn_mode_dev"):
-                if not is_developer_mode():
-                    set_mode(MODE_DEVELOPER)
-                    st.rerun()
+        with n_right:
+            st.markdown("<div style='font-size: 0.72rem; font-weight: 700; color: #8f9bba; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; text-align: right;'>Application Mode</div>", unsafe_allow_html=True)
+            u_col, d_col = st.columns(2)
+            
+            with u_col:
+                u_type = "primary" if is_user_mode() else "secondary"
+                if st.button("User", type=u_type, key="btn_navbar_user"):
+                    if not is_user_mode():
+                        set_mode(MODE_USER)
+                        st.rerun()
 
-    st.markdown("<div style='height: 4px;'></div>", unsafe_allow_html=True)
+            with d_col:
+                d_type = "primary" if is_developer_mode() else "secondary"
+                if st.button("Developer", type=d_type, key="btn_navbar_dev"):
+                    if not is_developer_mode():
+                        set_mode(MODE_DEVELOPER)
+                        st.rerun()
+
+        st.markdown("<div style='height: 14px; border-bottom: 1px solid #1a1d24; margin-bottom: 20px;'></div>", unsafe_allow_html=True)
 
 
 def get_allowed_navigation_options():
@@ -46,6 +54,7 @@ def get_allowed_navigation_options():
         - Historical Data
         - Forecast Engine
         - Market News
+        - Training History
         - AI Explanation
         - AI Analyst
 
@@ -72,7 +81,7 @@ def get_allowed_navigation_options():
     ]
 
     if is_user_mode():
-        # Hide technical ML engineer tabs in User Mode
-        return [opt for opt in all_options if opt not in ["Model Comparison", "Training History"]]
+        # Hide technical model comparison matrix tab in User Mode
+        return [opt for opt in all_options if opt != "Model Comparison"]
 
     return all_options

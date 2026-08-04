@@ -101,33 +101,35 @@ def _generate_fallback_gdelt_news(company_name, days_back=90):
     d_6m     = (now - timedelta(days=140)).strftime("%Y-%m-%d")  # 4.5 months ago (6M, 1Y only)
     d_1y     = (now - timedelta(days=290)).strftime("%Y-%m-%d")  # 9.5 months ago (1Y only)
 
+    import urllib.parse
+
     news_database = {
         "AAPL": [
             {
                 "title": "Apple Reports Record Quarterly Revenue Driven by Services Growth",
                 "date": d_recent,
-                "url": "https://www.reuters.com/technology/apple-quarterly-earnings-record",
+                "url": f"https://www.google.com/search?q={urllib.parse.quote('Apple Reports Record Quarterly Revenue Driven by Services Growth')}",
                 "source": "Reuters",
                 "content": "Apple Inc reported strong quarterly earnings surpassing Wall Street expectations due to expansion in Services and iPhone demand."
             },
             {
                 "title": "Analyst Upgrades Apple Price Target Citing AI Integration Strategy",
                 "date": d_3m,
-                "url": "https://www.bloomberg.com/news/apple-ai-strategy-upgrade",
+                "url": f"https://www.google.com/search?q={urllib.parse.quote('Analyst Upgrades Apple Price Target Citing AI Integration Strategy')}",
                 "source": "Bloomberg",
                 "content": "Wall Street analysts upgraded Apple stock price targets following optimistic guidance on edge AI hardware adoption."
             },
             {
                 "title": "Semi-Annual Tech Supply Chain Adjustments Ease Component Costs",
                 "date": d_6m,
-                "url": "https://www.ft.com/tech-supply-chain-margin-pressure",
+                "url": f"https://www.google.com/search?q={urllib.parse.quote('Semi-Annual Tech Supply Chain Adjustments Ease Component Costs')}",
                 "source": "Financial Times",
                 "content": "Global semiconductor component prices stabilized over the mid-year reporting window."
             },
             {
                 "title": "Annual Developer Conference Highlights Long-Term Ecosystem Growth",
                 "date": d_1y,
-                "url": "https://www.wsj.com/articles/app-store-regulatory-scrutiny",
+                "url": f"https://www.google.com/search?q={urllib.parse.quote('Annual Developer Conference Highlights Long-Term Ecosystem Growth')}",
                 "source": "Wall Street Journal",
                 "content": "Annual developer roadmap announcements highlighted long-term digital marketplace expansion."
             }
@@ -136,28 +138,28 @@ def _generate_fallback_gdelt_news(company_name, days_back=90):
             {
                 "title": "Tesla Expands Gigafactory Production Capacity Ahead of New EV Deliveries",
                 "date": d_recent,
-                "url": "https://www.reuters.com/business/autos/tesla-gigafactory-capacity",
+                "url": f"https://www.google.com/search?q={urllib.parse.quote('Tesla Expands Gigafactory Production Capacity Ahead of New EV Deliveries')}",
                 "source": "Reuters",
                 "content": "Tesla Inc announced automotive manufacturing milestones with increased battery cell production efficiency."
             },
             {
                 "title": "EV Sector Price Adjustments Stimulate Consumer Purchase Demand",
                 "date": d_3m,
-                "url": "https://www.bloomberg.com/news/ev-price-adjustments",
+                "url": f"https://www.google.com/search?q={urllib.parse.quote('EV Sector Price Adjustments Stimulate Consumer Purchase Demand')}",
                 "source": "Bloomberg",
                 "content": "Strategic vehicle pricing adjustments boosted quarterly delivery numbers across key North American markets."
             },
             {
                 "title": "Mid-Year Battery Chemistry Innovations Enhance Vehicle Range",
                 "date": d_6m,
-                "url": "https://www.ft.com/ev-battery-chemistry",
+                "url": f"https://www.google.com/search?q={urllib.parse.quote('Mid-Year Battery Chemistry Innovations Enhance Vehicle Range')}",
                 "source": "Financial Times",
                 "content": "Battery chemistry research milestones led to improved cold-weather energy retention."
             },
             {
                 "title": "Annual Global Autonomous Driving Test Milestones Completed",
                 "date": d_1y,
-                "url": "https://www.wsj.com/autonomous-driving-milestones",
+                "url": f"https://www.google.com/search?q={urllib.parse.quote('Annual Global Autonomous Driving Test Milestones Completed')}",
                 "source": "Wall Street Journal",
                 "content": "Autonomous driving fleets completed full-year real-world urban navigation trials."
             }
@@ -166,28 +168,28 @@ def _generate_fallback_gdelt_news(company_name, days_back=90):
             {
                 "title": "Bitcoin Surges as Institutional ETF Inflows Reach All-Time Highs",
                 "date": d_recent,
-                "url": "https://www.coindesk.com/markets/bitcoin-institutional-etf-inflows",
+                "url": f"https://www.google.com/search?q={urllib.parse.quote('Bitcoin Surges as Institutional ETF Inflows Reach All-Time Highs')}",
                 "source": "CoinDesk",
                 "content": "Spot Bitcoin ETFs recorded continuous net inflow totals, bolstering market liquidity and institutional treasury allocations."
             },
             {
                 "title": "Crypto Market Volatility Normalizes Following Options Expiration Event",
                 "date": d_3m,
-                "url": "https://www.cointelegraph.com/news/crypto-options-expiration-volatility",
+                "url": f"https://www.google.com/search?q={urllib.parse.quote('Crypto Market Volatility Normalizes Following Options Expiration Event')}",
                 "source": "CoinTelegraph",
                 "content": "Digital asset price swings stabilized after major monthly options contract settlements concluded cleanly."
             },
             {
                 "title": "Mid-Year Global Mining Hashrate Distribution Shows Network Decentralization",
                 "date": d_6m,
-                "url": "https://www.coindesk.com/mining-hashrate-decentralization",
+                "url": f"https://www.google.com/search?q={urllib.parse.quote('Mid-Year Global Mining Hashrate Distribution Shows Network Decentralization')}",
                 "source": "CoinDesk",
                 "content": "Network processing power expanded across renewable energy computational facilities."
             },
             {
                 "title": "Annual Macroeconomic Liquidity Trends Support Digital Reserve Assets",
                 "date": d_1y,
-                "url": "https://www.bloomberg.com/macro-liquidity-digital-assets",
+                "url": f"https://www.google.com/search?q={urllib.parse.quote('Annual Macroeconomic Liquidity Trends Support Digital Reserve Assets')}",
                 "source": "Bloomberg",
                 "content": "Long-term monetary policy shifts increased institutional interest in digital store-of-value assets."
             }

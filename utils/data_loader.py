@@ -194,12 +194,12 @@ def filter_data_by_range(df, range_option):
 
     max_date = df["Date"].max()
 
-    if range_option == "3 Months":
-        cutoff_date = max_date - timedelta(days=90)
-    elif range_option == "6 Months":
+    if range_option == "6 Months":
         cutoff_date = max_date - timedelta(days=180)
     elif range_option == "1 Year":
         cutoff_date = max_date - timedelta(days=365)
+    elif range_option == "2 Years":
+        cutoff_date = max_date - timedelta(days=730)
     else:  # 'Max' or default
         return df
 
