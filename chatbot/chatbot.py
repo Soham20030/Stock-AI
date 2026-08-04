@@ -4,8 +4,6 @@ from chatbot.memory import ChatbotMemory
 from chatbot.retriever import ChatbotContextRetriever
 from chatbot.prompt_builder import AnalystPromptBuilder
 
-from performance.profiler import profile_step
-
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
 DEFAULT_MODEL = "llama3"
 
@@ -30,7 +28,6 @@ class StockAIChatbot:
         self.retriever = ChatbotContextRetriever()
         self.prompt_builder = AnalystPromptBuilder()
 
-    @profile_step("Chatbot Response Generation")
     def ask(
         self,
         user_question,

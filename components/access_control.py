@@ -1,6 +1,4 @@
 import streamlit as st
-from performance.logger import logger_instance
-from performance.report_generator import generate_performance_report
 from state.mode_manager import (
     get_mode,
     set_mode,
@@ -17,7 +15,6 @@ def render_mode_switcher():
     """
     Renders an executive Intercom-styled navigation bar at the top of the app,
     featuring title branding on the left, mode switcher pills, and a Dark/Light theme toggle button.
-    In Developer Mode, provides the 'Enable performance profiling' debug switch.
     """
     with st.container(border=True):
         n_left, n_right = st.columns([2.2, 1.8])
@@ -55,25 +52,6 @@ def render_mode_switcher():
                 if st.button(theme_icon, type="secondary", key="btn_navbar_theme"):
                     toggle_theme()
                     st.rerun()
-
-    # Developer Mode Performance Profiling Debug Controls
-    if is_developer_mode():
-        st.sidebar.markdown("---")
-        st.sidebar.markdown("### ⚙️ Developer Telemetry")
-        p_enabled = st.sidebar.checkbox(
-            "Enable performance profiling",
-            value=logger_instance.is_enabled(),
-            key="profiling_toggle_switch",
-            help="Measures component execution time, memory usage, and generates performance_report.md"
-        )
-
-        if p_enabled:
-            logger_instance.enable_profiling()
-            if st.sidebar.button("📊 Generate Performance Report", key="btn_gen_perf_report"):
-                generate_performance_report("performance_report.md")
-                st.sidebar.success("Generated `performance_report.md`!")
-        else:
-            logger_instance.disable_profiling()
 
     st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 

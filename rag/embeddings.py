@@ -8,9 +8,6 @@ DEFAULT_MODEL_NAME = "all-MiniLM-L6-v2"
 _GLOBAL_EMBEDDING_GENERATOR = None
 
 
-from performance.profiler import profile_step
-
-
 class EmbeddingGenerator:
     """
     Encapsulates SentenceTransformers dense vector encoding for financial news
@@ -30,7 +27,6 @@ class EmbeddingGenerator:
         self.dimension = self.model.get_sentence_embedding_dimension()
         print(f"SentenceTransformer loaded successfully. Dimension: {self.dimension}")
 
-    @profile_step("Embeddings Generation")
     def embed_text(self, text):
         """
         Encodes a single text string into a 384-dimensional float32 numpy vector.

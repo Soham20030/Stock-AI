@@ -12,7 +12,6 @@ CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "cache")
 CACHE_FILE = os.path.join(CACHE_DIR, "news_summaries.json")
 
 
-from performance.profiler import profile_step
 from cache.cache_manager import (
     get_summary_cache_path,
     get_article_hash,
@@ -68,7 +67,6 @@ class OllamaSummarizer:
         except Exception as e:
             print(f"Error saving news summary cache: {e}")
 
-    @profile_step("Ollama Summarization")
     def generate_summary(self, title, article_text, article_url="#"):
         """
         Generates a 2-3 sentence financial summary for an article using Ollama.

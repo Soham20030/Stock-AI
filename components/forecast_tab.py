@@ -12,10 +12,6 @@ from state.mode_manager import is_developer_mode, is_user_mode, is_light_theme
 from components.helpers import render_summary_box
 
 
-from performance.profiler import profile_step
-
-
-@profile_step("Historical Tab Rendering")
 def render_historical_tab(raw_df, selected_stock):
     """
     Renders Tab 1: Historical Data chart and date range filtering options.
@@ -66,7 +62,6 @@ def render_historical_tab(raw_df, selected_stock):
         st.plotly_chart(fig_hist, use_container_width=True)
 
 
-@profile_step("Forecast Tab Rendering")
 def render_forecast_tab(raw_df, selected_stock, summary):
     """
     Renders Tab 2: Forecast Engine controls and Plotly projection charts.

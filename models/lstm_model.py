@@ -5,8 +5,6 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.neural_network import MLPRegressor
 from utils.metrics import calculate_metrics
 
-from performance.profiler import profile_step
-
 # Try importing TensorFlow / Keras; set flag for fallback if missing
 try:
     import tensorflow as tf
@@ -20,7 +18,6 @@ except ImportError:
     TF_AVAILABLE = False
 
 
-@profile_step("LSTM Training")
 def train_and_forecast_lstm(df, forecast_days=90, window_size=30):
     """
     Trains an LSTM (Long Short-Term Memory) neural network on stock close prices,

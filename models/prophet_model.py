@@ -3,8 +3,6 @@ import numpy as np
 from datetime import timedelta
 from utils.metrics import calculate_metrics
 
-from performance.profiler import profile_step
-
 # Try importing Prophet; provide fallback if library is not installed
 try:
     from prophet import Prophet
@@ -17,7 +15,6 @@ except ImportError:
         PROPHET_AVAILABLE = False
 
 
-@profile_step("Prophet Training")
 def train_and_forecast_prophet(df, forecast_days=90):
     """
     Trains a Meta Prophet model on historical stock data, evaluates metric accuracy

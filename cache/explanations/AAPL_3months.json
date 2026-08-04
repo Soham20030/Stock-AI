@@ -1,0 +1,37 @@
+{
+  "cached_at": 1785885472.8309107,
+  "data": {
+    "forecast_delta_pct": 5.2,
+    "target_price": 160.69,
+    "confidence_pct": 93,
+    "confidence_reason": "Strong agreement between Prophet historical trend momentum and positive public news sentiment.",
+    "overall_sentiment_score": 0.9444,
+    "overall_sentiment_label": "positive",
+    "positive_signals": [
+      "✓ Apple Reports Record Quarterly Revenue Driven by Services Growth",
+      "✓ Analyst Upgrades Apple Price Target Citing AI Integration Strategy"
+    ],
+    "negative_signals": [],
+    "narrative": "The projected +5.2% growth for AAPL is supported by a strong information environment featuring 2 positive news signals and overall Bullish market sentiment (score: +0.94).",
+    "retrieved_articles": [
+      {
+        "headline": "Apple Reports Record Quarterly Revenue Driven by Services Growth",
+        "positive": 0.9545,
+        "negative": 0.0,
+        "neutral": 0.0,
+        "date": "2026-07-31",
+        "url": "https://www.google.com/search?q=Apple%20Reports%20Record%20Quarterly%20Revenue%20Driven%20by%20Services%20Growth",
+        "source": "Reuters"
+      },
+      {
+        "headline": "Analyst Upgrades Apple Price Target Citing AI Integration Strategy",
+        "positive": 0.9342,
+        "negative": 0.0,
+        "neutral": 0.0,
+        "date": "2026-06-21",
+        "url": "https://www.google.com/search?q=Analyst%20Upgrades%20Apple%20Price%20Target%20Citing%20AI%20Integration%20Strategy",
+        "source": "Bloomberg"
+      }
+    ]
+  }
+}

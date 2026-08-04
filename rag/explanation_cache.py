@@ -13,7 +13,6 @@ from cache.cache_manager import (
     save_cache
 )
 from rag.explainer import generate_explanation
-from performance.profiler import profile_step
 
 
 def get_cached_explanation(company_name: str, timeline_range: str = "3 Months") -> Optional[Dict[str, Any]]:
@@ -38,7 +37,6 @@ def save_explanation_to_cache(company_name: str, timeline_range: str, explanatio
     save_cache(cache_path, explanation_data)
 
 
-@profile_step("RAG Explanation Cache Manager")
 def get_or_generate_explanation(
     company_name: str,
     timeline_range: str = "3 Months",
