@@ -560,12 +560,17 @@ def inject_custom_css():
         /* Streamlit Expander Header & Content Complete Override */
         [data-testid="stExpander"],
         div[data-testid="stExpander"],
-        details[data-testid="stExpander"],
-        div[data-testid="stExpanderDetails"] {{
+        details[data-testid="stExpander"] {{
             background-color: {card_bg} !important;
             background: {card_bg} !important;
             border: 1.5px solid {border_color} !important;
             border-radius: 10px !important;
+        }}
+
+        div[data-testid="stExpanderDetails"] {{
+            border: none !important;
+            background: transparent !important;
+            padding: 12px 16px !important;
         }}
 
         [data-testid="stExpander"] summary,
@@ -579,6 +584,7 @@ def inject_custom_css():
             background: {card_bg} !important;
             color: {text_main} !important;
             border-radius: 10px !important;
+            border: none !important;
         }}
 
         [data-testid="stExpander"] summary *,
