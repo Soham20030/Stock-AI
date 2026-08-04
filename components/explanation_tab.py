@@ -85,7 +85,7 @@ def render_explanation_tab(selected_stock, summary, raw_df):
             )
 
         st.caption(f"Alignment Rationale: {explanation_report['confidence_reason']}")
-        st.markdown("<hr style='border-color: #1e2638;'>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 
         # ---------------------------------------------------------------------
         # 2. NATURAL LANGUAGE EXPLANATION NARRATIVE CARD
@@ -98,7 +98,7 @@ def render_explanation_tab(selected_stock, summary, raw_df):
         """, unsafe_allow_html=True)
         
         st.caption("Zero-Causation Rule: News signals describe the surrounding information environment and do not alter quantitative predictions.")
-        st.markdown("<hr style='border-color: #1e2638;'>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
 
         # ---------------------------------------------------------------------
         # 3. MARKET SIGNALS GRID (POSITIVE vs NEGATIVE)
@@ -123,14 +123,14 @@ def render_explanation_tab(selected_stock, summary, raw_df):
             else:
                 st.write("No major bearish headwinds detected in recent news.")
 
-        st.markdown("<hr style='border-color: #1e2638;'>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
 
         # ---------------------------------------------------------------------
         # 4. SENTIMENT TIMELINE VISUALIZATION
         # ---------------------------------------------------------------------
         render_sentiment_timeline_chart(raw_df)
 
-        st.markdown("<hr style='border-color: #1e2638;'>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
 
         # ---------------------------------------------------------------------
         # 5. RETRIEVED ARTICLES (FAISS SEMANTIC SEARCH TOP-5 RANKING)

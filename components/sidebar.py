@@ -9,8 +9,7 @@ from chatbot.memory import ChatbotMemory
 
 def render_sidebar():
     """
-    Renders the Intercom-inspired sidebar controls for Dataset selection,
-    CSV uploads, and dataset deletion.
+    Renders the Intercom-inspired minimalist sidebar.
 
     Returns:
         str: Selected stock dataset filename (e.g. 'AAPL.csv').
@@ -18,9 +17,9 @@ def render_sidebar():
     memory_mgr = ChatbotMemory()
 
     with st.sidebar:
-        st.markdown('<div style="font-size: 1.2rem; font-weight: 700; color: #f8fafc; letter-spacing: -0.02em;">Stock AI Intelligence</div>', unsafe_allow_html=True)
-        st.caption("Quantitative Time-Series Market Forecasting")
-        st.markdown("<hr style='border-color: #1e2433; margin: 12px 0;'>", unsafe_allow_html=True)
+        st.markdown('<div style="font-size: 1.1rem; font-weight: 700; color: #ffffff; letter-spacing: -0.02em;">Stock AI Intelligence</div>', unsafe_allow_html=True)
+        st.caption("Quantitative Market Forecasting")
+        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 
         # Available Datasets Dropdown
         st.subheader("Dataset Manager")
@@ -63,14 +62,11 @@ def render_sidebar():
 
         # Delete Selected Dataset
         if selected_stock:
-            with st.expander("Remove Selected Dataset"):
-                st.write(f"Are you sure you want to remove **{selected_stock}**?")
+            with st.expander("Remove Dataset"):
+                st.write(f"Remove **{selected_stock}** from workspace?")
                 if st.button("Confirm Delete", type="secondary"):
                     delete_dataset(selected_stock)
                     st.success(f"Deleted {selected_stock}!")
                     st.rerun()
-
-        st.markdown("<hr style='border-color: #1e2433; margin: 16px 0;'>", unsafe_allow_html=True)
-        st.info("Tip: Open the **AI Analyst** tab to chat with your Context AI assistant.")
 
     return selected_stock

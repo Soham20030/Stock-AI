@@ -6,11 +6,6 @@ def render_top_metrics_row(summary, active_view=None, all_forecasts=None):
     """
     Renders the top 4 metric cards (Current Price, 3M Target, 24h Change, 30D Volume),
     dynamically synced to the active forecasting model selected by the user.
-
-    Parameters:
-        summary (dict): Stock summary fundamentals.
-        active_view (str, optional): Active model name ('Prophet', 'ARIMA', 'LSTM', 'Combined Comparison').
-        all_forecasts (dict, optional): Map of trained model payloads.
     """
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
 
@@ -22,7 +17,6 @@ def render_top_metrics_row(summary, active_view=None, all_forecasts=None):
         )
 
     with m_col2:
-        # Dynamically find the target prediction price for the active model view
         target_pred_price = None
         pred_delta_val = 0.0
         pred_delta_pct = 0.0
@@ -71,18 +65,15 @@ def render_top_metrics_row(summary, active_view=None, all_forecasts=None):
             delta_color="off"
         )
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
 
 def render_stock_fundamentals(summary):
     """
     Renders the Stock Fundamentals & Profile 5-column container card.
-
-    Parameters:
-        summary (dict): Stock profile dictionary containing current_price, market_cap, high_52w, low_52w.
     """
     with st.container(border=True):
-        st.markdown(f'<div class="intercom-title">Stock Fundamentals & Profile — {summary["company_name"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="intercom-title">Stock Profile — {summary["company_name"]}</div>', unsafe_allow_html=True)
         
         s1, s2, s3, s4, s5 = st.columns(5)
         
@@ -102,4 +93,4 @@ def render_stock_fundamentals(summary):
         with s5:
             render_summary_box("52-Week Low", f"${summary['low_52w']:.2f}", val_class="val-negative")
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)

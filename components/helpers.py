@@ -3,9 +3,10 @@ import streamlit as st
 
 def inject_custom_css():
     """
-    Injects Intercom-inspired executive dark mode CSS:
-    Refined slate cards, electric cyan/sapphire accents, crisp typography,
-    subtle micro-borders, and elegant visual hierarchy.
+    Injects authentic Intercom-inspired minimalist dark mode styling:
+    Ultra-sleek off-black canvas (#090A0C), flat slate surfaces (#0F1115),
+    Intercom signature indigo/blue accents (#6366F1), 9999px full-pill buttons,
+    hairline micro-borders (#1A1D24), and spacious minimalist typography.
     """
     st.markdown("""
         <style>
@@ -13,7 +14,7 @@ def inject_custom_css():
 
         /* Global background & typography */
         .stApp {
-            background-color: #0b0d12 !important;
+            background-color: #090a0c !important;
             color: #f3f4f6 !important;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
@@ -26,132 +27,130 @@ def inject_custom_css():
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
 
-        /* Modern Intercom-Style Card Container */
+        /* Minimalist Intercom Surface Container */
         [data-testid="stVerticalBlockBorderWrapper"] {
-            background: #121620 !important;
-            border: 1px solid #1e2433 !important;
-            border-radius: 14px !important;
-            padding: 20px !important;
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
-            transition: border-color 0.2s ease-in-out;
+            background: #0f1115 !important;
+            border: 1px solid #1a1d24 !important;
+            border-radius: 12px !important;
+            padding: 22px !important;
+            box-shadow: none !important;
+            transition: border-color 0.2s ease;
         }
 
         [data-testid="stVerticalBlockBorderWrapper"]:hover {
-            border-color: #2b3448 !important;
+            border-color: #242933 !important;
         }
 
-        /* Minimalist Intercom Tab Bar */
+        /* Intercom Signature Full-Pill Tab Bar */
         .stTabs [data-baseweb="tab-list"] {
-            gap: 6px;
-            background-color: #121620;
-            padding: 6px;
-            border-radius: 12px;
-            border: 1px solid #1e2433;
+            gap: 4px;
+            background-color: #0f1115;
+            padding: 5px;
+            border-radius: 9999px;
+            border: 1px solid #1a1d24;
+            display: inline-flex;
         }
         
         .stTabs [data-baseweb="tab"] {
-            height: 40px;
-            border-radius: 8px;
-            color: #9ca3af;
+            height: 36px;
+            border-radius: 9999px;
+            color: #8f9bba;
             font-weight: 500;
-            font-size: 0.88rem;
+            font-size: 0.84rem;
             padding: 0 16px;
             transition: all 0.2s ease;
+            border: 1px solid transparent;
         }
         
         .stTabs [aria-selected="true"] {
-            background-color: #1a202c !important;
-            color: #38bdf8 !important;
-            border-bottom: 2px solid #38bdf8 !important;
+            background-color: #1a1f2c !important;
+            color: #ffffff !important;
+            border-color: #2e364a !important;
             font-weight: 600;
         }
 
-        /* Typography Headers */
+        /* Minimalist Headers */
         .intercom-title {
-            color: #f8fafc;
-            font-size: 1.15rem;
+            color: #ffffff;
+            font-size: 1.05rem;
             font-weight: 600;
-            letter-spacing: -0.01em;
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            letter-spacing: -0.015em;
+            margin-bottom: 12px;
         }
 
         .intercom-subtitle {
-            font-size: 0.85rem;
-            color: #9ca3af;
-            margin-top: -8px;
+            font-size: 0.82rem;
+            color: #8f9bba;
+            margin-top: -6px;
             margin-bottom: 16px;
         }
 
-        /* Metric & Summary Cards */
+        /* Flat Summary & Metric Cards */
         .summary-box {
-            background: #181e2b;
+            background: #14171f;
             border-radius: 10px;
             padding: 16px;
-            border: 1px solid #232b3e;
-            border-left: 4px solid #38bdf8;
+            border: 1px solid #1e222d;
             height: 100%;
-            transition: transform 0.2s ease;
         }
 
         .summary-label {
-            font-size: 0.72rem;
-            color: #94a3b8;
+            font-size: 0.7rem;
+            color: #8f9bba;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.05em;
             font-weight: 600;
         }
 
         .summary-val {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            color: #f8fafc;
-            margin-top: 6px;
+            color: #ffffff;
+            margin-top: 4px;
             letter-spacing: -0.02em;
         }
 
         .summary-sub {
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             color: #64748b;
             margin-top: 4px;
             font-weight: 400;
         }
 
-        /* Market Signal Cards */
+        /* Minimalist Market Signal Cards */
         .signal-box-pos {
-            background: rgba(16, 185, 129, 0.08);
-            border: 1px solid rgba(16, 185, 129, 0.25);
-            border-radius: 10px;
-            padding: 12px 16px;
-            margin-bottom: 10px;
+            background: rgba(16, 185, 129, 0.06);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
             color: #34d399;
-            font-weight: 500;
-            font-size: 0.88rem;
+            font-weight: 400;
+            font-size: 0.86rem;
             line-height: 1.5;
         }
 
         .signal-box-neg {
-            background: rgba(239, 68, 68, 0.08);
-            border: 1px solid rgba(239, 68, 68, 0.25);
-            border-radius: 10px;
-            padding: 12px 16px;
-            margin-bottom: 10px;
+            background: rgba(239, 68, 68, 0.06);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
             color: #f87171;
-            font-weight: 500;
-            font-size: 0.88rem;
+            font-weight: 400;
+            font-size: 0.86rem;
             line-height: 1.5;
         }
 
-        /* Narrative Box */
+        /* Narrative Callout Box */
         .narrative-box {
-            background: #181e2b;
-            border-left: 4px solid #0284c7;
+            background: #14171f;
+            border: 1px solid #1e222d;
+            border-left: 3px solid #6366f1;
             border-radius: 10px;
-            padding: 18px 20px;
-            font-size: 0.95rem;
-            line-height: 1.65;
+            padding: 16px 18px;
+            font-size: 0.92rem;
+            line-height: 1.6;
             color: #e2e8f0;
             font-weight: 400;
         }
@@ -163,76 +162,75 @@ def inject_custom_css():
 
         /* Metric font overrides */
         [data-testid="stMetricValue"] {
-            font-size: 1.3rem !important;
+            font-size: 1.25rem !important;
             font-weight: 700 !important;
             letter-spacing: -0.02em !important;
         }
         
         [data-testid="stMetricLabel"] {
-            font-size: 0.78rem !important;
-            color: #94a3b8 !important;
+            font-size: 0.75rem !important;
+            color: #8f9bba !important;
             text-transform: uppercase !important;
             letter-spacing: 0.05em !important;
             font-weight: 600 !important;
         }
 
-        /* Intercom Pill Buttons */
+        /* Intercom Signature Full-Pill Buttons */
         .stButton>button {
-            background: #0284c7 !important;
+            background: #6366f1 !important;
             color: #ffffff !important;
-            border: 1px solid #0369a1 !important;
-            border-radius: 8px !important;
-            padding: 8px 18px !important;
+            border: none !important;
+            border-radius: 9999px !important;
+            padding: 8px 20px !important;
             font-weight: 500 !important;
-            font-size: 0.88rem !important;
+            font-size: 0.85rem !important;
             transition: all 0.2s ease !important;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
         }
         
         .stButton>button:hover {
-            background: #0369a1 !important;
-            border-color: #38bdf8 !important;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3) !important;
+            background: #4f46e5 !important;
             color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25) !important;
         }
 
         /* Secondary Pill Buttons */
         [data-testid="stBaseButton-secondary"] {
-            background: #1e293b !important;
-            color: #94a3b8 !important;
-            border: 1px solid #334155 !important;
+            background: #14171f !important;
+            color: #8f9bba !important;
+            border: 1px solid #1e222d !important;
+            border-radius: 9999px !important;
         }
 
         [data-testid="stBaseButton-secondary"]:hover {
-            background: #334155 !important;
-            color: #f8fafc !important;
+            background: #1c212c !important;
+            color: #ffffff !important;
+            border-color: #2c3446 !important;
         }
 
-        /* News Card Container */
+        /* Flat News Card Container */
         .news-card-container {
-            background: #141824;
-            border: 1px solid #1e2638;
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 14px;
-            transition: all 0.2s ease;
+            background: #14171f;
+            border: 1px solid #1e222d;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: border-color 0.2s ease;
         }
 
         .news-card-container:hover {
-            border-color: #2b364e;
-            background: #181e2d;
+            border-color: #2b3344;
         }
 
         .news-card-title {
-            font-size: 1.02rem;
+            font-size: 0.98rem;
             font-weight: 600;
-            color: #f8fafc;
-            margin-bottom: 10px;
+            color: #ffffff;
+            margin-bottom: 8px;
             line-height: 1.4;
         }
 
         .news-card-title a {
-            color: #38bdf8;
+            color: #818cf8;
             text-decoration: none;
         }
 
@@ -241,71 +239,72 @@ def inject_custom_css():
         }
 
         .news-card-summary {
-            font-size: 0.88rem;
+            font-size: 0.86rem;
             color: #cbd5e1;
-            margin-bottom: 14px;
-            line-height: 1.6;
-            background: #1a202c;
-            padding: 12px 14px;
+            margin-bottom: 12px;
+            line-height: 1.55;
+            background: #0f1115;
+            padding: 10px 12px;
             border-radius: 8px;
-            border-left: 3px solid #0284c7;
+            border: 1px solid #1a1d24;
         }
 
         .news-card-meta-row {
             display: flex;
-            gap: 24px;
-            font-size: 0.82rem;
-            color: #94a3b8;
+            gap: 20px;
+            font-size: 0.8rem;
+            color: #8f9bba;
             align-items: center;
         }
 
-        /* Chat Bubbles (Intercom Style) */
+        /* Intercom Chat Bubbles */
         [data-testid="stChatMessage"] {
-            background-color: #141824 !important;
-            border: 1px solid #1e2638 !important;
+            background-color: #14171f !important;
+            border: 1px solid #1e222d !important;
             border-radius: 12px !important;
             padding: 12px 16px !important;
-            margin-bottom: 12px !important;
+            margin-bottom: 10px !important;
         }
 
-        /* Badges */
+        /* Pill Badges */
         .badge-positive {
-            background: rgba(16, 185, 129, 0.15);
+            background: rgba(16, 185, 129, 0.12);
             color: #34d399;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.78rem;
+            padding: 2px 10px;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.76rem;
         }
 
         .badge-negative {
-            background: rgba(239, 68, 68, 0.15);
+            background: rgba(239, 68, 68, 0.12);
             color: #f87171;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.78rem;
+            padding: 2px 10px;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.76rem;
         }
 
         .badge-neutral {
-            background: rgba(245, 158, 11, 0.15);
+            background: rgba(245, 158, 11, 0.12);
             color: #fbbf24;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.78rem;
+            padding: 2px 10px;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.76rem;
         }
         </style>
     """, unsafe_allow_html=True)
 
 
-def render_summary_box(label, value, subtext="", border_color="#38bdf8", val_class=""):
+def render_summary_box(label, value, subtext="", border_color="", val_class=""):
     """
-    Renders an Intercom-styled summary card component.
+    Renders an Intercom-styled minimalist summary card.
     """
     subtext_html = f'<div class="summary-sub">{subtext}</div>' if subtext else ""
+    border_style = f' style="border-left: 3px solid {border_color};"' if border_color else ''
     st.markdown(f"""
-        <div class="summary-box" style="border-left-color: {border_color};">
+        <div class="summary-box"{border_style}>
             <div class="summary-label">{label}</div>
             <div class="summary-val {val_class}">{value}</div>
             {subtext_html}
@@ -315,27 +314,27 @@ def render_summary_box(label, value, subtext="", border_color="#38bdf8", val_cla
 
 def render_signal_box(text, signal_type="positive"):
     """
-    Renders a clean market signal card without tacky emojis.
+    Renders a clean, minimalist market signal callout.
     """
     box_class = "signal-box-pos" if signal_type == "positive" else "signal-box-neg"
-    prefix = "Bullish Indicator — " if signal_type == "positive" else "Bearish Indicator — "
+    prefix = "Bullish Signal — " if signal_type == "positive" else "Bearish Signal — "
     st.markdown(f'<div class="{box_class}"><strong>{prefix}</strong>{text}</div>', unsafe_allow_html=True)
 
 
 def render_news_card(title, summary, source, date, url, sentiment_badge=""):
     """
-    Renders an executive financial news card with clean metadata.
+    Renders a minimalist news article card.
     """
     st.markdown(f"""
         <div class="news-card-container">
             <div class="news-card-title"><a href="{url}" target="_blank">{title}</a></div>
             <div class="news-card-summary">
-                <strong>Executive Summary:</strong><br>{summary}
+                {summary}
             </div>
             <div class="news-card-meta-row">
-                <div><strong>Sentiment:</strong> {sentiment_badge}</div>
-                <div><strong>Source:</strong> <span style="color: #e2e8f0;">{source}</span></div>
-                <div><strong>Date:</strong> <span style="color: #e2e8f0;">{date}</span></div>
+                <div>Sentiment: {sentiment_badge}</div>
+                <div>Source: <span style="color: #e2e8f0;">{source}</span></div>
+                <div>Date: <span style="color: #e2e8f0;">{date}</span></div>
             </div>
         </div>
     """, unsafe_allow_html=True)

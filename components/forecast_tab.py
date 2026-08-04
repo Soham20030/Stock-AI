@@ -38,7 +38,7 @@ def render_historical_tab(raw_df, selected_stock):
                 y=filtered_df["Close"],
                 mode="lines",
                 name="Close Price",
-                line=dict(color="#38bdf8", width=2)
+                line=dict(color="#818cf8", width=2)
             )
         )
         fig_hist.update_layout(
@@ -46,9 +46,9 @@ def render_historical_tab(raw_df, selected_stock):
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             margin=dict(l=10, r=10, t=20, b=20),
-            xaxis=dict(showgrid=True, gridcolor="#1e2638", title="Date"),
-            yaxis=dict(showgrid=True, gridcolor="#1e2638", title="Price ($)"),
-            height=420
+            xaxis=dict(showgrid=True, gridcolor="#1a1d24", title="Date"),
+            yaxis=dict(showgrid=True, gridcolor="#1a1d24", title="Price ($)"),
+            height=400
         )
         st.plotly_chart(fig_hist, use_container_width=True)
 
@@ -65,16 +65,17 @@ def render_forecast_tab(raw_df, selected_stock, summary):
             st.markdown('<div class="intercom-title">Model Controls</div>', unsafe_allow_html=True)
             
             model_choice = st.selectbox(
-                "Select Forecasting Model:",
+                "Forecasting Model:",
                 options=["Prophet", "ARIMA", "LSTM"],
                 index=0,
                 help="Choose between Meta Prophet, Statistical ARIMA, or Deep Learning LSTM."
             )
             
             forecast_days = 90  # Next 3 months (approx 90 days)
-            st.write(f"Forecast Horizon: **{forecast_days} Days (3 Months)**")
+            st.caption(f"Forecast Horizon: **{forecast_days} Days (3 Months)**")
+            st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
             
-            if st.button("Train & Forecast Model"):
+            if st.button("Train & Forecast"):
                 with st.spinner(f"Training {model_choice} model on {selected_stock}..."):
                     progress_bar = st.progress(0)
                     for percent_complete in range(1, 101, 25):
@@ -121,8 +122,8 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                     
             if st.session_state["current_forecast"] is not None:
                 curr_metrics = st.session_state["current_forecast"]["metrics"]
-                st.markdown("<hr style='border-color: #1e2638;'>", unsafe_allow_html=True)
-                st.markdown(f"**Latest Model ({st.session_state['current_forecast']['model']}) Benchmarks:**")
+                st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+                st.markdown(f"**{st.session_state['current_forecast']['model']} Metrics:**")
                 
                 m_c1, m_c2, m_c3 = st.columns(3)
                 with m_c1:
@@ -155,7 +156,7 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                 )
                 
                 fig_fc = go.Figure()
-                color_map = {"Prophet": "#38bdf8", "ARIMA": "#f97316", "LSTM": "#10b981"}
+                color_map = {"Prophet": "#818cf8", "ARIMA": "#f97316", "LSTM": "#10b981"}
                 
                 if selected_view == "Combined Comparison":
                     first_df = list(st.session_state["all_forecasts"].values())[0]["df"]
@@ -176,7 +177,7 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                             y=m_df.loc[pred_mask, "Price"],
                             mode="lines",
                             name=f"{m_name} Forecast",
-                            line=dict(color=color_map.get(m_name, "#a855f7"), width=3, dash="dash")
+                            line=dict(color=color_map.get(m_name, "#a855f7"), width=2.5, dash="dash")
                         ))
                 else:
                     forecast_data = st.session_state["all_forecasts"][selected_view]
@@ -199,7 +200,7 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                         y=fc_df.loc[pred_mask, "Price"],
                         mode="lines",
                         name=f"{selected_view} Forecast",
-                        line=dict(color=line_color, width=3, dash="dash")
+                        line=dict(color=line_color, width=2.5, dash="dash")
                     ))
                     
                     if "Upper" in fc_df.columns and "Lower" in fc_df.columns:
@@ -208,7 +209,7 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                             y=fc_df.loc[pred_mask, "Upper"],
                             mode="lines",
                             name="Upper Bound",
-                            line=dict(color="rgba(56, 189, 248, 0.2)"),
+                            line=dict(color="rgba(129, 140, 248, 0.15)"),
                             showlegend=False
                         ))
                         fig_fc.add_trace(go.Scatter(
@@ -217,8 +218,8 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                             mode="lines",
                             name="Lower Bound",
                             fill="tonexty",
-                            fillcolor="rgba(56, 189, 248, 0.1)",
-                            line=dict(color="rgba(56, 189, 248, 0.2)"),
+                            fillcolor="rgba(129, 140, 248, 0.08)",
+                            line=dict(color="rgba(129, 140, 248, 0.15)"),
                             showlegend=False
                         ))
 
@@ -227,17 +228,17 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     margin=dict(l=10, r=10, t=20, b=20),
-                    xaxis=dict(showgrid=True, gridcolor="#1e2638", title="Date"),
-                    yaxis=dict(showgrid=True, gridcolor="#1e2638", title="Price ($)"),
+                    xaxis=dict(showgrid=True, gridcolor="#1a1d24", title="Date"),
+                    yaxis=dict(showgrid=True, gridcolor="#1a1d24", title="Price ($)"),
                     height=380
                 )
                 st.plotly_chart(fig_fc, use_container_width=True)
             else:
-                st.info("Select a model and click 'Train & Forecast Model' to generate projections.")
+                st.info("Select a model and click 'Train & Forecast' to generate projections.")
 
     # --- FORECAST INTERPRETABILITY & MODEL COMMENTARY CARD ---
     if st.session_state["all_forecasts"]:
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
         with st.container(border=True):
             st.markdown('<div class="intercom-title">Model Forecast Interpretability & Commentary</div>', unsafe_allow_html=True)
             

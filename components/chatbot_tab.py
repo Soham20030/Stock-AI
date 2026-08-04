@@ -19,7 +19,7 @@ def render_chatbot_tab(selected_stock, summary):
         # ---------------------------------------------------------------------
         # 1. QUICK-ASK SUGGESTED QUESTION BUTTONS
         # ---------------------------------------------------------------------
-        st.write("**Suggested Inquiries:**")
+        st.markdown("<div style='font-size: 0.85rem; font-weight: 600; color: #8f9bba; margin-bottom: 8px;'>Suggested Inquiries</div>", unsafe_allow_html=True)
         q_btn1, q_btn2, q_btn3, q_btn4 = st.columns(4)
         
         selected_quick_q = None
@@ -36,7 +36,7 @@ def render_chatbot_tab(selected_stock, summary):
             if st.button("Summarize latest news"):
                 selected_quick_q = f"Summarize the major news events and market drivers for {selected_stock}."
 
-        st.markdown("<hr style='border-color: #1e2638;'>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 
         # ---------------------------------------------------------------------
         # 2. CONVERSATION HISTORY RENDERER
@@ -104,7 +104,7 @@ def render_chatbot_tab(selected_stock, summary):
 
         # Clear Chat History Button
         if history_list:
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
             if st.button("Clear Chat History", type="secondary"):
                 memory_mgr.clear_memory()
                 st.rerun()
