@@ -23,7 +23,8 @@ from styles.theme import (
 def get_custom_css():
     """
     Compiles high-specificity CSS rules with Google Font Inter integration
-    to cleanly override Streamlit's base elements with an Intercom + Linear + Stripe SaaS aesthetic.
+    to cleanly style Streamlit's elements into an Intercom + Linear + Stripe SaaS aesthetic,
+    with clean sidebar button and expander icon alignment.
     """
     return f"""
         <!-- Load Google Font Inter -->
@@ -58,7 +59,7 @@ def get_custom_css():
         }}
 
         div[data-testid="stSidebarUserContent"] {{
-            padding: 1.5rem 1rem !important;
+            padding: 1.2rem 1rem 2rem 1rem !important;
         }}
 
         /* Modern Card Containers */
@@ -236,8 +237,9 @@ def get_custom_css():
         .val-negative {{ color: {ACCENT_RED} !important; font-weight: 700; }}
         .val-neutral  {{ color: {ACCENT_AMBER} !important; font-weight: 700; }}
 
-        /* Action Buttons (Intercom Pill Buttons) */
-        .stButton>button {{
+        /* Standard Main Buttons (Intercom Pill Buttons) */
+        div[data-testid="stMainBlockContainer"] .stButton>button,
+        section[data-testid="stSidebar"] .stButton>button {{
             background: linear-gradient(135deg, {ACCENT_BLUE} 0%, #0369a1 100%) !important;
             color: #ffffff !important;
             border: none !important;
@@ -248,11 +250,34 @@ def get_custom_css():
             width: 100% !important;
             transition: all 0.2s ease !important;
         }}
-        
-        .stButton>button:hover {{
+
+        div[data-testid="stMainBlockContainer"] .stButton>button:hover,
+        section[data-testid="stSidebar"] .stButton>button:hover {{
             background: linear-gradient(135deg, {ACCENT_BLUE_LIGHT} 0%, {ACCENT_BLUE} 100%) !important;
             box-shadow: 0 0 14px rgba(56, 189, 248, 0.35) !important;
             color: #ffffff !important;
+        }}
+
+        /* Fix Streamlit File Uploader & Expander Button Icon Alignment */
+        [data-testid="stFileUploader"] button {{
+            background: {BG_SUBCARD} !important;
+            border: 1px solid {BORDER_COLOR} !important;
+            color: {TEXT_PRIMARY} !important;
+            padding: 6px 14px !important;
+            border-radius: {RADIUS_SM} !important;
+            font-size: 0.85rem !important;
+            box-shadow: none !important;
+            width: auto !important;
+        }}
+
+        details[data-testid="stExpander"] summary {{
+            color: {TEXT_PRIMARY} !important;
+            font-size: 0.9rem !important;
+            font-weight: 600 !important;
+        }}
+
+        details[data-testid="stExpander"] summary span {{
+            color: {TEXT_PRIMARY} !important;
         }}
 
         /* Market News Card */
