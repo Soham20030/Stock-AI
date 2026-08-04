@@ -134,6 +134,7 @@ elif active_tab == "Training History":
                     if not m_pts_run.empty:
                         base_p = float(f_df.loc[hist_mask, "Price"].iloc[-1]) if hist_mask.any() else summary["current_price"]
                         m_cols = ["#34d399" if float(p) >= base_p else "#f87171" for p in m_pts_run["Price"]]
+                        m_lbls = ["Bullish" if float(p) >= base_p else "Bearish" for p in m_pts_run["Price"]]
                         fig_hist_run.add_trace(go.Scatter(
                             x=m_pts_run["Date"],
                             y=m_pts_run["Price"],
