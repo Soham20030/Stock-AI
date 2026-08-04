@@ -73,20 +73,25 @@ class FinBERTSentimentAnalyzer:
             try:
                 # Truncate text to 512 tokens max for BERT
                 truncated_text = text[:500]
-                raw_outputs = self.pipeline(truncated_text)[0]
+                raw_outputs = self.pipeline(truncated_text)
                 
-                scores = {}
-                for item in raw_outputs:
-                    label = item["label"].lower()
-                    score = float(item["score"])
-                    scores[label] = round(score, 4)
+                # Handle pipeline nested output list formats
+                if isinstance(raw_outputs, list) and len(raw_outputs) > 0:
+                    if isinstance(raw_outputs[0], list):
+                        raw_outputs = raw_outputs[0]
+                    
+                    scores = {}
+                    for item in raw_outputs:
+                        if isinstance(item, dict) and "label" in item and "score" in item:
+                            label = item["label"].lower()
+                            scores[label] = round(float(item["score"]), 4)
 
-                return {
-                    "headline": headline,
-                    "positive": scores.get("positive", 0.0),
-                    "negative": scores.get("negative", 0.0),
-                    "neutral": scores.get("neutral", 0.0)
-                }
+                    return {
+                        "headline": headline,
+                        "positive": scores.get("positive", 0.0),
+                        "negative": scores.get("negative", 0.0),
+                        "neutral": scores.get("neutral", 0.0)
+                    }
             except Exception as e:
                 print(f"FinBERT inference execution note ({e}). Utilizing financial rule-based scoring.")
 
