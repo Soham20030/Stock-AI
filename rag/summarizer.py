@@ -13,6 +13,13 @@ CACHE_FILE = os.path.join(CACHE_DIR, "news_summaries.json")
 
 
 from performance.profiler import profile_step
+from cache.cache_manager import (
+    get_summary_cache_path,
+    get_article_hash,
+    is_cache_fresh,
+    load_cache,
+    save_cache
+)
 
 
 class OllamaSummarizer:
@@ -160,27 +167,44 @@ Article:
                 return f"{sentences[0]}."
         return f"{title}. Key financial developments indicate ongoing market attention for this asset."
 
-    def summarize_articles(self, articles):
+    def summarize_articles(self, articles, company_name=None, timeline_range="3 Months"):
         """
         Processes a list of articles and generates summaries for each.
+        Uses persistent summary cache (cache/summaries/{ticker}_{timeline}.json)
+        and SHA-256 article hashes to never summarize the same article twice.
 
         Parameters:
             articles (list of dict): Article dicts with 'title', 'content', and 'url'.
+            company_name (str, optional): Asset ticker to enable persistent disk caching.
+            timeline_range (str): Timeline selection ('3 Months', '6 Months', '1 Year').
 
         Returns:
-            list of dict: Articles enriched with 'summary' field.
+            list of dict: Articles enriched with 'article_id' and 'summary' fields.
         """
+        if company_name:
+            cache_path = get_summary_cache_path(company_name, timeline_range)
+            if is_cache_fresh(cache_path, timeline_range):
+                cached_payload = load_cache(cache_path)
+                if cached_payload and isinstance(cached_payload, dict) and "data" in cached_payload:
+                    print(f"--- Cache Hit: Loaded Ollama summaries for '{company_name}' ({timeline_range}) from disk ---")
+                    return cached_payload["data"]
+
         summarized_list = []
         for art in articles:
             t = art.get("title", "")
             c = art.get("content", art.get("title", ""))
             u = art.get("url", "#")
+            art_id = get_article_hash(u)
 
             res = self.generate_summary(title=t, article_text=c, article_url=u)
             
             art_copy = dict(art)
-            art_copy["summary"] = res["summary"]
+            art_copy["article_id"] = art_id
+            art_copy["summary"] = res.get("summary", "")
             summarized_list.append(art_copy)
+
+        if company_name:
+            save_cache(cache_path, summarized_list)
 
         return summarized_list
 

@@ -7,19 +7,23 @@ from components.helpers import render_signal_box
 from components.sentiment_charts import render_sentiment_timeline_chart
 
 
+from rag.explanation_cache import get_or_generate_explanation
+
+
 @st.cache_data(ttl=600, show_spinner=False)
-def get_cached_rag_explanation(company_name, active_model_name, forecast_delta, target_p):
+def get_cached_rag_explanation(company_name, active_model_name, forecast_delta, target_p, timeline_range="3 Months"):
     """
-    Caches FAISS vector retrieval, FinBERT sentiment scoring, and RAG explanation reports
+    Caches FAISS vector retrieval, FinBERT sentiment scoring, and persistent RAG explanations
     for 10 minutes per stock, making UI interactions and button clicks instant (< 0.01s).
     """
     retrieved = retrieve_news_for_asset(company_name, top_k=5)
     sentiment_data = analyze_news_sentiment(retrieved)
-    explanation_report = generate_explanation(
+    explanation_report = get_or_generate_explanation(
+        company_name=company_name,
+        timeline_range=timeline_range,
         forecast_delta_pct=forecast_delta,
         target_price=target_p,
         sentiment_info=sentiment_data,
-        company_name=company_name,
         model_name=active_model_name
     )
     return retrieved, sentiment_data, explanation_report

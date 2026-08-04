@@ -246,13 +246,19 @@ def calculate_days_from_timeline(timeline_option):
 
 
 from performance.profiler import profile_step
+from cache.cache_manager import (
+    get_news_cache_path,
+    is_cache_fresh,
+    load_cache,
+    save_cache
+)
 
 
 @profile_step("GDELT Fetch")
 def fetch_gdelt_news(company_name, max_records=25, timeline_range="3 Months", days_back=None):
     """
     Fetches financial news articles from GDELT DOC API v2 within a selected date horizon.
-    Cleans article text, removes duplicates, and saves raw records locally.
+    Uses cache_manager to check persistent disk cache first and eliminate network wait times.
 
     Parameters:
         company_name (str): Asset/Company ticker or search query (e.g. 'AAPL' or 'Apple').
@@ -264,6 +270,14 @@ def fetch_gdelt_news(company_name, max_records=25, timeline_range="3 Months", da
         list of dict: Cleaned, deduplicated news article records within the requested date window.
     """
     clean_query = company_name.replace(".csv", "").strip()
+
+    # 1. Check persistent news cache
+    cache_path = get_news_cache_path(company_name, timeline_range)
+    if is_cache_fresh(cache_path, timeline_range):
+        cached_payload = load_cache(cache_path)
+        if cached_payload and isinstance(cached_payload, dict) and "data" in cached_payload:
+            print(f"--- Cache Hit: Loaded GDELT news for '{company_name}' ({timeline_range}) from disk ---")
+            return cached_payload["data"]
     
     # Determine date range bounds
     if days_back is None:
@@ -335,6 +349,7 @@ def fetch_gdelt_news(company_name, max_records=25, timeline_range="3 Months", da
 
             if deduped:
                 save_raw_news_to_disk(deduped, clean_query)
+                save_cache(cache_path, deduped)
                 return deduped
 
     except Exception as e:
@@ -343,4 +358,5 @@ def fetch_gdelt_news(company_name, max_records=25, timeline_range="3 Months", da
     # Resilient fallback if GDELT network API is offline or rate-limited
     fallback_news = _generate_fallback_gdelt_news(clean_query, days_back=days_back)
     save_raw_news_to_disk(fallback_news, clean_query)
+    save_cache(cache_path, fallback_news)
     return fallback_news

@@ -6,11 +6,18 @@ from rag.sentiment import FinBERTSentimentAnalyzer
 from components.helpers import render_news_card
 
 
+from cache.cache_manager import (
+    get_news_cache_path,
+    get_summary_cache_path,
+    get_explanation_cache_path,
+    invalidate_cache
+)
+
+
 @st.cache_data(ttl=600, show_spinner=False)
 def get_cached_market_news(company_name, timeline_range="3 Months"):
     """
-    Caches GDELT news fetching and Ollama summaries for 10 minutes per stock/timeline selection,
-    eliminating redundant network wait times during tab reruns or button clicks.
+    Retrieves GDELT news and Ollama summaries using cache-first disk & memory architecture.
     """
     raw_items = fetch_gdelt_news(
         company_name=company_name,
@@ -18,7 +25,11 @@ def get_cached_market_news(company_name, timeline_range="3 Months"):
         timeline_range=timeline_range
     )
     summarizer = OllamaSummarizer()
-    summarized = summarizer.summarize_articles(raw_items)
+    summarized = summarizer.summarize_articles(
+        articles=raw_items,
+        company_name=company_name,
+        timeline_range=timeline_range
+    )
     return summarized
 
 
@@ -42,14 +53,32 @@ def render_news_tab(selected_stock, company_name):
     with st.container(border=True):
         st.markdown(f'<div class="intercom-title">Market News & LLM Summaries — {company_name}</div>', unsafe_allow_html=True)
         
-        # Timeline Selector (3 Months, 6 Months, 1 Year)
-        timeline_selection = st.selectbox(
-            "News Horizon Range:",
-            options=["3 Months", "6 Months", "1 Year"],
-            index=0,
-            key="market_news_timeline_selector",
-            help="Filters GDELT financial news coverage within the selected historical date range."
-        )
+        c_select, c_btn = st.columns([3.5, 1.2])
+        
+        with c_select:
+            # Timeline Selector (3 Months, 6 Months, 1 Year)
+            timeline_selection = st.selectbox(
+                "News Horizon Range:",
+                options=["3 Months", "6 Months", "1 Year"],
+                index=0,
+                key="market_news_timeline_selector",
+                help="Filters GDELT financial news coverage within the selected historical date range."
+            )
+            
+        with c_btn:
+            st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+            if st.button("🔄 Refresh News", key="btn_refresh_news_cache", help="Invalidates disk cache and refetches fresh GDELT news and summaries"):
+                # Invalidate news cache
+                invalidate_cache(get_news_cache_path(selected_stock, timeline_selection))
+                # Invalidate summary cache
+                invalidate_cache(get_summary_cache_path(selected_stock, timeline_selection))
+                # Invalidate explanation cache
+                invalidate_cache(get_explanation_cache_path(selected_stock, timeline_selection))
+                # Clear Streamlit cache_data & session state
+                st.cache_data.clear()
+                if "news_cache" in st.session_state:
+                    st.session_state["news_cache"].pop(f"{selected_stock}_{timeline_selection}", None)
+                st.rerun()
 
     # SESSION STATE CACHE MANAGER: Prevents re-fetching GDELT when returning to Market News
     if "news_cache" not in st.session_state:
