@@ -168,7 +168,7 @@ class StockAIChatbot:
             model = context_dict.get("active_model", "Prophet")
             return f"The active **{model}** model predicts a **{fc}** return for **{stock}** with a 3-month target price of **{target}**. {context_dict.get('explanation', '')}"
 
-        elif "news" in q_lower or "event" in q_lower or "headline" in q_lower:
+        elif "news" in q_lower or "event" in q_lower or "headline" in q_lower or "article" in q_lower:
             news = context_dict.get("news", [])
             if news:
                 lines = [f"Latest news summary for **{stock}**:\n"]
@@ -177,7 +177,20 @@ class StockAIChatbot:
                 return "\n".join(lines)
             return f"No recent news context available for {stock}."
 
-        return f"Based on the dashboard context for **{stock}**, the current forecast is **{context_dict.get('forecast', 'N/A')}** with **{context_dict.get('confidence', 'N/A')}** alignment confidence. {context_dict.get('explanation', '')}"
+        # Relevancy Filter: Check if question is finance/dashboard related
+        financial_keywords = [
+            "stock", "forecast", "price", "target", "confidence", "news", "event",
+            "sentiment", "model", "prophet", "arima", "lstm", "rmse", "mae", "mape",
+            "apple", "aapl", "tesla", "tsla", "bitcoin", "btc", "performance",
+            "signal", "why", "explain", "compare", "summarize", "return", "margin",
+            "growth", "revenue", "earnings", "trend", "accuracy", "bullish", "bearish"
+        ]
+
+        if any(kw in q_lower for kw in financial_keywords):
+            return f"Based on the dashboard context for **{stock}**, the current forecast is **{context_dict.get('forecast', 'N/A')}** with **{context_dict.get('confidence', 'N/A')}** alignment confidence. {context_dict.get('explanation', '')}"
+
+        # Strict Refusal for out-of-scope general trivia questions (e.g. "what is the capital of france")
+        return "I do not have enough context from the dashboard to answer that question."
 
 
 def ask_stock_ai_chatbot(user_question, stock_name, **kwargs):
