@@ -18,7 +18,8 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# Generated Results & Vector DB Artifacts
+# Generated Results, Summaries & Vector DB Artifacts
 results/*.json
+cache/*.json
 vector_db/*.bin
 vector_db/*.json
