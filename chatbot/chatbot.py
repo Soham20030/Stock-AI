@@ -61,6 +61,21 @@ class StockAIChatbot:
         if not user_question or not isinstance(user_question, str):
             return "Please ask a question about the dashboard."
 
+        # Cross-Ticker Mismatch Guard
+        stock_clean = stock_name.replace(".csv", "").strip().upper() if stock_name else "AAPL"
+        q_lower_check = user_question.lower()
+        ticker_map = {
+            "TSLA": ["tesla", "tsla"],
+            "AAPL": ["apple", "aapl"],
+            "BTC": ["bitcoin", "btc"]
+        }
+        for ticker_key, kws in ticker_map.items():
+            if ticker_key != stock_clean and any(kw in q_lower_check for kw in kws):
+                mismatch_msg = f"Your active workspace dataset is set to **{stock_name}**. To analyze **{ticker_key}**, please select **{ticker_key}.csv** in the sidebar."
+                self.memory.add_user_message(user_question)
+                self.memory.add_assistant_message(mismatch_msg)
+                return mismatch_msg
+
         # 1. Record user question in conversation memory
         self.memory.add_user_message(user_question)
 
@@ -169,7 +184,9 @@ class StockAIChatbot:
             fc = context_dict.get("forecast", "N/A")
             target = context_dict.get("target_price", "N/A")
             model = context_dict.get("active_model", "Prophet")
-            return f"The active **{model}** model predicts a **{fc}** return for **{stock}** with a 3-month target price of **{target}**. {context_dict.get('explanation', '')}"
+            if target == "N/A" or fc == "Pending Model Fit":
+                return f"No forecasting model has been trained yet for **{stock}** in this session. Please go to the **Forecast Engine** tab and click **Train & Forecast** to generate active predictions."
+            return f"The active **{model}** model predicts a **{fc}** return for **{stock}** with a 3-month target price of **{target}**."
 
         elif "news" in q_lower or "event" in q_lower or "headline" in q_lower or "article" in q_lower:
             news = context_dict.get("news", [])
