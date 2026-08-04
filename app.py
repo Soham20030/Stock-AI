@@ -33,6 +33,10 @@ from rag.retriever import retrieve_news_for_asset
 from rag.sentiment import analyze_news_sentiment, FinBERTSentimentAnalyzer
 from rag.explainer import generate_explanation
 
+# Import Chatbot Modules
+from chatbot.chatbot import StockAIChatbot
+from chatbot.memory import ChatbotMemory
+
 # -----------------------------------------------------------------------------
 # 1. PAGE CONFIGURATION & CUSTOM CSS (VESPER-INSPIRED DARK THEME)
 # -----------------------------------------------------------------------------
@@ -72,7 +76,7 @@ st.markdown("""
 
     /* Tab navigation styling */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
+        gap: 8px;
         background-color: #151921;
         padding: 8px 12px;
         border-radius: 10px;
@@ -85,7 +89,7 @@ st.markdown("""
         border-radius: 8px;
         color: #94a3b8;
         font-weight: 600;
-        padding: 0 16px;
+        padding: 0 14px;
     }
     
     .stTabs [aria-selected="true"] {
@@ -261,6 +265,9 @@ if "all_forecasts" not in st.session_state:
 if "current_stock" not in st.session_state:
     st.session_state["current_stock"] = None
 
+if "chat_history" not in st.session_state:
+    st.session_state["chat_history"] = []
+
 # -----------------------------------------------------------------------------
 # 3. SIDEBAR CONTROLS
 # -----------------------------------------------------------------------------
@@ -290,6 +297,7 @@ with st.sidebar:
         st.session_state["all_forecasts"] = {}
         st.session_state["current_forecast"] = None
         st.session_state["model_history"] = {}
+        st.session_state["chat_history"] = []  # Reset chat history for new stock
 
     # Upload New Dataset
     uploaded_file = st.file_uploader(
@@ -314,7 +322,7 @@ with st.sidebar:
                 st.rerun()
 
     st.markdown("---")
-    st.info("💡 **Tip**: Check out **🧠 AI Explanation** tab for RAG news contextual insights!")
+    st.info("💡 **Tip**: Check out **💬 AI Analyst** tab to chat with your Context AI assistant!")
 
 # -----------------------------------------------------------------------------
 # 4. MAIN DASHBOARD CONTENT AREA
@@ -447,15 +455,16 @@ with st.container(border=True):
 st.markdown("<br>", unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# FEATURE 3 & 4 & 5 & 6: TABBED DASHBOARD NAVIGATION
+# FEATURE 3 & 4 & 5 & 6 & 7: TABBED DASHBOARD NAVIGATION (INCLUDING 💬 AI ANALYST)
 # -----------------------------------------------------------------------------
-tab_hist, tab_forecast, tab_news, tab_compare, tab_archive, tab_rag = st.tabs([
+tab_hist, tab_forecast, tab_news, tab_compare, tab_archive, tab_rag, tab_chat = st.tabs([
     "📊 Historical Data", 
     "🔮 Forecast Engine", 
     "📰 Market News", 
     "⚖️ Model Comparison",
     "📜 Training History",
-    "🧠 AI Explanation"
+    "🧠 AI Explanation",
+    "💬 AI Analyst"  # <-- TAB 7: CONTEXT-GROUNDED AI CHATBOT
 ])
 
 # =============================================================================
@@ -1286,3 +1295,124 @@ with tab_rag:
                 """, unsafe_allow_html=True)
         else:
             st.write("No news articles retrieved for this query.")
+
+# =============================================================================
+# TAB 7: 💬 AI ANALYST (CONTEXT-GROUNDED CHATBOT ENGINE)
+# =============================================================================
+with tab_chat:
+    with st.container(border=True):
+        st.markdown(f'<div class="vesper-title">💬 AI Financial Analyst — Context Assistant ({summary["company_name"]})</div>', unsafe_allow_html=True)
+        st.caption("Ask questions about forecasts, model error benchmarks (RMSE/MAPE), news summaries, or RAG explanations. Zero-hallucination context bounds enforced.")
+        
+        # ---------------------------------------------------------------------
+        # 1. QUICK-ASK SUGGESTED QUESTION BUTTONS
+        # ---------------------------------------------------------------------
+        st.write("**Quick Example Questions:**")
+        q_btn1, q_btn2, q_btn3, q_btn4 = st.columns(4)
+        
+        selected_quick_q = None
+        with q_btn1:
+            if st.button("❓ Why is confidence low?"):
+                selected_quick_q = f"Why is the RAG alignment confidence score for {selected_stock} at its current level?"
+        with q_btn2:
+            if st.button("🔮 Explain today's forecast"):
+                selected_quick_q = f"Explain the active 3-month forecast and projected price target for {selected_stock}."
+        with q_btn3:
+            if st.button("⚖️ Compare Prophet & LSTM"):
+                selected_quick_q = f"Compare the accuracy error metrics (RMSE, MAE, MAPE) between Prophet, ARIMA, and LSTM for {selected_stock}."
+        with q_btn4:
+            if st.button("📰 Summarize latest news"):
+                selected_quick_q = f"Summarize the major news events and market drivers for {selected_stock}."
+
+        st.markdown("<hr style='border-color: #232936;'>", unsafe_allow_html=True)
+
+        # ---------------------------------------------------------------------
+        # 2. CONVERSATION HISTORY RENDERER
+        # ---------------------------------------------------------------------
+        memory_mgr = ChatbotMemory()
+        history_list = memory_mgr.get_history()
+
+        chat_container = st.container()
+        with chat_container:
+            if history_list:
+                for msg in history_list:
+                    role = msg.get("role", "user")
+                    content = msg.get("content", "")
+                    if role == "user":
+                        with st.chat_message("user"):
+                            st.write(content)
+                    else:
+                        with st.chat_message("assistant"):
+                            st.markdown(content)
+            else:
+                st.info(f"👋 Welcome! I am your AI Analyst for **{selected_stock}**. Ask me any question about model error scores, forecasts, news summaries, or market signals!")
+
+        # ---------------------------------------------------------------------
+        # 3. CHAT INPUT ENGINE & OLLAMA EXECUTION
+        # ---------------------------------------------------------------------
+        user_input = st.chat_input(f"Ask a question about {selected_stock} or dashboard context...")
+        
+        # Handle prompt submission (via input box or quick-ask button)
+        prompt_to_process = selected_quick_q or user_input
+
+        if prompt_to_process:
+            # Display user message immediately
+            with chat_container:
+                with st.chat_message("user"):
+                    st.write(prompt_to_process)
+
+            with st.spinner(f"Analyst inspecting dashboard context for {selected_stock}..."):
+                # Execute Chatbot Engine
+                chatbot_engine = StockAIChatbot()
+                
+                # Load dependencies for context harvest
+                retrieved_news = retrieve_news_for_asset(selected_stock, top_k=5)
+                sentiment_data = analyze_news_sentiment(retrieved_news)
+                ollama_sum = OllamaSummarizer()
+                summarized_news_items = ollama_sum.summarize_articles(retrieved_news)
+
+                active_m_name = "Prophet"
+                fc_delta = 5.2
+                target_p_val = summary["current_price"] * 1.052
+
+                if st.session_state["current_forecast"] is not None:
+                    active_m_name = st.session_state["current_forecast"]["model"]
+                    fc_df_active = st.session_state["current_forecast"]["df"]
+                    pred_m = fc_df_active["type"] == "Forecast"
+                    if pred_m.any():
+                        target_p_val = float(fc_df_active.loc[pred_m, "Price"].iloc[-1])
+                        fc_delta = ((target_p_val - summary["current_price"]) / summary["current_price"]) * 100
+
+                explanation_payload = generate_explanation(
+                    forecast_delta_pct=fc_delta,
+                    target_price=target_p_val,
+                    sentiment_info=sentiment_data,
+                    company_name=selected_stock,
+                    model_name=active_m_name
+                )
+
+                # Query chatbot engine
+                ai_answer = chatbot_engine.ask(
+                    user_question=prompt_to_process,
+                    stock_name=selected_stock,
+                    summary_info=summary,
+                    all_forecasts=st.session_state["all_forecasts"],
+                    model_history=st.session_state["model_history"],
+                    sentiment_info=sentiment_data,
+                    explanation_report=explanation_payload,
+                    summarized_news=summarized_news_items
+                )
+
+            # Display AI response bubble
+            with chat_container:
+                with st.chat_message("assistant"):
+                    st.markdown(ai_answer)
+                    
+            st.rerun()
+
+        # Clear Chat History Button
+        if history_list:
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("🧹 Clear Chat History", type="secondary"):
+                memory_mgr.clear_memory()
+                st.rerun()
