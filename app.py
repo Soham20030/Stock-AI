@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Import modular helper utilities
 from utils.data_loader import (
@@ -265,8 +265,11 @@ if "all_forecasts" not in st.session_state:
 if "current_stock" not in st.session_state:
     st.session_state["current_stock"] = None
 
-if "chat_history" not in st.session_state:
-    st.session_state["chat_history"] = []
+if "context_cache" not in st.session_state:
+    st.session_state["context_cache"] = None
+
+# Initialize persistent memory manager
+memory_mgr = ChatbotMemory()
 
 # -----------------------------------------------------------------------------
 # 3. SIDEBAR CONTROLS
@@ -291,13 +294,16 @@ with st.sidebar:
         selected_stock = None
         st.warning("No datasets found in datasets/ folder.")
 
-    # Detect Stock Switch & Automatically Reset Forecast Session State for the new stock
-    if st.session_state["current_stock"] != selected_stock:
+    # Fix: Detect REAL Stock Switch only (prevents clearing history on simple page refresh F5)
+    if st.session_state["current_stock"] is None:
+        st.session_state["current_stock"] = selected_stock
+    elif st.session_state["current_stock"] != selected_stock:
         st.session_state["current_stock"] = selected_stock
         st.session_state["all_forecasts"] = {}
         st.session_state["current_forecast"] = None
         st.session_state["model_history"] = {}
-        st.session_state["chat_history"] = []  # Reset chat history for new stock
+        st.session_state["context_cache"] = None
+        memory_mgr.clear_memory()  # Reset chat history only when switching tickers
 
     # Upload New Dataset
     uploaded_file = st.file_uploader(
@@ -464,7 +470,7 @@ tab_hist, tab_forecast, tab_news, tab_compare, tab_archive, tab_rag, tab_chat = 
     "⚖️ Model Comparison",
     "📜 Training History",
     "🧠 AI Explanation",
-    "💬 AI Analyst"  # <-- TAB 7: CONTEXT-GROUNDED AI CHATBOT
+    "💬 AI Analyst"
 ])
 
 # =============================================================================
@@ -567,6 +573,9 @@ with tab_forecast:
                         metrics=metrics_dict,
                         interpretability=interp_snapshot
                     )
+                    
+                    # Reset context cache so chatbot picks up new forecast
+                    st.session_state["context_cache"] = None
                     
                     st.success(f"Training Complete for {model_choice}!")
                     st.rerun()
@@ -1297,7 +1306,7 @@ with tab_rag:
             st.write("No news articles retrieved for this query.")
 
 # =============================================================================
-# TAB 7: 💬 AI ANALYST (CONTEXT-GROUNDED CHATBOT ENGINE)
+# TAB 7: 💬 AI ANALYST (CONTEXT-GROUNDED CHATBOT ENGINE WITH 5-10 MIN CACHE)
 # =============================================================================
 with tab_chat:
     with st.container(border=True):
@@ -1329,7 +1338,6 @@ with tab_chat:
         # ---------------------------------------------------------------------
         # 2. CONVERSATION HISTORY RENDERER
         # ---------------------------------------------------------------------
-        memory_mgr = ChatbotMemory()
         history_list = memory_mgr.get_history()
 
         chat_container = st.container()
@@ -1348,7 +1356,7 @@ with tab_chat:
                 st.info(f"👋 Welcome! I am your AI Analyst for **{selected_stock}**. Ask me any question about model error scores, forecasts, news summaries, or market signals!")
 
         # ---------------------------------------------------------------------
-        # 3. CHAT INPUT ENGINE & OLLAMA EXECUTION
+        # 3. CHAT INPUT ENGINE & SMART 5-10 MINUTE CONTEXT CACHE
         # ---------------------------------------------------------------------
         user_input = st.chat_input(f"Ask a question about {selected_stock} or dashboard context...")
         
@@ -1362,36 +1370,61 @@ with tab_chat:
                     st.write(prompt_to_process)
 
             with st.spinner(f"Analyst inspecting dashboard context for {selected_stock}..."):
-                # Execute Chatbot Engine
-                chatbot_engine = StockAIChatbot()
+                now_time = datetime.now()
+                cache_obj = st.session_state.get("context_cache", None)
                 
-                # Load dependencies for context harvest
-                retrieved_news = retrieve_news_for_asset(selected_stock, top_k=5)
-                sentiment_data = analyze_news_sentiment(retrieved_news)
-                ollama_sum = OllamaSummarizer()
-                summarized_news_items = ollama_sum.summarize_articles(retrieved_news)
+                # Check if context cache is valid (< 10 minutes old and same stock)
+                cache_valid = False
+                if cache_obj and cache_obj.get("stock") == selected_stock:
+                    cache_age = now_time - cache_obj.get("timestamp", now_time - timedelta(minutes=15))
+                    if cache_age < timedelta(minutes=10):
+                        cache_valid = True
 
-                active_m_name = "Prophet"
-                fc_delta = 5.2
-                target_p_val = summary["current_price"] * 1.052
+                if cache_valid:
+                    # Re-use cached context instantly (0 network latency, 0 model reloads)
+                    retrieved_news = cache_obj["retrieved_news"]
+                    sentiment_data = cache_obj["sentiment_data"]
+                    summarized_news_items = cache_obj["summarized_news_items"]
+                    explanation_payload = cache_obj["explanation_payload"]
+                else:
+                    # Fetch fresh data & update cache buffer
+                    retrieved_news = retrieve_news_for_asset(selected_stock, top_k=5)
+                    sentiment_data = analyze_news_sentiment(retrieved_news)
+                    ollama_sum = OllamaSummarizer()
+                    summarized_news_items = ollama_sum.summarize_articles(retrieved_news)
 
-                if st.session_state["current_forecast"] is not None:
-                    active_m_name = st.session_state["current_forecast"]["model"]
-                    fc_df_active = st.session_state["current_forecast"]["df"]
-                    pred_m = fc_df_active["type"] == "Forecast"
-                    if pred_m.any():
-                        target_p_val = float(fc_df_active.loc[pred_m, "Price"].iloc[-1])
-                        fc_delta = ((target_p_val - summary["current_price"]) / summary["current_price"]) * 100
+                    active_m_name = "Prophet"
+                    fc_delta = 5.2
+                    target_p_val = summary["current_price"] * 1.052
 
-                explanation_payload = generate_explanation(
-                    forecast_delta_pct=fc_delta,
-                    target_price=target_p_val,
-                    sentiment_info=sentiment_data,
-                    company_name=selected_stock,
-                    model_name=active_m_name
-                )
+                    if st.session_state["current_forecast"] is not None:
+                        active_m_name = st.session_state["current_forecast"]["model"]
+                        fc_df_active = st.session_state["current_forecast"]["df"]
+                        pred_m = fc_df_active["type"] == "Forecast"
+                        if pred_m.any():
+                            target_p_val = float(fc_df_active.loc[pred_m, "Price"].iloc[-1])
+                            fc_delta = ((target_p_val - summary["current_price"]) / summary["current_price"]) * 100
+
+                    explanation_payload = generate_explanation(
+                        forecast_delta_pct=fc_delta,
+                        target_price=target_p_val,
+                        sentiment_info=sentiment_data,
+                        company_name=selected_stock,
+                        model_name=active_m_name
+                    )
+
+                    # Save to session context cache with timestamp
+                    st.session_state["context_cache"] = {
+                        "stock": selected_stock,
+                        "timestamp": now_time,
+                        "retrieved_news": retrieved_news,
+                        "sentiment_data": sentiment_data,
+                        "summarized_news_items": summarized_news_items,
+                        "explanation_payload": explanation_payload
+                    }
 
                 # Query chatbot engine
+                chatbot_engine = StockAIChatbot()
                 ai_answer = chatbot_engine.ask(
                     user_question=prompt_to_process,
                     stock_name=selected_stock,

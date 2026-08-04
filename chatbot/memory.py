@@ -24,7 +24,7 @@ class ChatbotMemory:
         self.history_file = history_file
 
         # Initialize session state storage if not present
-        if "chat_history" not in st.session_state:
+        if "chat_history" not in st.session_state or st.session_state["chat_history"] is None:
             st.session_state["chat_history"] = self._load_disk_history()
 
     def _load_disk_history(self):
@@ -53,7 +53,7 @@ class ChatbotMemory:
         os.makedirs(os.path.dirname(self.history_file), exist_ok=True)
         try:
             with open(self.history_file, "w", encoding="utf-8") as f:
-                json.dump(st.session_state["chat_history"], f, indent=2, ensure_ascii=False)
+                json.dump(st.session_state.get("chat_history", []), f, indent=2, ensure_ascii=False)
         except Exception as e:
             print(f"Error saving chat history to disk cache: {e}")
 
@@ -65,6 +65,8 @@ class ChatbotMemory:
             content (str): User query string.
         """
         if content and isinstance(content, str):
+            if "chat_history" not in st.session_state or st.session_state["chat_history"] is None:
+                st.session_state["chat_history"] = []
             st.session_state["chat_history"].append({
                 "role": "user",
                 "content": content.strip()
@@ -80,6 +82,8 @@ class ChatbotMemory:
             content (str): AI response string.
         """
         if content and isinstance(content, str):
+            if "chat_history" not in st.session_state or st.session_state["chat_history"] is None:
+                st.session_state["chat_history"] = []
             st.session_state["chat_history"].append({
                 "role": "assistant",
                 "content": content.strip()
@@ -94,6 +98,8 @@ class ChatbotMemory:
         Returns:
             list of dict: List of {"role": str, "content": str} objects.
         """
+        if "chat_history" not in st.session_state or not st.session_state["chat_history"]:
+            st.session_state["chat_history"] = self._load_disk_history()
         return st.session_state.get("chat_history", [])
 
     def format_history_string(self, last_n=6):
