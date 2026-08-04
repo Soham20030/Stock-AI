@@ -145,7 +145,7 @@ def render_forecast_tab(raw_df, selected_stock, summary):
         chart_container = col_chart
     else:
         # User Mode: Full width projection chart container
-        chart_container = st
+        chart_container = st.container()
 
     # -------------------------------------------------------------------------
     # PROJECTION CHART (BOTH MODES)
