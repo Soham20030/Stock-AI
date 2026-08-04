@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+from state.mode_manager import is_light_theme
 
 
 def render_sentiment_timeline_chart(raw_df):
@@ -42,6 +43,10 @@ def render_sentiment_timeline_chart(raw_df):
                 marker_prices.append(float(closest_row["Close"].values[0]))
                 valid_t_dates.append(closest_row["Date"].values[0])
 
+        theme_template = "plotly_white" if is_light_theme() else "plotly_dark"
+        grid_color = "#cbd5e1" if is_light_theme() else "#1e2638"
+        chart_text_color = "#0f172a" if is_light_theme() else "#f3f4f6"
+
         fig_timeline.add_trace(go.Scatter(
             x=valid_t_dates,
             y=marker_prices,
@@ -49,6 +54,7 @@ def render_sentiment_timeline_chart(raw_df):
             name="Monthly Sentiment",
             text=sentiment_labels[:len(valid_t_dates)],
             textposition="top center",
+            textfont=dict(color=chart_text_color, size=10),
             marker=dict(
                 size=12,
                 color=sentiment_colors[:len(valid_t_dates)],
@@ -57,12 +63,26 @@ def render_sentiment_timeline_chart(raw_df):
         ))
         
         fig_timeline.update_layout(
-            template="plotly_dark",
+            template=theme_template,
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             margin=dict(l=10, r=10, t=30, b=20),
-            xaxis=dict(showgrid=True, gridcolor="#1e2638", title="Date Timeline"),
-            yaxis=dict(showgrid=True, gridcolor="#1e2638", title="Price ($)"),
+            font=dict(color=chart_text_color),
+            xaxis=dict(
+                showgrid=True,
+                gridcolor=grid_color,
+                title="Date Timeline",
+                tickfont=dict(color=chart_text_color),
+                title_font=dict(color=chart_text_color)
+            ),
+            yaxis=dict(
+                showgrid=True,
+                gridcolor=grid_color,
+                title="Price ($)",
+                tickfont=dict(color=chart_text_color),
+                title_font=dict(color=chart_text_color)
+            ),
+            legend=dict(font=dict(color=chart_text_color)),
             height=380
         )
         st.plotly_chart(fig_timeline, use_container_width=True)

@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from state.mode_manager import is_light_theme
 
 
 def render_model_comparison_tab(model_history):
@@ -34,18 +35,25 @@ def render_model_comparison_tab(model_history):
                 
             with c_right:
                 st.subheader("Comparative Error Metric Chart")
+                theme_template = "plotly_white" if is_light_theme() else "plotly_dark"
+                chart_text_color = "#0f172a" if is_light_theme() else "#f3f4f6"
+
                 fig_comp = px.bar(
                     comp_df,
                     x="Model",
                     y=["RMSE", "MAE", "MAPE (%)"],
                     barmode="group",
-                    template="plotly_dark",
+                    template=theme_template,
                     color_discrete_sequence=["#38bdf8", "#f97316", "#10b981"]
                 )
                 fig_comp.update_layout(
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     margin=dict(l=10, r=10, t=20, b=20),
+                    font=dict(color=chart_text_color),
+                    xaxis=dict(tickfont=dict(color=chart_text_color), title_font=dict(color=chart_text_color)),
+                    yaxis=dict(tickfont=dict(color=chart_text_color), title_font=dict(color=chart_text_color)),
+                    legend=dict(font=dict(color=chart_text_color)),
                     height=320
                 )
                 st.plotly_chart(fig_comp, use_container_width=True)
