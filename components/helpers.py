@@ -1,97 +1,140 @@
 import streamlit as st
+from state.mode_manager import is_light_theme
 
 
 def inject_custom_css():
     """
-    Injects authentic Intercom-inspired minimalist dark mode styling:
-    Ultra-sleek off-black canvas (#090A0C), flat slate surfaces (#0F1115),
-    Intercom signature indigo/blue accents (#6366F1), 9999px full-pill buttons,
-    hairline micro-borders (#1A1D24), and custom vertical menu items without radio dots.
+    Injects authentic Intercom-inspired minimalist styling with full Dark / Light mode theme support.
     """
-    st.markdown("""
+    light_mode = is_light_theme()
+
+    if light_mode:
+        # ---------------------------------------------------------------------
+        # INTERCOM LIGHT MODE THEME PALETTE
+        # ---------------------------------------------------------------------
+        bg_app = "#f8fafc"
+        text_main = "#0f172a"
+        text_muted = "#64748b"
+        surface_bg = "#ffffff"
+        border_color = "#e2e8f0"
+        hover_border = "#cbd5e1"
+        sidebar_bg = "#ffffff"
+        card_bg = "#f1f5f9"
+        card_border = "#e2e8f0"
+        btn_sec_bg = "#f1f5f9"
+        btn_sec_text = "#334155"
+        btn_sec_border = "#cbd5e1"
+        shadow_box = "0 1px 3px rgba(0,0,0,0.05)"
+        chat_user_bg = "#e2e8f0"
+        chat_user_text = "#0f172a"
+        chat_bot_bg = "#f1f5f9"
+        chat_bot_text = "#1e293b"
+    else:
+        # ---------------------------------------------------------------------
+        # INTERCOM DARK MODE THEME PALETTE
+        # ---------------------------------------------------------------------
+        bg_app = "#090a0c"
+        text_main = "#f3f4f6"
+        text_muted = "#8f9bba"
+        surface_bg = "#0f1115"
+        border_color = "#1a1d24"
+        hover_border = "#242933"
+        sidebar_bg = "#0c0e12"
+        card_bg = "#14171f"
+        card_border = "#1e222d"
+        btn_sec_bg = "#14171f"
+        btn_sec_text = "#8f9bba"
+        btn_sec_border = "#1e222d"
+        shadow_box = "none"
+        chat_user_bg = "#1a202c"
+        chat_user_text = "#f8fafc"
+        chat_bot_bg = "#121620"
+        chat_bot_text = "#e2e8f0"
+
+    st.markdown(f"""
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
         /* Global background & typography */
-        .stApp {
-            background-color: #090a0c !important;
-            color: #f3f4f6 !important;
+        .stApp {{
+            background-color: {bg_app} !important;
+            color: {text_main} !important;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-        }
+        }}
 
         /* Hide Deploy button and Footer, keep Header & Sidebar toggle arrow 100% visible */
-        .stAppDeployButton {display: none !important;}
-        [data-testid="stAppDeployButton"] {display: none !important;}
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
+        .stAppDeployButton {{display: none !important;}}
+        [data-testid="stAppDeployButton"] {{display: none !important;}}
+        #MainMenu {{visibility: hidden;}}
+        footer {{visibility: hidden;}}
 
         /* Ensure Streamlit Header container is positioned cleanly */
-        header[data-testid="stHeader"] {
+        header[data-testid="stHeader"] {{
             background-color: transparent !important;
             height: 0px !important;
             z-index: 99999 !important;
-        }
+        }}
 
         /* Zero out top margin/padding to attach navbar directly to the top edge */
-        .block-container {
+        .block-container {{
             padding-top: 1rem !important;
             padding-bottom: 2rem !important;
-        }
+        }}
 
         /* Ensure ALL Streamlit Sidebar Expand & Collapse toggle buttons are 100% visible and styled */
         [data-testid="stSidebarCollapsedControl"],
         [data-testid="stSidebarExpandButton"],
         [data-testid="stSidebarCollapseButton"],
         button[aria-label="Expand sidebar"],
-        button[aria-label="Collapse sidebar"] {
+        button[aria-label="Collapse sidebar"] {{
             display: flex !important;
             visibility: visible !important;
             opacity: 1 !important;
-            color: #ffffff !important;
-            background-color: #14171f !important;
-            border: 1px solid #282f3f !important;
+            color: {text_main} !important;
+            background-color: {card_bg} !important;
+            border: 1px solid {border_color} !important;
             border-radius: 8px !important;
             padding: 4px 8px !important;
             margin: 8px !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
-        }
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        }}
 
         [data-testid="stSidebarCollapsedControl"]:hover,
-        button[aria-label="Expand sidebar"]:hover {
-            background-color: #1c212c !important;
+        button[aria-label="Expand sidebar"]:hover {{
+            background-color: {btn_sec_bg} !important;
             border-color: #6366f1 !important;
-            color: #ffffff !important;
-        }
+            color: #6366f1 !important;
+        }}
 
         /* Minimalist Intercom Surface Container */
-        [data-testid="stVerticalBlockBorderWrapper"] {
-            background: #0f1115 !important;
-            border: 1px solid #1a1d24 !important;
+        [data-testid="stVerticalBlockBorderWrapper"] {{
+            background: {surface_bg} !important;
+            border: 1px solid {border_color} !important;
             border-radius: 12px !important;
             padding: 18px 20px !important;
-            box-shadow: none !important;
+            box-shadow: {shadow_box} !important;
             transition: border-color 0.2s ease;
-        }
+        }}
 
-        [data-testid="stVerticalBlockBorderWrapper"]:hover {
-            border-color: #242933 !important;
-        }
+        [data-testid="stVerticalBlockBorderWrapper"]:hover {{
+            border-color: {hover_border} !important;
+        }}
 
         /* Intercom Sidebar Vertical Navigation Menu */
-        [data-testid="stSidebar"] {
-            background-color: #0c0e12 !important;
-            border-right: 1px solid #1a1d24 !important;
-        }
+        [data-testid="stSidebar"] {{
+            background-color: {sidebar_bg} !important;
+            border-right: 1px solid {border_color} !important;
+        }}
 
         /* HIDE DEFAULT RADIO CIRCLE DOTS IN SIDEBAR MENU */
         div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label > div:first-child,
-        div[data-testid="stRadio"] div[role="radiogroup"] label > div:first-child {
+        div[data-testid="stRadio"] div[role="radiogroup"] label > div:first-child {{
             display: none !important;
-        }
+        }}
 
         /* STYLE SIDEBAR VERTICAL MENU ITEMS AS SLEEK RECTANGULAR SAAS BUTTONS */
         div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label,
-        div[data-testid="stRadio"] div[role="radiogroup"] label {
+        div[data-testid="stRadio"] div[role="radiogroup"] label {{
             background: transparent !important;
             border-radius: 8px !important;
             padding: 9px 14px !important;
@@ -99,143 +142,140 @@ def inject_custom_css():
             transition: all 0.2s ease !important;
             cursor: pointer !important;
             border: 1px solid transparent !important;
-            color: #8f9bba !important;
+            color: {text_muted} !important;
             font-size: 0.86rem !important;
             font-weight: 500 !important;
             display: block !important;
-        }
+        }}
 
         div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label:hover,
-        div[data-testid="stRadio"] div[role="radiogroup"] label:hover {
-            background: #141822 !important;
-            color: #ffffff !important;
-        }
+        div[data-testid="stRadio"] div[role="radiogroup"] label:hover {{
+            background-color: {card_bg} !important;
+            color: {text_main} !important;
+            border-color: {border_color} !important;
+        }}
 
-        div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label:has(input:checked),
-        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
-            background: #6366f1 !important;
+        /* ACTIVE SELECTED SIDEBAR MENU ITEM */
+        div[aria-label="Dashboard Navigation"] div[role="radiogroup"] label[data-checked="true"],
+        div[data-testid="stRadio"] div[role="radiogroup"] label[data-checked="true"] {{
+            background-color: #6366f1 !important;
             color: #ffffff !important;
             font-weight: 600 !important;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25) !important;
-        }
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2) !important;
+        }}
 
-        /* Minimalist Headers */
-        .intercom-title {
-            color: #ffffff;
+        /* Typography & Section Titles */
+        .intercom-title {{
             font-size: 1.05rem;
-            font-weight: 600;
-            letter-spacing: -0.015em;
+            font-weight: 700;
+            color: {text_main};
+            letter-spacing: -0.01em;
             margin-bottom: 12px;
-        }
+        }}
 
-        .intercom-subtitle {
-            font-size: 0.82rem;
-            color: #8f9bba;
-            margin-top: -6px;
-            margin-bottom: 16px;
-        }
-
-        /* Compact Flat Summary & Metric Cards for 5-Column Grid Fitting */
-        .summary-box {
-            background: #14171f;
+        /* Summary Cards */
+        .summary-box {{
+            background: {card_bg};
+            border: 1px solid {card_border};
             border-radius: 10px;
-            padding: 12px 14px;
-            border: 1px solid #1e222d;
-            height: 100%;
-            overflow: hidden;
-        }
+            padding: 14px 16px;
+            box-shadow: {shadow_box};
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }}
 
-        .summary-label {
-            font-size: 0.68rem;
-            color: #8f9bba;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
+        .summary-box:hover {{
+            border-color: {hover_border};
+        }}
+
+        .summary-label {{
+            font-size: 0.72rem;
             font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+            color: {text_muted};
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }}
 
-        .summary-val {
+        .summary-val {{
             font-size: 0.95rem;
             font-weight: 700;
-            color: #ffffff;
+            color: {text_main};
             margin-top: 4px;
             letter-spacing: -0.01em;
             white-space: nowrap;
             overflow: visible;
-        }
+        }}
 
-        .summary-sub {
+        .summary-sub {{
             font-size: 0.74rem;
-            color: #64748b;
+            color: {text_muted};
             margin-top: 2px;
             font-weight: 400;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-        }
+        }}
 
         /* Minimalist Market Signal Cards */
-        .signal-box-pos {
-            background: rgba(16, 185, 129, 0.06);
-            border: 1px solid rgba(16, 185, 129, 0.2);
+        .signal-box-pos {{
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
             border-radius: 8px;
             padding: 10px 14px;
             margin-bottom: 8px;
-            color: #34d399;
-            font-weight: 400;
+            color: #10b981;
+            font-weight: 500;
             font-size: 0.86rem;
             line-height: 1.5;
-        }
+        }}
 
-        .signal-box-neg {
-            background: rgba(239, 68, 68, 0.06);
-            border: 1px solid rgba(239, 68, 68, 0.2);
+        .signal-box-neg {{
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.25);
             border-radius: 8px;
             padding: 10px 14px;
             margin-bottom: 8px;
-            color: #f87171;
-            font-weight: 400;
+            color: #ef4444;
+            font-weight: 500;
             font-size: 0.86rem;
             line-height: 1.5;
-        }
+        }}
 
         /* Narrative Callout Box */
-        .narrative-box {
-            background: #14171f;
-            border: 1px solid #1e222d;
+        .narrative-box {{
+            background: {card_bg};
+            border: 1px solid {card_border};
             border-left: 3px solid #6366f1;
             border-radius: 10px;
             padding: 16px 18px;
             font-size: 0.92rem;
             line-height: 1.6;
-            color: #e2e8f0;
+            color: {text_main};
             font-weight: 400;
-        }
+        }}
 
         /* Color Utility Classes */
-        .val-positive { color: #34d399 !important; font-weight: 600; }
-        .val-negative { color: #f87171 !important; font-weight: 600; }
-        .val-neutral  { color: #fbbf24 !important; font-weight: 600; }
+        .val-positive {{ color: #10b981 !important; font-weight: 600; }}
+        .val-negative {{ color: #ef4444 !important; font-weight: 600; }}
+        .val-neutral  {{ color: #f59e0b !important; font-weight: 600; }}
 
         /* Metric font overrides */
-        [data-testid="stMetricValue"] {
+        [data-testid="stMetricValue"] {{
             font-size: 1.25rem !important;
             font-weight: 700 !important;
+            color: {text_main} !important;
             letter-spacing: -0.02em !important;
-        }
+        }}
         
-        [data-testid="stMetricLabel"] {
+        [data-testid="stMetricLabel"] {{
             font-size: 0.75rem !important;
-            color: #8f9bba !important;
+            color: {text_muted} !important;
             text-transform: uppercase !important;
             letter-spacing: 0.05em !important;
             font-weight: 600 !important;
-        }
+        }}
 
         /* Intercom Signature Full-Pill Buttons */
-        .stButton>button {
+        .stButton>button {{
             background: #6366f1 !important;
             color: #ffffff !important;
             border: none !important;
@@ -244,171 +284,149 @@ def inject_custom_css():
             font-weight: 500 !important;
             font-size: 0.85rem !important;
             transition: all 0.2s ease !important;
-        }
+        }}
         
-        .stButton>button:hover {
+        .stButton>button:hover {{
             background: #4f46e5 !important;
             color: #ffffff !important;
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25) !important;
-        }
+        }}
 
         /* Secondary Pill Buttons */
-        [data-testid="stBaseButton-secondary"] {
-            background: #14171f !important;
-            color: #8f9bba !important;
-            border: 1px solid #1e222d !important;
+        [data-testid="stBaseButton-secondary"] {{
+            background: {btn_sec_bg} !important;
+            color: {btn_sec_text} !important;
+            border: 1px solid {btn_sec_border} !important;
             border-radius: 9999px !important;
-        }
+        }}
 
-        [data-testid="stBaseButton-secondary"]:hover {
-            background: #1c212c !important;
-            color: #ffffff !important;
-            border-color: #2c3446 !important;
-        }
+        [data-testid="stBaseButton-secondary"]:hover {{
+            background: {card_bg} !important;
+            color: {text_main} !important;
+            border-color: #6366f1 !important;
+        }}
 
         /* Flat News Card Container */
-        .news-card-container {
-            background: #14171f;
-            border: 1px solid #1e222d;
+        .news-card-container {{
+            background: {card_bg};
+            border: 1px solid {card_border};
             border-radius: 10px;
             padding: 16px;
             margin-bottom: 12px;
+            box-shadow: {shadow_box};
             transition: border-color 0.2s ease;
-        }
+        }}
 
-        .news-card-container:hover {
-            border-color: #2b3344;
-        }
+        .news-card-container:hover {{
+            border-color: {hover_border};
+        }}
 
-        .news-card-title {
+        .news-card-title {{
             font-size: 0.98rem;
             font-weight: 600;
-            color: #ffffff;
+            color: {text_main};
             margin-bottom: 8px;
             line-height: 1.4;
-        }
+        }}
 
-        .news-card-title a {
-            color: #818cf8;
+        .news-card-title a {{
+            color: #6366f1;
             text-decoration: none;
-        }
+        }}
 
-        .news-card-title a:hover {
+        .news-card-title a:hover {{
             text-decoration: underline;
-        }
+        }}
 
-        .news-card-summary {
+        .news-card-summary {{
             font-size: 0.86rem;
-            color: #cbd5e1;
+            color: {text_main};
             margin-bottom: 12px;
             line-height: 1.55;
-            background: #0f1115;
+            background: {surface_bg};
             padding: 10px 12px;
             border-radius: 8px;
-            border: 1px solid #1a1d24;
-        }
+            border: 1px solid {card_border};
+        }}
 
-        .news-card-meta-row {
+        .news-card-meta-row {{
             display: flex;
             gap: 20px;
             font-size: 0.8rem;
-            color: #8f9bba;
+            color: {text_muted};
             align-items: center;
-        }
+        }}
 
         /* Intercom Custom Chat Interface Styling */
-        .chat-user-bubble {
-            background: #1a202c;
-            border: 1px solid #2d3748;
+        .chat-user-bubble {{
+            background: {chat_user_bg};
+            border: 1px solid {card_border};
             border-radius: 14px 14px 2px 14px;
             padding: 12px 16px;
             margin-left: auto;
             max-width: 80%;
-            color: #f8fafc;
+            color: {chat_user_text};
             font-size: 0.9rem;
             line-height: 1.5;
             margin-bottom: 12px;
-        }
+        }}
 
-        .chat-user-meta {
-            font-size: 0.7rem;
-            color: #8f9bba;
-            font-weight: 600;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            text-align: right;
-        }
-
-        .chat-assistant-bubble {
-            background: #121620;
-            border: 1px solid #1e2638;
+        .chat-assistant-bubble {{
+            background: {chat_bot_bg};
+            border: 1px solid {card_border};
             border-left: 3px solid #6366f1;
             border-radius: 2px 14px 14px 14px;
             padding: 14px 18px;
             max-width: 88%;
-            color: #e2e8f0;
+            color: {chat_bot_text};
             font-size: 0.9rem;
             line-height: 1.6;
             margin-bottom: 16px;
-        }
-
-        .chat-assistant-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
-        .chat-assistant-badge {
-            background: #6366f1;
-            color: #ffffff;
-            font-size: 0.68rem;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 9999px;
-            letter-spacing: 0.04em;
-        }
-
-        .chat-assistant-sub {
-            font-size: 0.74rem;
-            color: #8f9bba;
-        }
+        }}
 
         /* Streamlit Chat Input Styling */
-        [data-testid="stChatInput"] {
+        [data-testid="stChatInput"] {{
             border-radius: 9999px !important;
-            border: 1px solid #1e2433 !important;
-            background: #121620 !important;
-        }
+            border: 1px solid {card_border} !important;
+            background: {surface_bg} !important;
+            color: {text_main} !important;
+        }}
+
+        /* Selectboxes and Inputs */
+        div[data-baseweb="select"] > div {{
+            background-color: {card_bg} !important;
+            border-color: {card_border} !important;
+            color: {text_main} !important;
+            border-radius: 8px !important;
+        }}
 
         /* Pill Badges */
-        .badge-positive {
-            background: rgba(16, 185, 129, 0.12);
-            color: #34d399;
+        .badge-positive {{
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
             padding: 2px 10px;
             border-radius: 9999px;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.76rem;
-        }
+        }}
 
-        .badge-negative {
-            background: rgba(239, 68, 68, 0.12);
-            color: #f87171;
+        .badge-negative {{
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
             padding: 2px 10px;
             border-radius: 9999px;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.76rem;
-        }
+        }}
 
-        .badge-neutral {
-            background: rgba(245, 158, 11, 0.12);
-            color: #fbbf24;
+        .badge-neutral {{
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
             padding: 2px 10px;
             border-radius: 9999px;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.76rem;
-        }
+        }}
         </style>
     """, unsafe_allow_html=True)
 
@@ -449,8 +467,8 @@ def render_news_card(title, summary, source, date, url, sentiment_badge=""):
             </div>
             <div class="news-card-meta-row">
                 <div>Sentiment: {sentiment_badge}</div>
-                <div>Source: <span style="color: #e2e8f0;">{source}</span></div>
-                <div>Date: <span style="color: #e2e8f0;">{date}</span></div>
+                <div>Source: <span>{source}</span></div>
+                <div>Date: <span>{date}</span></div>
             </div>
         </div>
     """, unsafe_allow_html=True)
