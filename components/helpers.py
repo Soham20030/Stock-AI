@@ -443,21 +443,52 @@ def inject_custom_css():
             background-color: transparent !important;
         }}
 
-        /* Selectboxes and Inputs */
-        div[data-baseweb="select"] > div,
-        div[data-testid="stSelectbox"] > div > div {{
-            background-color: #0f172a !important;
+        /* Selectboxes, Dropdown Inputs and Option Menus */
+        div[data-testid="stSelectbox"] label,
+        div[data-testid="stSelectbox"] p,
+        div[data-testid="stSelectbox"] span {{
+            color: {text_main} !important;
+            font-weight: 600 !important;
+        }}
+
+        div[data-testid="stSelectbox"] > div,
+        div[data-testid="stSelectbox"] > div > div,
+        div[data-baseweb="select"],
+        div[data-baseweb="select"] > div {{
+            background-color: {card_bg} !important;
             border: 1.5px solid {border_color} !important;
             border-radius: 8px !important;
         }}
 
         div[data-baseweb="select"] *,
-        div[data-testid="stSelectbox"] *,
         div[data-baseweb="select"] span,
+        div[data-baseweb="select"] p,
         div[data-baseweb="select"] div,
         div[data-baseweb="select"] svg {{
-            color: #ffffff !important;
-            fill: #ffffff !important;
+            color: {text_main} !important;
+            fill: {text_main} !important;
+            font-weight: 600 !important;
+        }}
+
+        /* Dropdown Popup Menu List Items */
+        ul[data-baseweb="menu"],
+        div[data-baseweb="popover"] ul {{
+            background-color: {surface_bg} !important;
+            border: 1.5px solid {border_color} !important;
+            border-radius: 8px !important;
+        }}
+
+        li[data-baseweb="option"],
+        div[data-baseweb="popover"] li {{
+            background-color: {surface_bg} !important;
+            color: {text_main} !important;
+            font-weight: 500 !important;
+        }}
+
+        li[data-baseweb="option"]:hover,
+        div[data-baseweb="popover"] li:hover {{
+            background-color: {btn_sec_bg} !important;
+            color: #6366f1 !important;
         }}
 
         /* Pill Badges */
