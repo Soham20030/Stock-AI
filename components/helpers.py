@@ -516,11 +516,11 @@ def inject_custom_css():
         div[data-baseweb="select"] *,
         div[data-baseweb="select"] span,
         div[data-baseweb="select"] p,
-        div[data-baseweb="select"] input {
+        div[data-baseweb="select"] input {{
             color: {text_main} !important;
             font-weight: 600 !important;
             -webkit-text-fill-color: {text_main} !important;
-        }
+        }}
 
         /* Eliminate Black Square on Dropdown Arrow Icon Containers */
         div[data-baseweb="select"] svg,
@@ -528,12 +528,12 @@ def inject_custom_css():
         div[data-baseweb="select"] [class*="EndEnhancer"],
         div[data-baseweb="select"] [class*="DropdownIndicator"],
         div[data-baseweb="select"] [class*="SelectArrow"],
-        div[data-baseweb="select"] div:has(> svg) {
+        div[data-baseweb="select"] div:has(> svg) {{
             background-color: transparent !important;
             background: transparent !important;
             color: {text_main} !important;
             fill: {text_main} !important;
-        }
+        }}
 
         /* Dropdown Popup Menu List Items */
         ul[data-baseweb="menu"],
