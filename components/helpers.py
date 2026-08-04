@@ -1,3 +1,6 @@
+"""
+UI Components & Intercom CSS Design System Helpers.
+"""
 import streamlit as st
 from state.mode_manager import is_light_theme
 
