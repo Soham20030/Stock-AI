@@ -532,6 +532,58 @@ def inject_custom_css():
             font-weight: 500 !important;
         }}
 
+        /* Streamlit File Uploader Dropzone Override */
+        [data-testid="stFileUploader"] section,
+        div[data-testid="stFileUploader"] section,
+        div[data-testid="stFileUploaderDropzone"],
+        div[data-testid="stFileUploader"] div[role="button"] {{
+            background-color: {card_bg} !important;
+            background: {card_bg} !important;
+            border: 1.5px solid {border_color} !important;
+            border-radius: 12px !important;
+            color: {text_main} !important;
+        }}
+
+        [data-testid="stFileUploader"] *,
+        [data-testid="stFileUploader"] span,
+        [data-testid="stFileUploader"] p,
+        [data-testid="stFileUploader"] label,
+        [data-testid="stFileUploader"] div {{
+            color: {text_main} !important;
+        }}
+
+        [data-testid="stFileUploader"] small,
+        [data-testid="stFileUploader"] caption {{
+            color: {text_muted} !important;
+        }}
+
+        /* Streamlit Expander Header & Content Override */
+        [data-testid="stExpander"],
+        div[data-testid="stExpander"],
+        details[data-testid="stExpander"] {{
+            background-color: {card_bg} !important;
+            background: {card_bg} !important;
+            border: 1.5px solid {border_color} !important;
+            border-radius: 10px !important;
+        }}
+
+        summary[data-testid="stExpanderSummaryHeader"],
+        div[data-testid="stExpanderSummaryHeader"] {{
+            background-color: {card_bg} !important;
+            background: {card_bg} !important;
+            color: {text_main} !important;
+            border-radius: 10px !important;
+        }}
+
+        [data-testid="stExpanderSummaryHeader"] *,
+        [data-testid="stExpanderSummaryHeader"] span,
+        [data-testid="stExpanderSummaryHeader"] p,
+        [data-testid="stExpanderSummaryHeader"] svg {{
+            color: {text_main} !important;
+            fill: {text_main} !important;
+            font-weight: 600 !important;
+        }}
+
         /* Selectboxes, Dropdown Inputs and Option Menus */
         div[data-testid="stSelectbox"] label,
         div[data-testid="stSelectbox"] p,
