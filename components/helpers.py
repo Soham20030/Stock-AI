@@ -11,29 +11,29 @@ def inject_custom_css():
 
     if light_mode:
         # ---------------------------------------------------------------------
-        # INTERCOM LIGHT MODE THEME PALETTE (High Contrast Slate & Sharp Borders)
+        # INTERCOM LIGHT MODE THEME PALETTE (High Contrast Black Borders)
         # ---------------------------------------------------------------------
         bg_app = "#f8fafc"
         text_main = "#0f172a"
-        text_muted = "#475569"
+        text_muted = "#334155"
         surface_bg = "#ffffff"
-        border_color = "#94a3b8"
-        hover_border = "#64748b"
+        border_color = "#000000"
+        hover_border = "#1e293b"
         sidebar_bg = "#f1f5f9"
         card_bg = "#ffffff"
-        card_border = "#94a3b8"
+        card_border = "#000000"
         btn_sec_bg = "#e2e8f0"
         btn_sec_text = "#0f172a"
-        btn_sec_border = "#94a3b8"
+        btn_sec_border = "#000000"
         shadow_box = "0 2px 8px rgba(0, 0, 0, 0.05)"
         chat_user_bg = "#e2e8f0"
         chat_user_text = "#0f172a"
         chat_bot_bg = "#f8fafc"
         chat_bot_text = "#0f172a"
         input_bg = "#ffffff"
-        input_border = "#94a3b8"
+        input_border = "#000000"
         badge_off_bg = "#e2e8f0"
-        badge_off_text = "#334155"
+        badge_off_text = "#0f172a"
     else:
         # ---------------------------------------------------------------------
         # INTERCOM DARK MODE THEME PALETTE
