@@ -128,6 +128,24 @@ elif active_tab == "Training History":
                     pred_mask = f_df["type"] == "Forecast"
                     color_map = {"Prophet": "#818cf8", "ARIMA": "#f97316", "LSTM": "#10b981"}
                     fig_hist_run.add_trace(go.Scatter(x=f_df.loc[pred_mask, "Date"], y=f_df.loc[pred_mask, "Price"], mode="lines", name=f"{r_model} Forecast", line=dict(color=color_map.get(r_model, "#10b981"), width=2.5, dash="dash")))
+                    
+                    # Monthly Milestone Overlay Dots
+                    m_pts_run = f_df.loc[pred_mask].iloc[::30]
+                    if not m_pts_run.empty:
+                        base_p = float(f_df.loc[hist_mask, "Price"].iloc[-1]) if hist_mask.any() else summary["current_price"]
+                        m_cols = ["#34d399" if float(p) >= base_p else "#f87171" for p in m_pts_run["Price"]]
+                        m_lbls = ["Bullish" if float(p) >= base_p else "Bearish" for p in m_pts_run["Price"]]
+                        fig_hist_run.add_trace(go.Scatter(
+                            x=m_pts_run["Date"],
+                            y=m_pts_run["Price"],
+                            mode="markers+text",
+                            name="Monthly Target Dots",
+                            marker=dict(size=11, color=m_cols, line=dict(color="#ffffff", width=1.5)),
+                            text=m_lbls,
+                            textposition="top center",
+                            textfont=dict(color="#ffffff", size=9)
+                        ))
+
                     fig_hist_run.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(l=10, r=10, t=20, b=20), xaxis=dict(showgrid=True, gridcolor="#1a1d24", title="Date"), yaxis=dict(showgrid=True, gridcolor="#1a1d24", title="Price ($)"), height=360)
                     st.plotly_chart(fig_hist_run, use_container_width=True)
         else:

@@ -192,10 +192,14 @@ def filter_data_by_range(df, range_option):
     if df.empty or "Date" not in df.columns:
         return df
 
-    max_date = df["Date"].max()
-
-    if range_option == "6 Months":
-        cutoff_date = max_date - timedelta(days=180)
+    import re
+    if "Month" in range_option:
+        match = re.search(r'\d+', range_option)
+        if match:
+            months = int(match.group())
+            cutoff_date = max_date - timedelta(days=months * 30)
+        else:
+            cutoff_date = max_date - timedelta(days=180)
     elif range_option == "1 Year":
         cutoff_date = max_date - timedelta(days=365)
     elif range_option == "2 Years":
@@ -289,11 +293,30 @@ def get_stock_summary(df, filename):
         else:
             market_cap = f"${est_cap / 1_000_000_000:.2f} Billion"
 
+    # 3M & 6M Historical Price Changes
+    dt_3m = max_date - timedelta(days=90)
+    dt_6m = max_date - timedelta(days=180)
+    row_3m = df.iloc[(df["Date"] - dt_3m).abs().argsort()[:1]]
+    row_6m = df.iloc[(df["Date"] - dt_6m).abs().argsort()[:1]]
+
+    price_3m = float(row_3m["Close"].values[0]) if not row_3m.empty else current_price
+    price_6m = float(row_6m["Close"].values[0]) if not row_6m.empty else current_price
+
+    change_3m_val = current_price - price_3m
+    change_3m_pct = (change_3m_val / price_3m * 100) if price_3m != 0 else 0.0
+
+    change_6m_val = current_price - price_6m
+    change_6m_pct = (change_6m_val / price_6m * 100) if price_6m != 0 else 0.0
+
     return {
         "company_name": company_name,
         "current_price": round(current_price, 2),
         "price_change": round(price_change, 2),
         "pct_change": round(pct_change, 2),
+        "change_3m_val": round(change_3m_val, 2),
+        "change_3m_pct": round(change_3m_pct, 2),
+        "change_6m_val": round(change_6m_val, 2),
+        "change_6m_pct": round(change_6m_pct, 2),
         "high_52w": round(high_52w, 2),
         "low_52w": round(low_52w, 2),
         "avg_volume": avg_volume,

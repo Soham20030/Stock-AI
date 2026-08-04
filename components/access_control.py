@@ -14,24 +14,25 @@ def render_mode_switcher():
     Renders an executive Intercom-styled navigation bar at the top of the app,
     featuring title branding on the left and segmented mode switcher pills on the right.
     """
-    with st.container():
-        n_left, n_right = st.columns([2.5, 1])
+    with st.container(border=True):
+        n_left, n_right = st.columns([2.8, 1.2])
         
         with n_left:
             st.markdown("""
-                <div style="padding-top: 4px;">
-                    <div style="font-size: 1.25rem; font-weight: 700; color: #ffffff; letter-spacing: -0.02em;">Market Intelligence & Forecasting</div>
-                    <div style="font-size: 0.8rem; color: #8f9bba;">Time-series predictive modeling, evaluation benchmarks, and RAG contextual analysis</div>
+                <div style="padding: 2px 0;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.2rem; font-weight: 700; color: #ffffff; letter-spacing: -0.02em;">Market Intelligence & Forecasting</span>
+                        <span style="background: rgba(99, 102, 241, 0.15); color: #818cf8; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">Enterprise AI</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #8f9bba; margin-top: 2px;">Time-series predictive modeling, evaluation benchmarks, and RAG contextual analysis</div>
                 </div>
             """, unsafe_allow_html=True)
 
         with n_right:
-            st.markdown("<div style='font-size: 0.72rem; font-weight: 700; color: #8f9bba; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; text-align: right;'>Application Mode</div>", unsafe_allow_html=True)
             u_col, d_col = st.columns(2)
-            
             with u_col:
                 u_type = "primary" if is_user_mode() else "secondary"
-                if st.button("User", type=u_type, key="btn_navbar_user"):
+                if st.button("User Mode", type=u_type, key="btn_navbar_user"):
                     if not is_user_mode():
                         set_mode(MODE_USER)
                         st.rerun()
@@ -43,7 +44,7 @@ def render_mode_switcher():
                         set_mode(MODE_DEVELOPER)
                         st.rerun()
 
-        st.markdown("<div style='height: 14px; border-bottom: 1px solid #1a1d24; margin-bottom: 20px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
 
 def get_allowed_navigation_options():

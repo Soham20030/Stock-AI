@@ -17,44 +17,21 @@ def render_top_metrics_row(summary, active_view=None, all_forecasts=None):
         )
 
     with m_col2:
-        target_pred_price = None
-        pred_delta_val = 0.0
-        pred_delta_pct = 0.0
-        active_label = active_view
-
-        if all_forecasts and len(all_forecasts) > 0:
-            if not active_label or active_label == "Combined Comparison":
-                active_label = list(all_forecasts.keys())[-1]
-
-            if active_label in all_forecasts:
-                fc_payload = all_forecasts[active_label]
-                fc_df = fc_payload.get("df")
-                if fc_df is not None and not fc_df.empty:
-                    pred_mask = fc_df["type"] == "Forecast"
-                    if pred_mask.any():
-                        target_pred_price = float(fc_df.loc[pred_mask, "Price"].iloc[-1])
-                        pred_delta_val = target_pred_price - summary['current_price']
-                        pred_delta_pct = (pred_delta_val / summary['current_price']) * 100
-
-        if target_pred_price is not None:
-            st.metric(
-                label=f"3M Target ({active_label})",
-                value=f"${target_pred_price:.2f}",
-                delta=f"{pred_delta_val:+.2f} ({pred_delta_pct:+.2f}%)"
-            )
-        else:
-            st.metric(
-                label="3M Forecast Target",
-                value="Train Model",
-                delta="Pending Model Fit",
-                delta_color="off"
-            )
+        c_3m_val = summary.get('change_3m_val', 0.0)
+        c_3m_pct = summary.get('change_3m_pct', 0.0)
+        st.metric(
+            label="3M Price Change",
+            value=f"${c_3m_val:+.2f}",
+            delta=f"{c_3m_pct:+.2f}%"
+        )
 
     with m_col3:
+        c_6m_val = summary.get('change_6m_val', 0.0)
+        c_6m_pct = summary.get('change_6m_pct', 0.0)
         st.metric(
-            label="24h Change",
-            value=f"${summary['price_change']:+.2f}",
-            delta=f"{summary['pct_change']:+.2f}%"
+            label="6M Price Change",
+            value=f"${c_6m_val:+.2f}",
+            delta=f"{c_6m_pct:+.2f}%"
         )
 
     with m_col4:

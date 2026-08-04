@@ -19,16 +19,18 @@ def render_historical_tab(raw_df, selected_stock):
     with st.container(border=True):
         st.markdown(f'<div class="intercom-title">Historical Price Action — {selected_stock}</div>', unsafe_allow_html=True)
         
-        # Date Range Filter Selector
-        range_option = st.radio(
-            "Time Horizon:",
-            options=["6 Months", "1 Year", "2 Years", "Max"],
-            index=2,
-            horizontal=True,
-            key="time_range_selector"
+        # Time Horizon Slider Selector (1 to 24 Months)
+        slider_months = st.slider(
+            "Historical Time Horizon (Months):",
+            min_value=1,
+            max_value=24,
+            value=24,
+            step=1,
+            key="historical_months_slider"
         )
         
-        # Filter DataFrame by user selection
+        # Filter DataFrame by user slider selection
+        range_option = f"{slider_months} Months"
         filtered_df = filter_data_by_range(raw_df, range_option)
         
         # Create Plotly Historical Price Line Chart
@@ -228,24 +230,20 @@ def render_forecast_tab(raw_df, selected_stock, summary):
                         line=dict(color=line_color, width=2.5, dash="dash")
                     ))
                     
-                    if "Upper" in fc_df.columns and "Lower" in fc_df.columns:
+                    # Monthly Milestone Markers Overlay
+                    m_pts = fc_df.loc[pred_mask].iloc[::30]
+                    if not m_pts.empty:
+                        m_cols = ["#34d399" if float(p) >= summary['current_price'] else "#f87171" for p in m_pts["Price"]]
+                        m_lbls = ["Bullish" if float(p) >= summary['current_price'] else "Bearish" for p in m_pts["Price"]]
                         fig_fc.add_trace(go.Scatter(
-                            x=fc_df.loc[pred_mask, "Date"],
-                            y=fc_df.loc[pred_mask, "Upper"],
-                            mode="lines",
-                            name="Upper Bound",
-                            line=dict(color="rgba(129, 140, 248, 0.15)"),
-                            showlegend=False
-                        ))
-                        fig_fc.add_trace(go.Scatter(
-                            x=fc_df.loc[pred_mask, "Date"],
-                            y=fc_df.loc[pred_mask, "Lower"],
-                            mode="lines",
-                            name="Lower Bound",
-                            fill="tonexty",
-                            fillcolor="rgba(129, 140, 248, 0.08)",
-                            line=dict(color="rgba(129, 140, 248, 0.15)"),
-                            showlegend=False
+                            x=m_pts["Date"],
+                            y=m_pts["Price"],
+                            mode="markers+text",
+                            name="Monthly Milestone",
+                            marker=dict(size=11, color=m_cols, line=dict(color="#ffffff", width=1.5)),
+                            text=m_lbls,
+                            textposition="top center",
+                            textfont=dict(color="#ffffff", size=9)
                         ))
 
                 fig_fc.update_layout(

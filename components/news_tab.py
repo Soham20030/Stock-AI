@@ -65,9 +65,9 @@ def render_news_tab(selected_stock, company_name):
             finbert_analyzer = get_finbert_analyzer()
             st.session_state["news_cache"][cache_key] = summarized_news
 
-        if summarized_news:
-            st.markdown("<br>", unsafe_allow_html=True)
-            for item in summarized_news[:6]:
+    if summarized_news:
+        st.markdown("<br>", unsafe_allow_html=True)
+        for item in summarized_news[:6]:
                 title_str = item.get("title", "Headline")
                 summary_str = item.get("summary", "Summary pending.")
                 source_str = item.get("source", "Financial News")
