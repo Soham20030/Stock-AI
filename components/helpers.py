@@ -557,28 +557,36 @@ def inject_custom_css():
             color: {text_muted} !important;
         }}
 
-        /* Streamlit Expander Header & Content Override */
+        /* Streamlit Expander Header & Content Complete Override */
         [data-testid="stExpander"],
         div[data-testid="stExpander"],
-        details[data-testid="stExpander"] {{
+        details[data-testid="stExpander"],
+        div[data-testid="stExpanderDetails"] {{
             background-color: {card_bg} !important;
             background: {card_bg} !important;
             border: 1.5px solid {border_color} !important;
             border-radius: 10px !important;
         }}
 
+        [data-testid="stExpander"] summary,
+        div[data-testid="stExpander"] summary,
+        details[data-testid="stExpander"] summary,
         summary[data-testid="stExpanderSummaryHeader"],
-        div[data-testid="stExpanderSummaryHeader"] {{
+        div[data-testid="stExpanderSummaryHeader"],
+        [data-testid="stExpander"] summary > div,
+        [data-testid="stExpanderSummaryHeader"] > div {{
             background-color: {card_bg} !important;
             background: {card_bg} !important;
             color: {text_main} !important;
             border-radius: 10px !important;
         }}
 
+        [data-testid="stExpander"] summary *,
         [data-testid="stExpanderSummaryHeader"] *,
         [data-testid="stExpanderSummaryHeader"] span,
         [data-testid="stExpanderSummaryHeader"] p,
-        [data-testid="stExpanderSummaryHeader"] svg {{
+        [data-testid="stExpanderSummaryHeader"] svg,
+        [data-testid="stExpanderToggleIcon"] {{
             color: {text_main} !important;
             fill: {text_main} !important;
             font-weight: 600 !important;
