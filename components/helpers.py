@@ -438,18 +438,52 @@ def inject_custom_css():
             margin-bottom: 16px;
         }}
 
-        /* Streamlit Chat Input Box & Text Field Override */
-        [data-testid="stChatInput"] {{
-            border-radius: 9999px !important;
-            border: 1px solid {input_border} !important;
+        /* Streamlit Chat Input Box & Text Field Override Across ALL Elements */
+        [data-testid="stChatInput"],
+        div[data-testid="stChatInput"],
+        div[data-testid="stChatInput"] > div,
+        div[data-testid="stChatInput"] form,
+        div[data-testid="stChatInputTextArea"] {{
+            border-radius: 12px !important;
+            border: 1.5px solid {input_border} !important;
+            background-color: {input_bg} !important;
             background: {input_bg} !important;
+            color: {text_main} !important;
             box-shadow: {shadow_box} !important;
         }}
 
         [data-testid="stChatInput"] input,
-        [data-testid="stChatInput"] textarea {{
+        [data-testid="stChatInput"] textarea,
+        [data-testid="stChatInputTextArea"] textarea {{
             color: {text_main} !important;
+            -webkit-text-fill-color: {text_main} !important;
             background-color: transparent !important;
+            background: transparent !important;
+            font-weight: 500 !important;
+        }}
+
+        [data-testid="stChatInput"] input::placeholder,
+        [data-testid="stChatInput"] textarea::placeholder,
+        [data-testid="stChatInputTextArea"] textarea::placeholder {{
+            color: {text_muted} !important;
+            -webkit-text-fill-color: {text_muted} !important;
+            opacity: 1 !important;
+        }}
+
+        /* Streamlit Info Alert Box (Welcome Banner) */
+        [data-testid="stAlert"],
+        div[data-testid="stAlert"] {{
+            background-color: rgba(99, 102, 241, 0.12) !important;
+            border: 1px solid rgba(99, 102, 241, 0.35) !important;
+            color: {text_main} !important;
+            border-radius: 10px !important;
+        }}
+
+        [data-testid="stAlert"] *,
+        [data-testid="stAlert"] p,
+        [data-testid="stAlert"] span {{
+            color: {text_main} !important;
+            font-weight: 500 !important;
         }}
 
         /* Selectboxes, Dropdown Inputs and Option Menus */
