@@ -6,7 +6,7 @@ def inject_custom_css():
     Injects authentic Intercom-inspired minimalist dark mode styling:
     Ultra-sleek off-black canvas (#090A0C), flat slate surfaces (#0F1115),
     Intercom signature indigo/blue accents (#6366F1), 9999px full-pill buttons,
-    hairline micro-borders (#1A1D24), and vertical sidebar menu.
+    hairline micro-borders (#1A1D24), and floating sidebar toggle control button.
     """
     st.markdown("""
         <style>
@@ -19,13 +19,38 @@ def inject_custom_css():
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
 
-        /* Hide Streamlit default clutter */
-        header {visibility: hidden;}
+        /* Hide Streamlit default clutter but PRESERVE sidebar collapse toggle button */
+        header {background: transparent !important;}
         .stAppDeployButton {display: none !important;}
         [data-testid="stAppDeployButton"] {display: none !important;}
         [data-testid="stToolbar"] {visibility: hidden !important;}
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
+
+        /* Sleek Floating Sidebar Expand/Collapse Toggle Button */
+        [data-testid="stSidebarCollapsedControl"] {
+            visibility: visible !important;
+            display: flex !important;
+            color: #ffffff !important;
+            background: #14171f !important;
+            border: 1px solid #1e222d !important;
+            border-radius: 8px !important;
+            top: 14px !important;
+            left: 14px !important;
+            z-index: 999999 !important;
+            padding: 4px !important;
+            transition: all 0.2s ease !important;
+        }
+
+        [data-testid="stSidebarCollapsedControl"]:hover {
+            background: #1c212c !important;
+            border-color: #6366f1 !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+        }
+
+        [data-testid="stSidebarCollapsedControl"] button {
+            color: #ffffff !important;
+        }
 
         /* Minimalist Intercom Surface Container */
         [data-testid="stVerticalBlockBorderWrapper"] {
