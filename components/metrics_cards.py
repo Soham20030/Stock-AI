@@ -5,7 +5,7 @@ from components.helpers import render_summary_box
 def render_top_metrics_row(summary, active_view=None, all_forecasts=None):
     """
     Renders the top 4 metric cards (Current Price, 3M Target, 24h Change, 30D Volume),
-    styled as modern elevated dark cards matching the Intercom aesthetic.
+    dynamically synced to the active forecasting model selected by the user.
 
     Parameters:
         summary (dict): Stock summary fundamentals.
@@ -14,20 +14,15 @@ def render_top_metrics_row(summary, active_view=None, all_forecasts=None):
     """
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
 
-    # 1. Current Price Card
     with m_col1:
-        change_class = "val-positive" if summary['price_change'] >= 0 else "val-negative"
-        sub_txt = f"{summary['price_change']:+.2f} ({summary['pct_change']:+.2f}%)"
-        render_summary_box(
+        st.metric(
             label="Current Price",
             value=f"${summary['current_price']:.2f}",
-            subtext=sub_txt,
-            border_color="#38bdf8",
-            val_class=change_class
+            delta=f"{summary['price_change']:+.2f} ({summary['pct_change']:+.2f}%)"
         )
 
-    # 2. 3M Forecast Target Card
     with m_col2:
+        # Dynamically find the target prediction price for the active model view
         target_pred_price = None
         pred_delta_val = 0.0
         pred_delta_pct = 0.0
@@ -48,41 +43,32 @@ def render_top_metrics_row(summary, active_view=None, all_forecasts=None):
                         pred_delta_pct = (pred_delta_val / summary['current_price']) * 100
 
         if target_pred_price is not None:
-            val_cls = "val-positive" if pred_delta_val >= 0 else "val-negative"
-            sub_t = f"{pred_delta_val:+.2f} ({pred_delta_pct:+.2f}%) target"
-            render_summary_box(
-                label=f"3M Target ({active_label})",
+            st.metric(
+                label=f"3M Predicted ({active_label})",
                 value=f"${target_pred_price:.2f}",
-                subtext=sub_t,
-                border_color="#0284c7",
-                val_class=val_cls
+                delta=f"{pred_delta_val:+.2f} ({pred_delta_pct:+.2f}%)"
             )
         else:
-            render_summary_box(
+            st.metric(
                 label="3M Forecast Target",
                 value="Train Model",
-                subtext="Pending Model Fit",
-                border_color="#64748b"
+                delta="Pending Model Fit",
+                delta_color="off"
             )
 
-    # 3. 24h Price Change Card
     with m_col3:
-        val_cls = "val-positive" if summary['price_change'] >= 0 else "val-negative"
-        render_summary_box(
+        st.metric(
             label="24h Price Change",
             value=f"${summary['price_change']:+.2f}",
-            subtext=f"{summary['pct_change']:+.2f}% 24h shift",
-            border_color="#10b981" if summary['price_change'] >= 0 else "#f43f5e",
-            val_class=val_cls
+            delta=f"{summary['pct_change']:+.2f}%"
         )
 
-    # 4. Avg Volume (30D) Card
     with m_col4:
-        render_summary_box(
+        st.metric(
             label="Avg Volume (30D)",
             value=summary['avg_volume'],
-            subtext="Liquidity Normal",
-            border_color="#f59e0b"
+            delta="Liquidity Normal",
+            delta_color="off"
         )
 
     st.markdown("<br>", unsafe_allow_html=True)
