@@ -257,13 +257,70 @@ def inject_custom_css():
             align-items: center;
         }
 
-        /* Intercom Chat Bubbles */
-        [data-testid="stChatMessage"] {
-            background-color: #14171f !important;
-            border: 1px solid #1e222d !important;
-            border-radius: 12px !important;
-            padding: 12px 16px !important;
-            margin-bottom: 10px !important;
+        /* Intercom Custom Chat Interface Styling */
+        .chat-user-bubble {
+            background: #1a202c;
+            border: 1px solid #2d3748;
+            border-radius: 14px 14px 2px 14px;
+            padding: 12px 16px;
+            margin-left: auto;
+            max-width: 80%;
+            color: #f8fafc;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .chat-user-meta {
+            font-size: 0.7rem;
+            color: #8f9bba;
+            font-weight: 600;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: right;
+        }
+
+        .chat-assistant-bubble {
+            background: #121620;
+            border: 1px solid #1e2638;
+            border-left: 3px solid #6366f1;
+            border-radius: 2px 14px 14px 14px;
+            padding: 14px 18px;
+            max-width: 88%;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .chat-assistant-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .chat-assistant-badge {
+            background: #6366f1;
+            color: #ffffff;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            letter-spacing: 0.04em;
+        }
+
+        .chat-assistant-sub {
+            font-size: 0.74rem;
+            color: #8f9bba;
+        }
+
+        /* Streamlit Chat Input Styling */
+        [data-testid="stChatInput"] {
+            border-radius: 9999px !important;
+            border: 1px solid #1e2433 !important;
+            background: #121620 !important;
         }
 
         /* Pill Badges */

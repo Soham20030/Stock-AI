@@ -5,10 +5,35 @@ from chatbot.chatbot import StockAIChatbot
 from chatbot.memory import ChatbotMemory
 
 
+def render_chat_bubble(role, content):
+    """
+    Renders custom Intercom-styled chat bubbles without tacky default icons.
+    """
+    if role == "user":
+        st.markdown(f"""
+            <div style="display: flex; flex-direction: column; align-items: flex-end; margin-bottom: 12px;">
+                <div class="chat-user-meta">You</div>
+                <div class="chat-user-bubble">{content}</div>
+            </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown(f"""
+            <div style="margin-bottom: 16px;">
+                <div class="chat-assistant-bubble">
+                    <div class="chat-assistant-header">
+                        <span class="chat-assistant-badge">ANALYST</span>
+                        <span class="chat-assistant-sub">Context AI Assistant</span>
+                    </div>
+                    <div>{content}</div>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+
+
 def render_chatbot_tab(selected_stock, summary):
     """
-    Renders Tab 7: AI Financial Analyst chat interface, quick-ask pill buttons,
-    conversation history bubbles, and chat input field.
+    Renders Tab 7: AI Financial Analyst chat interface with clean Intercom-styled
+    conversation bubbles and zero tacky default icons.
     """
     memory_mgr = ChatbotMemory()
 
@@ -19,7 +44,7 @@ def render_chatbot_tab(selected_stock, summary):
         # ---------------------------------------------------------------------
         # 1. QUICK-ASK SUGGESTED QUESTION BUTTONS
         # ---------------------------------------------------------------------
-        st.markdown("<div style='font-size: 0.85rem; font-weight: 600; color: #8f9bba; margin-bottom: 8px;'>Suggested Inquiries</div>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size: 0.82rem; font-weight: 600; color: #8f9bba; margin-bottom: 8px;'>Suggested Inquiries</div>", unsafe_allow_html=True)
         q_btn1, q_btn2, q_btn3, q_btn4 = st.columns(4)
         
         selected_quick_q = None
@@ -39,7 +64,7 @@ def render_chatbot_tab(selected_stock, summary):
         st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 
         # ---------------------------------------------------------------------
-        # 2. CONVERSATION HISTORY RENDERER
+        # 2. CONVERSATION HISTORY RENDERER (INTERCOM CUSTOM BUBBLES)
         # ---------------------------------------------------------------------
         history_list = memory_mgr.get_history()
 
@@ -49,12 +74,7 @@ def render_chatbot_tab(selected_stock, summary):
                 for msg in history_list:
                     role = msg.get("role", "user")
                     content = msg.get("content", "")
-                    if role == "user":
-                        with st.chat_message("user"):
-                            st.write(content)
-                    else:
-                        with st.chat_message("assistant"):
-                            st.markdown(content)
+                    render_chat_bubble(role, content)
             else:
                 st.info(f"Welcome! I am your AI Analyst for **{selected_stock}**. Ask me any question about model error scores, forecasts, news summaries, or market signals.")
 
@@ -69,8 +89,7 @@ def render_chatbot_tab(selected_stock, summary):
         if prompt_to_process:
             # Display user message immediately
             with chat_container:
-                with st.chat_message("user"):
-                    st.write(prompt_to_process)
+                render_chat_bubble("user", prompt_to_process)
 
             with st.spinner(f"Analyst inspecting dashboard context for {selected_stock}..."):
                 # Fast Cached Context Harvester (< 0.01s)
@@ -97,8 +116,7 @@ def render_chatbot_tab(selected_stock, summary):
 
             # Display AI response bubble
             with chat_container:
-                with st.chat_message("assistant"):
-                    st.markdown(ai_answer)
+                render_chat_bubble("assistant", ai_answer)
                     
             st.rerun()
 
