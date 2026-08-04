@@ -10,6 +10,7 @@ import json
 import time
 import tracemalloc
 import psutil
+from datetime import datetime
 from typing import Dict, List, Any, Optional
 
 # Track process memory using psutil
@@ -44,6 +45,7 @@ class PerformanceLogger:
         self.step_logs: List[Dict[str, Any]] = []
         self.function_stats: Dict[str, Dict[str, Any]] = {}
         self.rerun_logs: List[Dict[str, Any]] = []
+        self.session_events: List[Dict[str, Any]] = []
         
         # Start tracemalloc memory tracing
         if not tracemalloc.is_tracing():
@@ -135,6 +137,43 @@ class PerformanceLogger:
             "functions_rerun": functions_rerun,
             "total_rerun_cost": round(total_rerun_cost, 4)
         })
+
+    def record_session_action(
+        self,
+        action: str,
+        from_val: Any = None,
+        to_val: Any = None,
+        widget_id: Optional[str] = None,
+        functions: Optional[List[Dict[str, Any]]] = None
+    ) -> None:
+        """
+        Records a user session interaction event and saves to performance/session_log.json.
+        """
+        if not self.enabled:
+            return
+
+        timestamp_str = datetime.now().isoformat()
+        entry = {
+            "action": action,
+            "from": from_val,
+            "to": to_val,
+            "timestamp": timestamp_str,
+            "widget": widget_id,
+            "functions": functions or []
+        }
+        self.session_events.append(entry)
+        self.save_session_log_json()
+
+    def save_session_log_json(self, filepath: str = "performance/session_log.json") -> None:
+        """
+        Persists recorded session interaction events to performance/session_log.json.
+        """
+        try:
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(self.session_events, f, indent=4)
+        except Exception:
+            pass
 
     def save_function_stats_json(self, filepath: str = "performance/function_stats.json") -> None:
         """
