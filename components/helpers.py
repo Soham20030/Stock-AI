@@ -444,16 +444,20 @@ def inject_custom_css():
         }}
 
         /* Selectboxes and Inputs */
-        div[data-baseweb="select"] > div {{
-            background-color: {card_bg} !important;
-            border-color: {card_border} !important;
-            color: {text_main} !important;
+        div[data-baseweb="select"] > div,
+        div[data-testid="stSelectbox"] > div > div {{
+            background-color: #0f172a !important;
+            border: 1.5px solid {border_color} !important;
             border-radius: 8px !important;
         }}
 
+        div[data-baseweb="select"] *,
+        div[data-testid="stSelectbox"] *,
         div[data-baseweb="select"] span,
-        div[data-baseweb="select"] div {{
-            color: {text_main} !important;
+        div[data-baseweb="select"] div,
+        div[data-baseweb="select"] svg {{
+            color: #ffffff !important;
+            fill: #ffffff !important;
         }}
 
         /* Pill Badges */
