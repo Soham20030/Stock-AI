@@ -350,13 +350,19 @@ def inject_custom_css():
         }}
 
         /* Secondary Pill Buttons */
+        .stButton>button[data-testid="stBaseButton-secondary"],
         [data-testid="stBaseButton-secondary"] {{
             background: {btn_sec_bg} !important;
             color: {btn_sec_text} !important;
             border: 1px solid {btn_sec_border} !important;
-            border-radius: 9999px !important;
+            border-radius: 8px !important;
+            padding: 5px 14px !important;
+            font-size: 0.82rem !important;
+            font-weight: 500 !important;
+            box-shadow: none !important;
         }}
 
+        .stButton>button[data-testid="stBaseButton-secondary"]:hover,
         [data-testid="stBaseButton-secondary"]:hover {{
             background: {card_bg} !important;
             color: {text_main} !important;

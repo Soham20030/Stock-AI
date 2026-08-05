@@ -1,4 +1,5 @@
 import streamlit as st
+from config.security import verify_developer_password
 
 # Application Mode Constants
 MODE_USER = "user"
@@ -11,11 +12,18 @@ THEME_LIGHT = "light"
 
 def init_mode_state():
     """
-    Initializes the application mode and theme in Streamlit session state.
-    Defaults to 'user' mode and 'dark' theme on initial startup.
+    Initializes mode state, authentication status, and UI theme in Streamlit session state.
+    Defaults to 'user' mode, unauthenticated developer status, and 'dark' theme on startup.
     """
-    if "mode" not in st.session_state:
-        st.session_state["mode"] = MODE_USER
+    if "current_mode" not in st.session_state:
+        st.session_state["current_mode"] = MODE_USER
+
+    if "developer_authenticated" not in st.session_state:
+        st.session_state["developer_authenticated"] = False
+
+    # Sync backward-compatible 'mode' key with 'current_mode'
+    st.session_state["mode"] = st.session_state["current_mode"]
+
     if "theme" not in st.session_state:
         st.session_state["theme"] = THEME_DARK
 
@@ -28,47 +36,93 @@ def get_mode() -> str:
         str: Current mode string.
     """
     init_mode_state()
-    return st.session_state.get("mode", MODE_USER)
+    return st.session_state.get("current_mode", MODE_USER)
 
 
-def set_mode(new_mode: str):
+def is_developer_authenticated() -> bool:
     """
-    Sets the active application mode in Streamlit session state.
+    Checks if Developer Mode has been successfully authenticated in the current session.
 
-    Parameters:
-        new_mode (str): 'user' or 'developer'.
+    Returns:
+        bool: True if authenticated, False otherwise.
     """
-    if new_mode in [MODE_USER, MODE_DEVELOPER]:
-        st.session_state["mode"] = new_mode
+    init_mode_state()
+    return bool(st.session_state.get("developer_authenticated", False))
 
 
 def is_user_mode() -> bool:
     """
-    Checks if the active application mode is User Mode.
+    Checks if the active application mode is User Mode or if developer authentication is cleared.
 
     Returns:
-        bool: True if in user mode, False otherwise.
+        bool: True if operating in user mode, False otherwise.
     """
-    return get_mode() == MODE_USER
+    return get_mode() == MODE_USER or not is_developer_authenticated()
 
 
 def is_developer_mode() -> bool:
     """
-    Checks if the active application mode is Developer Mode.
+    Checks if Developer Mode is active AND authenticated.
 
     Returns:
-        bool: True if in developer mode, False otherwise.
+        bool: True if in authenticated developer mode, False otherwise.
     """
-    return get_mode() == MODE_DEVELOPER
+    return get_mode() == MODE_DEVELOPER and is_developer_authenticated()
+
+
+def set_mode(new_mode: str):
+    """
+    Sets the active mode. Switching to User Mode automatically resets developer authentication.
+
+    Parameters:
+        new_mode (str): 'user' or 'developer'.
+    """
+    init_mode_state()
+    if new_mode == MODE_USER:
+        reset_to_user_mode()
+    elif new_mode == MODE_DEVELOPER:
+        if is_developer_authenticated():
+            st.session_state["current_mode"] = MODE_DEVELOPER
+            st.session_state["mode"] = MODE_DEVELOPER
+
+
+def authenticate_developer(password: str) -> bool:
+    """
+    Validates password and unlocks Developer Mode if correct.
+
+    Parameters:
+        password (str): Password provided by user.
+
+    Returns:
+        bool: True if authentication succeeded, False otherwise.
+    """
+    init_mode_state()
+    if verify_developer_password(password):
+        st.session_state["developer_authenticated"] = True
+        st.session_state["current_mode"] = MODE_DEVELOPER
+        st.session_state["mode"] = MODE_DEVELOPER
+        return True
+    return False
+
+
+def reset_to_user_mode():
+    """
+    Resets the active mode to User Mode and clears developer authentication.
+    """
+    st.session_state["current_mode"] = MODE_USER
+    st.session_state["mode"] = MODE_USER
+    st.session_state["developer_authenticated"] = False
 
 
 def toggle_mode():
     """
-    Toggles the active mode between User and Developer.
+    Toggles between User Mode and Developer Mode if authenticated.
     """
-    current = get_mode()
-    new_mode = MODE_DEVELOPER if current == MODE_USER else MODE_USER
-    set_mode(new_mode)
+    if is_developer_mode():
+        reset_to_user_mode()
+    else:
+        st.session_state["current_mode"] = MODE_DEVELOPER
+        st.session_state["mode"] = MODE_DEVELOPER
 
 
 # -----------------------------------------------------------------------------
