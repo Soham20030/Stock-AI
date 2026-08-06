@@ -85,9 +85,10 @@ def load_dataset(filename):
     """
     Reads a CSV dataset from the datasets/ folder, standardizes column names,
     parses date strings to datetime objects, drops empty rows, and sorts chronologically.
+    Supports intelligent alias matching and type-based fallback for arbitrary CSV formats.
 
     Parameters:
-        filename (str): Name of CSV file (e.g., 'AAPL.csv').
+        filename (str): Name of CSV file (e.g., 'AAPL.csv', 'Airline.csv').
 
     Returns:
         pd.DataFrame: Processed DataFrame containing 'Date' and 'Close' columns.
@@ -100,23 +101,62 @@ def load_dataset(filename):
 
     try:
         df = pd.read_csv(file_path)
+        if df.empty:
+            return pd.DataFrame()
 
-        # Standardize column headers (lowercase strip whitespace)
-        col_map = {col: col.strip().capitalize() for col in df.columns}
-        df.rename(columns=col_map, inplace=True)
+        # Clean string column names
+        df.columns = [str(c).strip() for c in df.columns]
 
-        # Verify required columns exist
-        if "Date" not in df.columns or "Close" not in df.columns:
-            # Case insensitive check fallback
-            date_col = next((c for c in df.columns if c.lower() == "date"), None)
-            close_col = next((c for c in df.columns if c.lower() in ["close", "adj close", "price"]), None)
+        date_col = None
+        close_col = None
 
-            if date_col and close_col:
-                df.rename(columns={date_col: "Date", close_col: "Close"}, inplace=True)
-            else:
-                return pd.DataFrame()
+        # Alias lists
+        date_aliases = ["date", "month", "year", "time", "datetime", "timestamp", "period", "day"]
+        value_aliases = [
+            "close", "adj close", "adj_close", "price", "passengers", "passenger",
+            "value", "sales", "volume", "target", "count", "y", "units", "total", "totals"
+        ]
 
-        # Parse Date column to pandas datetime
+        # 1. Look for exact or alias matches
+        cols_lower = [c.lower() for c in df.columns]
+
+        for alias in date_aliases:
+            for idx, c_lower in enumerate(cols_lower):
+                if alias == c_lower or alias in c_lower:
+                    date_col = df.columns[idx]
+                    break
+            if date_col:
+                break
+
+        for alias in value_aliases:
+            for idx, c_lower in enumerate(cols_lower):
+                if df.columns[idx] != date_col:
+                    if alias == c_lower or alias in c_lower:
+                        close_col = df.columns[idx]
+                        break
+            if close_col:
+                break
+
+        # 2. Type-based positional fallback if date_col or close_col is still missing
+        if not date_col or not close_col:
+            for col in df.columns:
+                if not date_col:
+                    parsed_dates = pd.to_datetime(df[col], errors="coerce")
+                    if parsed_dates.notna().sum() > 0.5 * len(df):
+                        date_col = col
+                        continue
+                if not close_col and col != date_col:
+                    parsed_vals = pd.to_numeric(df[col], errors="coerce")
+                    if parsed_vals.notna().sum() > 0.5 * len(df):
+                        close_col = col
+
+        if not date_col or not close_col:
+            return pd.DataFrame()
+
+        # Rename to standardized column names
+        df = df.rename(columns={date_col: "Date", close_col: "Close"})
+
+        # Parse Date column to pandas datetime and Close to float
         df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
         df["Close"] = pd.to_numeric(df["Close"], errors="coerce")
 
